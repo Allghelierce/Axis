@@ -717,6 +717,7 @@ input[type=number] {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-top: 1.8rem;
             margin-bottom: 0.7rem;
         }
 

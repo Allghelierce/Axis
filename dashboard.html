@@ -41,7 +41,7 @@
                 <h2 class="fullscreen-title">Performance Insights</h2>
             </div>
 
-            <div class="analytics-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div class="analytics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;">
                 <!-- Nutrition Graph -->
                 <div class="analytics-card">
                     <div class="analytics-card-label">Nutrition Trends (7D)</div>
@@ -55,6 +55,22 @@
                     <div class="analytics-card-label">Habit Consistency (14D)</div>
                     <div style="height: 200px; position: relative;">
                         <canvas id="habitChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Goals Graph -->
+                <div class="analytics-card">
+                    <div class="analytics-card-label">Goal Progress (30D)</div>
+                    <div style="height: 200px; position: relative;">
+                        <canvas id="goalChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Correlation Graph -->
+                <div class="analytics-card">
+                    <div class="analytics-card-label">Nutrition Correlation (Protein vs kcal)</div>
+                    <div style="height: 200px; position: relative;">
+                        <canvas id="nutritionScatterChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -268,6 +284,18 @@
         <svg class="time-arc-svg" viewBox="0 0 100 60" preserveAspectRatio="xMidYMid slice">
             <circle class="moon" cx="50" cy="50" r="3" />
         </svg>
+    </div>
+
+    <!-- WORKOUT NOTES SIDEBAR -->
+    <div class="workout-notes-sidebar" id="workoutNotesSidebar">
+        <div class="wn-header">
+            <button class="back-button" onclick="closeWorkoutNotesSidebar()">← Back</button>
+            <div class="wn-folder-name" id="workoutNotesFolderName"></div>
+        </div>
+        <div class="wn-body">
+            <div class="wn-dates" id="workoutNotesDates"></div>
+            <div class="wn-content" id="workoutNotesContent"></div>
+        </div>
     </div>
 
     <script src="js/state.js"></script>

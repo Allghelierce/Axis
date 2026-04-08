@@ -1625,3 +1625,95 @@ input[type=number] {
             border-color: rgba(255, 255, 255, 0.2);
             color: rgba(248, 250, 252, 0.7);
         }
+
+        /* WORKOUT NOTES SIDEBAR */
+        .workout-notes-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 600px;
+            max-width: 90vw;
+            height: 100%;
+            background: var(--black);
+            border-left: 1px solid var(--border);
+            z-index: 1100;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .workout-notes-sidebar.active {
+            transform: translateX(0);
+        }
+
+        .wn-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .wn-folder-name {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.8;
+        }
+
+        .wn-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .wn-dates {
+            width: 160px;
+            flex-shrink: 0;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 0.8rem 0;
+        }
+
+        .wn-date-item {
+            padding: 0.6rem 1rem;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: all 0.15s ease;
+            border-left: 2px solid transparent;
+        }
+
+        .wn-date-item:hover {
+            opacity: 0.8;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .wn-date-item.active {
+            opacity: 1;
+            border-left-color: var(--white);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .wn-empty {
+            padding: 1rem;
+            font-size: 0.6rem;
+            opacity: 0.4;
+            text-align: center;
+        }
+
+        .wn-content {
+            flex: 1;
+            padding: 1.2rem 1.4rem;
+            overflow-y: auto;
+            font-size: 0.7rem;
+            line-height: 1.7;
+            opacity: 0.85;
+            white-space: pre-wrap;
+            color: var(--white);
+        }

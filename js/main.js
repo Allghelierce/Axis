@@ -58,14 +58,45 @@ function startCountdown() {
 
 
 function init() {
-    updateDate();
-    setupEventListeners();
-    render();
-    renderHabits();
-    renderNotes();
-    initNotesEventListeners();
-    updateSidebars();
-    startCountdown();
+    try {
+        updateDate();
+        console.log('✓ updateDate');
+    } catch (e) { console.error('✗ updateDate:', e); }
+
+    try {
+        setupEventListeners();
+        console.log('✓ setupEventListeners');
+    } catch (e) { console.error('✗ setupEventListeners:', e); }
+
+    try {
+        render();
+        console.log('✓ render');
+    } catch (e) { console.error('✗ render:', e); }
+
+    try {
+        renderHabits();
+        console.log('✓ renderHabits');
+    } catch (e) { console.error('✗ renderHabits:', e); }
+
+    try {
+        renderNotes();
+        console.log('✓ renderNotes');
+    } catch (e) { console.error('✗ renderNotes:', e); }
+
+    try {
+        initNotesEventListeners();
+        console.log('✓ initNotesEventListeners');
+    } catch (e) { console.error('✗ initNotesEventListeners:', e); }
+
+    try {
+        updateSidebars();
+        console.log('✓ updateSidebars');
+    } catch (e) { console.error('✗ updateSidebars:', e); }
+
+    try {
+        startCountdown();
+        console.log('✓ startCountdown');
+    } catch (e) { console.error('✗ startCountdown:', e); }
 }
 
 function setupEventListeners() {
@@ -122,6 +153,8 @@ function setupEventListeners() {
     if (movementNotes) {
         movementNotes.addEventListener('change', (e) => {
             state.movementNotes = e.target.value;
+            workoutNotesHistory[getTodayKey()] = e.target.value;
+            saveWorkoutNotesHistory();
             saveState();
         });
     }
@@ -214,8 +247,19 @@ function render() {
 
 
 // Boot
-init();
-initMap();
+try {
+    init();
+    console.log('Init completed successfully');
+} catch (e) {
+    console.error('Error during init:', e);
+}
+
+try {
+    initMap();
+    console.log('InitMap completed successfully');
+} catch (e) {
+    console.error('Error during initMap:', e);
+}
 
 // Time Arc Moon Animation
 (function() {

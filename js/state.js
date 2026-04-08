@@ -2,6 +2,7 @@ const today = new Date();
 const storageKey = 'dashboardData';
 const workoutKey = 'workoutFolders';
 const habitsKey = 'habits';
+const workoutNotesHistoryKey = 'workoutNotesHistory';
 
 let state = loadState();
 let workoutFolders = loadWorkoutFolders();
@@ -41,7 +42,8 @@ function loadState() {
         history: {
             mealsHistory: [],
             caloriesHistory: [],
-            proteinHistory: []
+            proteinHistory: [],
+            goalsHistory: []
         }
     };
 }
@@ -69,4 +71,15 @@ function loadHabits() {
 
 function saveHabits() {
     localStorage.setItem(habitsKey, JSON.stringify(habits));
+}
+
+let workoutNotesHistory = loadWorkoutNotesHistory();
+
+function loadWorkoutNotesHistory() {
+    const saved = localStorage.getItem(workoutNotesHistoryKey);
+    return saved ? JSON.parse(saved) : {};
+}
+
+function saveWorkoutNotesHistory() {
+    localStorage.setItem(workoutNotesHistoryKey, JSON.stringify(workoutNotesHistory));
 }

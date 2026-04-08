@@ -62,17 +62,60 @@ function renderWorkoutFolders() {
                 <div class="folder-name">${name}</div>
             `;
             folder.onclick = () => {
-                const select = document.getElementById('splitSelect');
-                if (select) select.value = name;
-                state.splitInput = name;
-                saveState();
                 if (container.id === 'analyticsWorkoutFolders') {
-                    // Maybe blink or something to show selected?
+                    openWorkoutNotesSidebar(name);
+                } else {
+                    const select = document.getElementById('splitSelect');
+                    if (select) select.value = name;
+                    state.splitInput = name;
+                    saveState();
                 }
             };
             container.appendChild(folder);
         });
     });
+}
+
+function openWorkoutNotesSidebar(folderName) {
+    const sidebar = document.getElementById('workoutNotesSidebar');
+    document.getElementById('workoutNotesFolderName').textContent = folderName;
+
+    const dates = workoutFolders[folderName] || [];
+    const datesList = document.getElementById('workoutNotesDates');
+    const contentEl = document.getElementById('workoutNotesContent');
+    datesList.innerHTML = '';
+    contentEl.textContent = '';
+
+    if (dates.length === 0) {
+        datesList.innerHTML = '<div class="wn-empty">No entries yet</div>';
+    } else {
+        dates.forEach((dateStr, i) => {
+            const item = document.createElement('div');
+            item.className = 'wn-date-item';
+            const d = new Date(dateStr + 'T00:00:00');
+            item.textContent = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            item.dataset.date = dateStr;
+            item.onclick = () => selectWorkoutNoteDate(dateStr, item);
+            datesList.appendChild(item);
+            if (i === 0) {
+                item.classList.add('active');
+                contentEl.textContent = workoutNotesHistory[dateStr] || 'No notes for this session.';
+            }
+        });
+    }
+
+    sidebar.classList.add('active');
+}
+
+function selectWorkoutNoteDate(dateStr, itemEl) {
+    document.querySelectorAll('.wn-date-item').forEach(el => el.classList.remove('active'));
+    itemEl.classList.add('active');
+    const note = workoutNotesHistory[dateStr] || '';
+    document.getElementById('workoutNotesContent').textContent = note || 'No notes for this session.';
+}
+
+function closeWorkoutNotesSidebar() {
+    document.getElementById('workoutNotesSidebar').classList.remove('active');
 }
 
 function renderSplitSelect() {

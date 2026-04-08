@@ -3,7 +3,15 @@
     "allow": [
       "Bash(git checkout:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(node -c js/state.js)",
+      "Bash(node -c js/habits.js)",
+      "Bash(node -c js/notes.js)",
+      "Bash(node -c js/tasks.js)",
+      "Bash(node -c js/nutrition.js)",
+      "Bash(node -c js/main.js)",
+      "Bash(grep -n \"function updateSidebars\" js/*.js)",
+      "Bash(grep -n \"function initMap\" js/*.js)"
     ]
   }
 }

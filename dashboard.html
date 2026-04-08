@@ -112,6 +112,97 @@
             text-transform: uppercase;
         }
 
+        /* TASKS & GOALS SECTIONS */
+        .tasks-section, .goals-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .task-input-group {
+            display: flex;
+            gap: 0.3rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .task-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--white);
+            padding: 0.4rem 0.6rem;
+            border-radius: 2px;
+            font-size: 0.65rem;
+            font-family: inherit;
+        }
+
+        .task-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .tasks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            font-size: 0.65rem;
+            transition: all 0.2s ease;
+        }
+
+
+        .task-item.done {
+            opacity: 0.5;
+        }
+
+        .task-checkbox {
+            width: 14px;
+            height: 14px;
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            cursor: pointer;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .task-item.done .task-checkbox {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: var(--white);
+        }
+
+        .task-text {
+            flex: 1;
+        }
+
+        .task-item.done .task-text {
+            text-decoration: line-through;
+        }
+
+        .task-delete {
+            background: none;
+            border: none;
+            color: var(--white);
+            cursor: pointer;
+            opacity: 0.4;
+            font-size: 0.7rem;
+        }
+
+        .task-delete:hover {
+            opacity: 1;
+        }
+
         /* NUTRITION SECTION */
         .nutrition-section {
             margin-bottom: 1.5rem;
@@ -165,7 +256,7 @@
             padding: 0.4rem 0.7rem;
             border-radius: 2px;
             cursor: pointer;
-            font-size: 0.6rem;
+            font-size: 0.8rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -346,16 +437,53 @@
             opacity: 0.6;
         }
 
+        .movement-header {
+            display: flex;
+            gap: 0.4rem;
+            margin-bottom: 0.5rem;
+        }
+
         .movement-input {
-            width: 100%;
+            flex: 1;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border);
             color: var(--white);
-            padding: 0.5rem;
+            padding: 0.45rem;
             border-radius: 2px;
-            margin-bottom: 0.5rem;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-family: inherit;
+        }
+
+        .workout-folder {
+            position: relative;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            padding: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .folder-delete {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: none;
+            border: none;
+            color: var(--white);
+            opacity: 0;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .workout-folder:hover .folder-delete {
+            opacity: 0.5;
+        }
+
+        .folder-delete:hover {
+            opacity: 1 !important;
         }
 
         .movement-notes {
@@ -396,9 +524,757 @@
             opacity: 0.5;
             font-size: 0.65rem;
         }
+
+        /* FULLSCREEN ANALYTICS */
+        .fullscreen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gray-dark);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .fullscreen-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes habitPop {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.25);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .habit-day.animate-pop {
+            animation: habitPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .fullscreen-analytics-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+        }
+
+        .fullscreen-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+            color: var(--white);
+            padding: 0.5rem 1rem;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .fullscreen-title {
+            font-size: 1.2rem;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .analytics-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2rem;
+        }
+
+        .analytics-card-label {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            letter-spacing: 0.1em;
+        }
+
+        .analytics-card-value {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--white);
+        }
+
+        /* HABITS SECTION */
+        .habits-sidebar {
+            width: 400px;
+            background: var(--bg);
+            overflow-y: auto;
+            padding: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .habits-sidebar::after {
+            display: none;
+        }
+
+        .habits-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .habits-title {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--white);
+            opacity: 1;
+            font-weight: 600;
+        }
+
+        .habits-add-btn {
+            background: none;
+            border: none;
+            color: var(--white);
+            cursor: pointer;
+            font-size: 1.4rem;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
+        }
+
+        .habits-add-btn:hover {
+            opacity: 1;
+        }
+
+        .toggle-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .toggle-tab {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            opacity: 0.5;
+            font-weight: 600;
+            transition: opacity 0.2s ease;
+            padding: 0;
+        }
+
+        .toggle-tab.active {
+            opacity: 1;
+        }
+
+        .toggle-tab:hover {
+            opacity: 0.8;
+        }
+
+        .notes-view {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .notes-input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .notes-toolbar {
+            display: flex;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .note-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--white);
+            padding: 0.3rem 0.6rem;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .note-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .note-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .note-color-picker {
+            width: 30px;
+            height: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        .note-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            padding: 0.6rem;
+            border-radius: 2px;
+            font-family: inherit;
+            font-size: 0.6rem;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .note-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .note-save-btn {
+            background: var(--white);
+            border: none;
+            color: var(--black);
+            padding: 0.4rem 0.8rem;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        .note-save-btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .notes-display {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            overflow-y: auto;
+        }
+
+        .notes-recent-header {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.6;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .notes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .note-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            padding: 0.6rem;
+        }
+
+        .note-date {
+            font-size: 0.5rem;
+            opacity: 0.5;
+            margin-bottom: 0.3rem;
+        }
+
+        .note-content {
+            font-size: 0.6rem;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .notes-archive-toggle {
+            background: none;
+            border: none;
+            color: var(--white);
+            cursor: pointer;
+            font-size: 0.6rem;
+            opacity: 0.6;
+            padding: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .notes-archive-toggle:hover {
+            opacity: 1;
+        }
+
+        .notes-archive-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .habits-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            flex: 1;
+        }
+
+        .habit-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            padding: 0.6rem 0;
+        }
+
+        .habit-name {
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.6;
+            margin-bottom: 0.7rem;
+        }
+
+        .habit-bottom-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 0.4rem;
+        }
+
+        .habit-streak {
+            font-size: 0.5rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .habit-dot {
+            width: 3px;
+            height: 12px;
+            background: var(--white);
+            flex-shrink: 0;
+            transform: rotate(45deg);
+            opacity: 0.6;
+        }
+
+        .habit-dot.shade1,
+        .habit-dot.shade2,
+        .habit-dot.shade3,
+        .habit-dot.shade4 {
+            background: var(--white);
+        }
+
+        .habit-tracking {
+            display: flex;
+            gap: 0.3rem;
+            font-size: 0.6rem;
+            user-select: none;
+            margin-top: 0.2rem;
+        }
+
+        .habit-day {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            color: rgba(248, 250, 252, 0.6);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.5rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            line-height: 1;
+        }
+
+        .habit-day.today-habit {
+            border-color: rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .habit-day.past-week {
+            opacity: 0.25;
+            background: none !important;
+            border-color: transparent !important;
+        }
+
+        .habit-day:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .habit-day.completed {
+            background: rgba(255, 255, 255, 0.08);
+            color: #4ade80;
+        }
+
+        .habit-day.completed.shade1 {
+            background: rgba(143, 163, 208, 0.3);
+            border-color: #8fa3d0;
+        }
+
+        .habit-day.completed.shade2 {
+            background: rgba(122, 145, 192, 0.3);
+            border-color: #7a91c0;
+        }
+
+        .habit-day.completed.shade3 {
+            background: rgba(101, 126, 176, 0.3);
+            border-color: #657eb0;
+        }
+
+        .habit-day.completed.shade4 {
+            background: rgba(80, 108, 160, 0.3);
+            border-color: #506ca0;
+        }
+
+        .habit-day.prevented {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fbbf24;
+        }
+
+        /* SPLIT LAYOUT */
+        .dashboard-wrapper {
+            display: flex;
+            flex: 1;
+            min-height: 100vh;
+        }
+
+        .dashboard-main {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .analytics-button {
+            background: none;
+            border: none;
+            color: var(--white);
+            opacity: 0.3;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 2px;
+        }
+
+        .analytics-button:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .analytics-button svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .goose-mascot {
+            position: fixed;
+            bottom: 1rem;
+            right: 1.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            line-height: 1;
+            color: var(--white);
+            opacity: 0.15;
+            pointer-events: none;
+            user-select: none;
+            white-space: pre;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .goose-mascot:hover {
+            opacity: 0.4;
+        }
+
+        /* ── MAP ──────────────────────────────────────────────── */
+        .fs-tabs {
+            display: flex;
+            gap: 0.4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .fs-tab {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: var(--white);
+            padding: 0.4rem 1rem;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .fs-tab.active {
+            background: var(--white);
+            color: var(--black);
+        }
+
+        .fs-panel { display: none; flex: 1; flex-direction: column; }
+        .fs-panel.active { display: flex; }
+
+        #mapCanvas {
+            flex: 1;
+            position: relative;
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            cursor: default;
+        }
+
+        #mapWorld {
+            position: absolute;
+            top: 0; left: 0;
+            transform-origin: 0 0;
+            width: 0; height: 0;
+        }
+
+        #mapSvg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 0; height: 0;
+            overflow: visible;
+            pointer-events: none;
+        }
+
+        .map-node {
+            position: absolute;
+            min-width: 140px;
+            max-width: 240px;
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 3px;
+            padding: 0.6rem 0.7rem;
+            cursor: grab;
+            user-select: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+            transition: border-color 0.15s ease;
+        }
+
+        .map-node:active { cursor: grabbing; }
+
+        .map-node.selected {
+            border-color: rgba(255,255,255,0.6);
+        }
+
+        .map-node-text {
+            font-size: 0.7rem;
+            color: var(--white);
+            word-break: break-word;
+            white-space: pre-wrap;
+            outline: none;
+            min-height: 1em;
+            pointer-events: none;
+        }
+
+        .map-node.editing .map-node-text {
+            pointer-events: auto;
+            cursor: text;
+        }
+
+        .map-node-handle {
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            background: #555;
+            border: 1px solid #888;
+            border-radius: 50%;
+            cursor: crosshair;
+            pointer-events: all;
+            transition: background 0.15s ease;
+        }
+
+        .map-node-handle:hover { background: var(--white); }
+
+        .map-node-del {
+            position: absolute;
+            top: 3px; right: 3px;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 0.6rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            line-height: 1;
+            pointer-events: all;
+        }
+
+        .map-node:hover .map-node-del { opacity: 0.5; }
+        .map-node-del:hover { opacity: 1 !important; }
+
+        .map-controls {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .map-btn {
+            background: rgba(30,30,30,0.9);
+            border: 1px solid var(--border);
+            color: var(--white);
+            width: 32px;
+            height: 32px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: inherit;
+            transition: background 0.15s ease;
+        }
+
+        .map-btn:hover { background: rgba(60,60,60,0.9); }
+
+        .map-btn-add {
+            width: auto;
+            padding: 0 0.6rem;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .map-hint {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            font-size: 0.5rem;
+            opacity: 0.3;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            pointer-events: none;
+        }
+
+        .map-edge-del {
+            pointer-events: all;
+            cursor: pointer;
+            fill: none;
+            stroke: transparent;
+            stroke-width: 12;
+        }
     </style>
 </head>
 <body>
+    <!-- FULLSCREEN ANALYTICS OVERLAY -->
+    <div class="fullscreen-overlay" id="fullscreenAnalytics">
+        <div class="fullscreen-analytics-content">
+            <div class="fullscreen-header">
+                <h2 class="fullscreen-title">Expand</h2>
+                <button class="back-button" id="closeFullscreenBtn">← Back</button>
+            </div>
+            <!-- Tabs -->
+            <div class="fs-tabs">
+                <button class="fs-tab active" data-tab="analytics">Analytics</button>
+                <button class="fs-tab" data-tab="map">Map</button>
+            </div>
+            <!-- Analytics Panel -->
+            <div class="fs-panel active" id="fsAnalyticsPanel">
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <div class="analytics-card-label">Streak</div>
+                        <div class="analytics-card-value" id="fullscreenStreak">0</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-card-label">All Time</div>
+                        <div class="analytics-card-value" id="fullscreenAllTime">0</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-card-label">Week Avg</div>
+                        <div class="analytics-card-value" id="fullscreenWeekAvg">0</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-card-label">Avg Calories</div>
+                        <div class="analytics-card-value" id="fullscreenAvgCal">0</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Map Panel -->
+            <div class="fs-panel" id="fsMapPanel">
+                <div id="mapCanvas">
+                    <div id="mapWorld">
+                        <svg id="mapSvg"></svg>
+                    </div>
+                    <div class="map-hint">Double-click to create node &nbsp;·&nbsp; Drag handle to connect &nbsp;·&nbsp; Scroll to zoom &nbsp;·&nbsp; Middle-drag to pan</div>
+                    <div class="map-controls">
+                        <button class="map-btn map-btn-add" id="mapAddBtn">+ Node</button>
+                        <button class="map-btn" id="mapZoomIn">+</button>
+                        <button class="map-btn" id="mapZoomOut">−</button>
+                        <button class="map-btn" id="mapReset" title="Reset view">⌖</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="layout">
         <!-- TODAY SIDEBAR -->
         <div class="sidebar sidebar-today">
@@ -421,49 +1297,129 @@
             </div>
         </div>
 
-        <!-- MAIN CONTENT -->
-        <div class="main-content">
-            <div class="header">
-                <div class="date-display" id="dateDisplay"></div>
-                <h1>Dashboard</h1>
-            </div>
-
-            <!-- NUTRITION -->
-            <div class="nutrition-section">
-                <div class="section-title">Nutrition</div>
-                <div class="meal-input-group">
-                    <input type="text" class="meal-input" id="foodInput" placeholder="What did you eat?">
-                    <input type="number" class="cal-input" id="calInput" placeholder="Cal" min="0">
-                    <button class="btn" id="addFoodBtn">Log</button>
-                    <button class="btn btn-unknown" id="unknownBtn">?</button>
-                </div>
-                <div class="meals-list" id="mealsList"></div>
-
-                <!-- GALLERY -->
-                <div class="gallery-view">
-                    <div class="section-title">Photos</div>
-                    <div class="photo-upload" id="photoUpload">
-                        <p>+ Add photos</p>
-                        <input type="file" id="photoInput" class="file-input" accept="image/*" multiple>
+        <!-- DASHBOARD WRAPPER (MAIN + HABITS) -->
+        <div class="dashboard-wrapper">
+            <!-- MAIN CONTENT -->
+            <div class="dashboard-main">
+                <div class="header">
+                    <div>
+                        <div class="date-display" id="dateDisplay"></div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <h1>Dashboard</h1>
+                            <div id="dayCountdown" style="font-size: 0.9rem; letter-spacing: -0.02em; opacity: 0.6;">--:--:--</div>
+                        </div>
                     </div>
-                    <div class="gallery-grid" id="gallery"></div>
+                    <button class="analytics-button" id="fullscreenAnalyticsBtn" title="Expand Analytics">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- TASKS -->
+                <div class="tasks-section">
+                    <div class="section-title">Tasks</div>
+                    <div class="task-input-group">
+                        <input type="text" class="task-input" id="taskInput" placeholder="Add a task...">
+                        <button class="btn" id="addTaskBtn">+</button>
+                    </div>
+                    <div class="tasks-list" id="tasksList"></div>
+                </div>
+
+                <!-- GOALS -->
+                <div class="goals-section">
+                    <div class="section-title">Goals</div>
+                    <div class="task-input-group">
+                        <input type="text" class="task-input" id="goalInput" placeholder="Add a goal...">
+                        <button class="btn" id="addGoalBtn">+</button>
+                    </div>
+                    <div class="tasks-list" id="goalsList"></div>
+                </div>
+
+                <!-- NUTRITION -->
+                <div class="nutrition-section">
+                    <div class="section-title">Nutrition</div>
+                    <div class="meal-input-group">
+                        <input type="number" class="cal-input" id="calInput" placeholder="Cal" min="0">
+                        <input type="number" class="cal-input" id="protInput" placeholder="Prot" min="0">
+                        <input type="text" class="meal-input" id="foodInput" placeholder="What did you eat?">
+                        <button class="btn" id="addFoodBtn">+</button>
+                    </div>
+
+                    <!-- GALLERY -->
+                    <div class="gallery-view">
+                        <div class="photo-upload" id="photoUpload">
+                            <p>+ Add photos</p>
+                            <input type="file" id="photoInput" class="file-input" accept="image/*" multiple>
+                        </div>
+                        <div class="gallery-grid" id="gallery"></div>
+                    </div>
+
+                    <div class="meals-list" id="mealsList"></div>
+                </div>
+
+                <!-- WORKOUTS -->
+                <div class="workouts-section">
+                    <div class="section-title">Movement</div>
+                    <div class="movement-header">
+                        <select class="movement-input" id="splitSelect"></select>
+                        <button class="btn" id="addFolderBtn" style="padding: 0.4rem 0.6rem;">+</button>
+                    </div>
+                    <textarea class="movement-notes" id="movementNotes" placeholder="Workout notes..."></textarea>
+
+                    <div class="section-title" style="margin-top: 1rem;">Folders</div>
+                    <div class="folder-grid" id="workoutFolders"></div>
                 </div>
             </div>
 
-            <!-- WORKOUTS -->
-            <div class="workouts-section">
-                <div class="section-title">Movement</div>
-                <input type="text" class="movement-input" id="splitInput" placeholder="Today's split (e.g. Push/Legs)">
-                <textarea class="movement-notes" id="movementNotes" placeholder="Workout notes..."></textarea>
+            <!-- HABITS SIDEBAR -->
+            <div class="habits-sidebar">
+                <div class="habits-header">
+                    <div class="toggle-tabs">
+                        <button class="toggle-tab active" data-view="habits">Habits</button>
+                        <button class="toggle-tab" data-view="notes">Notes</button>
+                    </div>
+                    <button class="habits-add-btn" id="habitsAddBtn">+</button>
+                </div>
 
-                <div class="section-title" style="margin-top: 1rem;">Recent Workouts</div>
-                <div class="folder-grid" id="workoutFolders"></div>
+                <!-- Habits View -->
+                <div class="habits-list" id="habitsList"></div>
+
+                <!-- Notes View -->
+                <div class="notes-view" style="display: none;">
+                    <div class="notes-input-section">
+                        <div class="notes-toolbar">
+                            <button class="note-btn" id="noteBoldBtn" title="Bold">B</button>
+                            <button class="note-btn" id="noteItalicBtn" title="Italic">I</button>
+                            <button class="note-btn" id="noteStrikeBtn" title="Strikethrough">S</button>
+                            <button class="note-btn" id="noteHighlightBtn" title="Highlight">H</button>
+                            <button class="note-btn" id="noteHeaderBtn" title="Header">H1</button>
+                            <input type="color" id="noteColorBtn" class="note-color-picker" title="Text Color">
+                        </div>
+                        <textarea id="noteInput" class="note-input" placeholder="Write your daily note..."></textarea>
+                        <button id="noteSaveBtn" class="note-save-btn">Save Note</button>
+                    </div>
+
+                    <div class="notes-display">
+                        <div class="notes-recent">
+                            <div class="notes-recent-header">Recent Notes</div>
+                            <div id="notesRecentList" class="notes-list"></div>
+                        </div>
+
+                        <div class="notes-archive">
+                            <button id="notesArchiveBtn" class="notes-archive-toggle">📁 All Notes</button>
+                            <div id="notesArchiveList" class="notes-archive-list" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- ANALYTICS SIDEBAR -->
         <div class="sidebar sidebar-analytics">
-            <div class="sidebar-title">Analytics</div>
+            <div class="sidebar-title">This Week</div>
             <div class="sidebar-stat">
                 <div class="sidebar-label">Streak</div>
                 <div class="sidebar-value" id="sidebarStreak">0</div>
@@ -487,9 +1443,12 @@
         const today = new Date();
         const storageKey = 'dashboardData';
         const workoutKey = 'workoutFolders';
+        const habitsKey = 'habits';
 
         let state = loadState();
         let workoutFolders = loadWorkoutFolders();
+        let habits = loadHabits();
+        let undoStack = [];
 
         function getTodayKey() {
             return today.toISOString().split('T')[0];
@@ -504,8 +1463,12 @@
                     data.photos = [];
                     data.movementNotes = '';
                     data.splitInput = '';
+                    data.tasks = [];
+                    data.goals = [];
                     data.lastDate = getTodayKey();
                 }
+                if (!data.tasks) data.tasks = [];
+                if (!data.goals) data.goals = [];
                 return data;
             }
             return {
@@ -514,6 +1477,8 @@
                 photos: [],
                 movementNotes: '',
                 splitInput: '',
+                tasks: [],
+                goals: [],
                 history: {
                     mealsHistory: [],
                     caloriesHistory: []
@@ -523,7 +1488,9 @@
 
         function loadWorkoutFolders() {
             const saved = localStorage.getItem(workoutKey);
-            return saved ? JSON.parse(saved) : {};
+            const defaults = { 'Push': [], 'Pull': [], 'Legs': [], 'Upper': [], 'Lower': [], 'Misc': [], 'Cardio': [], 'Other': [] };
+            if (!saved) return defaults;
+            return JSON.parse(saved);
         }
 
         function saveState() {
@@ -534,6 +1501,29 @@
             localStorage.setItem(workoutKey, JSON.stringify(workoutFolders));
         }
 
+        function loadHabits() {
+            const saved = localStorage.getItem(habitsKey);
+            if (saved) return JSON.parse(saved);
+            const colors = ['shade1', 'shade2', 'shade3', 'shade4'];
+            return [
+                { id: 1, name: 'Wake up early', color: 'shade1', tracking: {} },
+                { id: 2, name: 'Cook healthy dinner', color: 'shade2', tracking: {} },
+                { id: 3, name: 'Write journal', color: 'shade3', tracking: {} },
+                { id: 4, name: 'Track time', color: 'shade4', tracking: {} },
+                { id: 5, name: 'Meditate', color: 'shade1', tracking: {} },
+                { id: 6, name: 'Run', color: 'shade2', tracking: {} },
+                { id: 7, name: 'Read books', color: 'shade3', tracking: {} },
+                { id: 8, name: 'Learn French', color: 'shade4', tracking: {} },
+                { id: 9, name: 'Play chess', color: 'shade1', tracking: {} },
+                { id: 10, name: 'Practice guitar', color: 'shade2', tracking: {} },
+                { id: 11, name: 'Call a friend', color: 'shade3', tracking: {} }
+            ];
+        }
+
+        function saveHabits() {
+            localStorage.setItem(habitsKey, JSON.stringify(habits));
+        }
+
         function updateDate() {
             document.getElementById('dateDisplay').textContent = today.toLocaleDateString('en-US', {
                 weekday: 'short',
@@ -542,43 +1532,411 @@
             });
         }
 
+        function calculateStreak(habit) {
+            let streak = 0;
+            let currentDate = new Date(today);
+
+            for (let i = 0; i < 365; i++) {
+                const dateKey = currentDate.toISOString().split('T')[0];
+                const status = habit.tracking[dateKey];
+
+                if (status === 'completed') {
+                    streak++;
+                    currentDate.setDate(currentDate.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+
+            return streak;
+        }
+
+        function getStreakColor(streak) {
+            if (streak === 0) return 'rgba(248, 250, 252, 0.4)';
+            if (streak <= 2) return 'rgba(234, 179, 8, 0.6)';
+            if (streak <= 5) return 'rgba(34, 197, 94, 0.7)';
+            if (streak <= 10) return 'rgba(34, 197, 94, 0.85)';
+            return 'rgba(34, 197, 94, 1)';
+        }
+
+        function renderHabits() {
+            const container = document.getElementById('habitsList');
+            container.innerHTML = '';
+
+            habits.forEach(habit => {
+                const habitEl = document.createElement('div');
+                habitEl.className = 'habit-item';
+
+                let streak = 0;
+                try {
+                    streak = calculateStreak(habit);
+                } catch (e) {
+                    console.error('Error calculating streak:', e);
+                }
+
+                const streakColor = getStreakColor(streak);
+
+                let trackingHTML = '<div class="habit-tracking">';
+                for (let i = 0; i < 18; i++) {
+                    const date = new Date(today);
+                    date.setDate(date.getDate() - i);
+                    const dayKey = date.toISOString().split('T')[0];
+                    const status = habit.tracking[dayKey];
+                    const isToday = i === 0;
+                    const isPastWeek = i >= 8;
+                    
+                    const statusClass = status || '';
+                    const colorClass = status === 'completed' ? (habit.color || '') : '';
+                    const specialClass = isToday ? 'today-habit' : isPastWeek ? 'past-week' : '';
+                    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+                    trackingHTML += `<div class="habit-day ${statusClass} ${colorClass} ${specialClass}" onclick="toggleHabitDay(${habit.id}, '${dayKey}', this)" title="${dateStr}">✓</div>`;
+                }
+                trackingHTML += '</div>';
+
+                habitEl.innerHTML = `
+                    <div class="habit-name">${habit.name}</div>
+                    <div class="habit-bottom-row">
+                        ${trackingHTML}
+                        <div class="habit-streak" style="color: ${streakColor}">${streak}</div>
+                    </div>
+                `;
+
+                container.appendChild(habitEl);
+            });
+        }
+
+        function toggleHabitDay(habitId, dayKey, element) {
+            const habit = habits.find(h => h.id === habitId);
+            if (!habit) return;
+
+            const previousStatus = habit.tracking[dayKey];
+            undoStack.push({ type: 'habit', data: { habitId, dayKey, previousStatus } });
+
+            // Cycle through states: undefined -> 'completed' -> 'prevented' -> undefined
+            if (!habit.tracking[dayKey]) {
+                habit.tracking[dayKey] = 'completed';
+            } else if (habit.tracking[dayKey] === 'completed') {
+                habit.tracking[dayKey] = 'prevented';
+            } else {
+                delete habit.tracking[dayKey];
+            }
+
+            // Add pop animation to the clicked element
+            if (element) {
+                element.classList.add('animate-pop');
+                element.addEventListener('animationend', () => {
+                    element.classList.remove('animate-pop');
+                }, { once: true });
+            }
+
+            saveHabits();
+            renderHabits();
+        }
+
+        function addHabit() {
+            const habitName = prompt('Habit name:');
+            if (!habitName || !habitName.trim()) return;
+
+            const colors = ['shade1', 'shade2', 'shade3', 'shade4'];
+            const newHabit = {
+                id: Math.max(...habits.map(h => h.id), 0) + 1,
+                name: habitName.trim(),
+                color: colors[Math.floor(Math.random() * colors.length)],
+                tracking: {}
+            };
+
+            habits.push(newHabit);
+            saveHabits();
+            renderHabits();
+        }
+
+        function startCountdown() {
+            function tick() {
+                const now = new Date();
+                const midnight = new Date(now);
+                midnight.setHours(24, 0, 0, 0);
+                const diff = midnight - now;
+
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+
+                const pad = n => String(n).padStart(2, '0');
+                document.getElementById('dayCountdown').textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
+            }
+
+            tick();
+            setInterval(tick, 1000);
+        }
+
+        // ── NOTES MANAGEMENT ──────────────────────────────
+        const notesKey = 'axisDailyNotes';
+        let notes = loadNotes();
+
+        function loadNotes() {
+            const saved = localStorage.getItem(notesKey);
+            return saved ? JSON.parse(saved) : {};
+        }
+
+        function saveNotes() {
+            localStorage.setItem(notesKey, JSON.stringify(notes));
+        }
+
+        function getTodayNoteKey() {
+            return today.toISOString().split('T')[0];
+        }
+
+        function renderNotes() {
+            const recentList = document.getElementById('notesRecentList');
+            const archiveList = document.getElementById('notesArchiveList');
+            recentList.innerHTML = '';
+            archiveList.innerHTML = '';
+
+            const noteKeys = Object.keys(notes).sort().reverse();
+            const recentKeys = noteKeys.slice(0, 5);
+
+            recentKeys.forEach(key => {
+                const note = notes[key];
+                const noteEl = document.createElement('div');
+                noteEl.className = 'note-item';
+                const dateObj = new Date(key + 'T00:00:00');
+                const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                noteEl.innerHTML = `
+                    <div class="note-date">${dateStr}</div>
+                    <div class="note-content">${note.content || ''}</div>
+                `;
+                recentList.appendChild(noteEl);
+            });
+
+            noteKeys.forEach(key => {
+                const note = notes[key];
+                const noteEl = document.createElement('div');
+                noteEl.className = 'note-item';
+                const dateObj = new Date(key + 'T00:00:00');
+                const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                noteEl.innerHTML = `
+                    <div class="note-date">${dateStr}</div>
+                    <div class="note-content">${note.content || ''}</div>
+                `;
+                archiveList.appendChild(noteEl);
+            });
+        }
+
+        function initNotesEventListeners() {
+            // Toggle between views
+            document.querySelectorAll('.toggle-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const view = tab.dataset.view;
+                    document.querySelectorAll('.toggle-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    document.getElementById('habitsList').style.display = view === 'habits' ? '' : 'none';
+                    document.querySelector('.notes-view').style.display = view === 'notes' ? 'flex' : 'none';
+                });
+            });
+
+            // Save note
+            document.getElementById('noteSaveBtn').addEventListener('click', () => {
+                const input = document.getElementById('noteInput');
+                const content = input.value;
+                if (content.trim()) {
+                    notes[getTodayNoteKey()] = { content };
+                    saveNotes();
+                    input.value = '';
+                    renderNotes();
+                }
+            });
+
+            // Archive toggle
+            document.getElementById('notesArchiveBtn').addEventListener('click', () => {
+                const archiveList = document.getElementById('notesArchiveList');
+                archiveList.style.display = archiveList.style.display === 'none' ? '' : 'none';
+            });
+
+            // Text formatting buttons (simplified)
+            document.getElementById('noteBoldBtn').addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+            document.getElementById('noteItalicBtn').addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+            document.getElementById('noteStrikeBtn').addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+            document.getElementById('noteHighlightBtn').addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+            document.getElementById('noteHeaderBtn').addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        }
+
         function init() {
             updateDate();
             setupEventListeners();
             render();
+            renderHabits();
+            renderNotes();
+            initNotesEventListeners();
             updateSidebars();
+            startCountdown();
         }
 
         function setupEventListeners() {
-            document.getElementById('addFoodBtn').addEventListener('click', addMeal);
-            document.getElementById('unknownBtn').addEventListener('click', addMealUnknown);
-            document.getElementById('foodInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') addMeal();
-            });
+            const addFoodBtn = document.getElementById('addFoodBtn');
+            if (addFoodBtn) addFoodBtn.addEventListener('click', addMeal);
 
-            document.getElementById('photoUpload').addEventListener('click', () => {
-                document.getElementById('photoInput').click();
-            });
+            const foodInput = document.getElementById('foodInput');
+            if (foodInput) {
+                foodInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') addMeal();
+                });
+            }
 
-            document.getElementById('photoInput').addEventListener('change', (e) => {
-                handlePhotoUpload(e.files);
-            });
+            const photoUpload = document.getElementById('photoUpload');
+            if (photoUpload) {
+                photoUpload.addEventListener('click', () => {
+                    document.getElementById('photoInput').click();
+                });
+            }
 
-            document.getElementById('splitInput').addEventListener('change', (e) => {
-                state.splitInput = e.target.value;
-                updateWorkoutFolders();
-                saveState();
-            });
+            const photoInput = document.getElementById('photoInput');
+            if (photoInput) {
+                photoInput.addEventListener('change', (e) => {
+                    handlePhotoUpload(e.files);
+                });
+            }
 
-            document.getElementById('movementNotes').addEventListener('change', (e) => {
-                state.movementNotes = e.target.value;
-                saveState();
+            const splitSelect = document.getElementById('splitSelect');
+            if (splitSelect) {
+                splitSelect.addEventListener('change', (e) => {
+                    state.splitInput = e.target.value;
+                    updateWorkoutFolders();
+                    saveState();
+                });
+            }
+
+            const addFolderBtn = document.getElementById('addFolderBtn');
+            if (addFolderBtn) {
+                addFolderBtn.addEventListener('click', () => {
+                    const name = prompt('Folder name:');
+                    if (name && name.trim()) {
+                        const trimmed = name.trim();
+                        if (!workoutFolders[trimmed]) {
+                            workoutFolders[trimmed] = [];
+                            saveWorkoutFolders();
+                            renderWorkoutFolders();
+                            renderSplitSelect();
+                        }
+                    }
+                });
+            }
+
+            const movementNotes = document.getElementById('movementNotes');
+            if (movementNotes) {
+                movementNotes.addEventListener('change', (e) => {
+                    state.movementNotes = e.target.value;
+                    saveState();
+                });
+            }
+
+            const fsBtn = document.getElementById('fullscreenAnalyticsBtn');
+            if (fsBtn) fsBtn.addEventListener('click', openFullscreenAnalytics);
+
+            const closeFsBtn = document.getElementById('closeFullscreenBtn');
+            if (closeFsBtn) closeFsBtn.addEventListener('click', closeFullscreenAnalytics);
+
+            const habitsAddBtn = document.getElementById('habitsAddBtn');
+            if (habitsAddBtn) habitsAddBtn.addEventListener('click', addHabit);
+
+            const addTaskBtn = document.getElementById('addTaskBtn');
+            if (addTaskBtn) addTaskBtn.addEventListener('click', addTask);
+
+            const taskInput = document.getElementById('taskInput');
+            if (taskInput) {
+                taskInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') addTask();
+                });
+            }
+
+            const addGoalBtn = document.getElementById('addGoalBtn');
+            if (addGoalBtn) addGoalBtn.addEventListener('click', addGoal);
+
+            const goalInput = document.getElementById('goalInput');
+            if (goalInput) {
+                goalInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') addGoal();
+                });
+            }
+
+            window.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                    handleUndo();
+                }
             });
+        }
+
+        function handleUndo() {
+            const item = undoStack.pop();
+            if (!item) return;
+
+            switch (item.type) {
+                case 'meal':
+                    state.meals.push(item.data);
+                    renderMeals();
+                    break;
+                case 'photo':
+                    state.photos.push(item.data);
+                    renderGallery();
+                    break;
+                case 'task':
+                    state.tasks.push(item.data);
+                    renderTasks();
+                    break;
+                case 'goal':
+                    state.goals.push(item.data);
+                    renderGoals();
+                    break;
+                case 'habit':
+                    const habit = habits.find(h => h.id === item.data.habitId);
+                    if (habit) {
+                        if (item.data.previousStatus === undefined) {
+                            delete habit.tracking[item.data.dayKey];
+                        } else {
+                            habit.tracking[item.data.dayKey] = item.data.previousStatus;
+                        }
+                        saveHabits();
+                        renderHabits();
+                    }
+                    break;
+            }
+            saveState();
+            updateSidebars();
+        }
+
+        function openFullscreenAnalytics() {
+            const overlay = document.getElementById('fullscreenAnalytics');
+            overlay.classList.add('active');
+            updateFullscreenAnalytics();
+        }
+
+        function closeFullscreenAnalytics() {
+            const overlay = document.getElementById('fullscreenAnalytics');
+            overlay.classList.remove('active');
+        }
+
+        function updateFullscreenAnalytics() {
+            document.getElementById('fullscreenStreak').textContent = document.getElementById('sidebarStreak').textContent;
+            document.getElementById('fullscreenAllTime').textContent = document.getElementById('sidebarAllTime').textContent;
+            document.getElementById('fullscreenWeekAvg').textContent = document.getElementById('sidebarWeekAvg').textContent;
+            document.getElementById('fullscreenAvgCal').textContent = document.getElementById('sidebarAvgCal').textContent;
         }
 
         function addMeal() {
             const food = document.getElementById('foodInput').value;
             const cals = document.getElementById('calInput').value;
+            const prot = document.getElementById('protInput').value;
 
             if (!food.trim()) return;
 
@@ -586,6 +1944,7 @@
                 id: Date.now(),
                 name: food,
                 calories: cals ? parseInt(cals) : null,
+                protein: prot ? parseInt(prot) : null,
                 date: getTodayKey()
             });
 
@@ -600,30 +1959,15 @@
             saveState();
             document.getElementById('foodInput').value = '';
             document.getElementById('calInput').value = '';
+            document.getElementById('protInput').value = '';
             render();
             updateSidebars();
         }
 
-        function addMealUnknown() {
-            const food = document.getElementById('foodInput').value;
-            if (!food.trim()) return;
-
-            state.meals.push({
-                id: Date.now(),
-                name: food,
-                calories: null,
-                date: getTodayKey()
-            });
-
-            state.history.mealsHistory.push(food);
-            saveState();
-            document.getElementById('foodInput').value = '';
-            document.getElementById('calInput').value = '';
-            render();
-            updateSidebars();
-        }
 
         function deleteMeal(id) {
+            const meal = state.meals.find(m => m.id === id);
+            if (meal) undoStack.push({ type: 'meal', data: meal });
             state.meals = state.meals.filter(m => m.id !== id);
             saveState();
             render();
@@ -647,63 +1991,105 @@
         }
 
         function deletePhoto(id) {
+            const photo = state.photos.find(p => p.id === id);
+            if (photo) undoStack.push({ type: 'photo', data: photo });
             state.photos = state.photos.filter(p => p.id !== id);
             saveState();
             render();
         }
 
         function updateWorkoutFolders() {
-            if (!state.splitInput.trim()) return;
+            if (!state.splitInput || !state.splitInput.trim()) return;
 
-            const today = getTodayKey();
-            if (!workoutFolders[state.splitInput]) {
-                workoutFolders[state.splitInput] = [];
+            const category = state.splitInput;
+            const todayKey = getTodayKey();
+            
+            if (!workoutFolders[category]) {
+                workoutFolders[category] = [];
             }
 
-            if (!workoutFolders[state.splitInput].includes(today)) {
-                workoutFolders[state.splitInput].unshift(today);
-                if (workoutFolders[state.splitInput].length > 20) {
-                    workoutFolders[state.splitInput].pop();
-                }
+            if (!workoutFolders[category].includes(todayKey)) {
+                workoutFolders[category].unshift(todayKey);
             }
 
             saveWorkoutFolders();
             renderWorkoutFolders();
         }
 
+        function deleteFolder(name) {
+            if (confirm(`Delete folder "${name}" and all its history?`)) {
+                delete workoutFolders[name];
+                if (state.splitInput === name) {
+                    state.splitInput = Object.keys(workoutFolders)[0] || '';
+                }
+                saveWorkoutFolders();
+                renderWorkoutFolders();
+                renderSplitSelect();
+            }
+        }
+
         function renderWorkoutFolders() {
             const container = document.getElementById('workoutFolders');
             container.innerHTML = '';
 
-            const folders = Object.entries(workoutFolders)
-                .sort((a, b) => new Date(b[1][0]) - new Date(a[1][0]))
-                .slice(0, 8);
+            const folders = Object.entries(workoutFolders);
 
             if (folders.length === 0) {
-                container.innerHTML = '<div class="empty-state">No workouts logged</div>';
+                container.innerHTML = '<div class="empty-state">No folders added</div>';
                 return;
             }
 
             folders.forEach(([name, dates]) => {
                 const folder = document.createElement('div');
                 folder.className = 'workout-folder';
-                const lastDate = new Date(dates[0]);
-                const daysAgo = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
-                const dateStr = daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : `${daysAgo}d ago`;
+                
+                const lastDateStr = dates.length > 0 ? dates[0] : null;
+                let statusStr = 'Never';
+                if (lastDateStr) {
+                    const lastDate = new Date(lastDateStr);
+                    const daysAgo = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+                    statusStr = daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : `${daysAgo}d ago`;
+                }
 
                 folder.innerHTML = `
+                    <button class="folder-delete" onclick="event.stopPropagation(); deleteFolder('${name}')">×</button>
                     <div class="folder-name">${name}</div>
-                    <div class="folder-count">${dates.length}x</div>
-                    <div class="folder-count" style="font-size: 0.5rem; opacity: 0.4; margin-top: 0.2rem;">${dateStr}</div>
                 `;
+                folder.onclick = () => {
+                    document.getElementById('splitSelect').value = name;
+                    state.splitInput = name;
+                    saveState();
+                };
                 container.appendChild(folder);
             });
         }
 
+        function renderSplitSelect() {
+            const select = document.getElementById('splitSelect');
+            if (!select) return;
+            const current = state.splitInput;
+            select.innerHTML = '';
+            
+            Object.keys(workoutFolders).sort().forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                if (name === current) opt.selected = true;
+                select.appendChild(opt);
+            });
+
+            if (!current && select.options.length > 0) {
+                state.splitInput = select.options[0].value;
+                saveState();
+            }
+        }
+
         function render() {
+            renderSplitSelect();
+            renderTasks();
+            renderGoals();
             renderMeals();
             renderGallery();
-            document.getElementById('splitInput').value = state.splitInput;
             document.getElementById('movementNotes').value = state.movementNotes;
             renderWorkoutFolders();
         }
@@ -721,10 +2107,11 @@
                 const item = document.createElement('div');
                 item.className = 'meal-item';
                 const calText = meal.calories ? `${meal.calories} cal` : 'Cal unknown';
+                const protText = meal.protein ? ` • ${meal.protein}g prot` : '';
                 item.innerHTML = `
                     <div class="meal-info">
                         <span class="meal-name">${escapeHtml(meal.name)}</span>
-                        <span class="meal-cal">${calText}</span>
+                        <span class="meal-cal">${calText}${protText}</span>
                     </div>
                     <button class="meal-delete" onclick="deleteMeal(${meal.id})">×</button>
                 `;
@@ -747,12 +2134,106 @@
             });
         }
 
+        function addTask() {
+            const text = document.getElementById('taskInput').value.trim();
+            if (!text) return;
+            state.tasks.push({ id: Date.now(), text, done: false });
+            saveState();
+            document.getElementById('taskInput').value = '';
+            renderTasks();
+            updateSidebars();
+        }
+
+        function toggleTask(id) {
+            const task = state.tasks.find(t => t.id === id);
+            if (task) task.done = !task.done;
+            saveState();
+            renderTasks();
+            updateSidebars();
+        }
+
+        function deleteTask(id) {
+            const task = state.tasks.find(t => t.id === id);
+            if (task) undoStack.push({ type: 'task', data: task });
+            state.tasks = state.tasks.filter(t => t.id !== id);
+            saveState();
+            renderTasks();
+            updateSidebars();
+        }
+
+        function renderTasks() {
+            const container = document.getElementById('tasksList');
+            container.innerHTML = '';
+            if (state.tasks.length === 0) {
+                container.innerHTML = '<div class="empty-state">No tasks added</div>';
+                return;
+            }
+            state.tasks.forEach(task => {
+                const item = document.createElement('div');
+                item.className = 'task-item' + (task.done ? ' done' : '');
+                item.innerHTML = `
+                    <div class="task-checkbox" onclick="toggleTask(${task.id})">${task.done ? '✓' : ''}</div>
+                    <span class="task-text">${escapeHtml(task.text)}</span>
+                    <button class="task-delete" onclick="deleteTask(${task.id})">×</button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function addGoal() {
+            const text = document.getElementById('goalInput').value.trim();
+            if (!text) return;
+            state.goals.push({ id: Date.now(), text, done: false });
+            saveState();
+            document.getElementById('goalInput').value = '';
+            renderGoals();
+        }
+
+        function toggleGoal(id) {
+            const goal = state.goals.find(g => g.id === id);
+            if (goal) goal.done = !goal.done;
+            saveState();
+            renderGoals();
+        }
+
+        function deleteGoal(id) {
+            const goal = state.goals.find(g => g.id === id);
+            if (goal) undoStack.push({ type: 'goal', data: goal });
+            state.goals = state.goals.filter(g => g.id !== id);
+            saveState();
+            renderGoals();
+        }
+
+        function renderGoals() {
+            const container = document.getElementById('goalsList');
+            container.innerHTML = '';
+            if (state.goals.length === 0) {
+                container.innerHTML = '<div class="empty-state">No goals added</div>';
+                return;
+            }
+            state.goals.forEach(goal => {
+                const item = document.createElement('div');
+                item.className = 'task-item' + (goal.done ? ' done' : '');
+                item.innerHTML = `
+                    <div class="task-checkbox" onclick="toggleGoal(${goal.id})">${goal.done ? '✓' : ''}</div>
+                    <span class="task-text">${escapeHtml(goal.text)}</span>
+                    <button class="task-delete" onclick="deleteGoal(${goal.id})">×</button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
         function updateSidebars() {
             const totalCals = state.meals.reduce((sum, m) => sum + (m.calories || 0), 0);
             const totalMeals = state.meals.length;
 
             document.getElementById('sidebarMeals').textContent = totalMeals;
             document.getElementById('sidebarCals').textContent = totalCals;
+
+            const totalTasks = state.tasks.length;
+            const doneTasks = state.tasks.filter(t => t.done).length;
+            document.getElementById('sidebarTasks').textContent = totalTasks;
+            document.getElementById('sidebarComplete').textContent = totalTasks > 0 ? Math.round(doneTasks / totalTasks * 100) + '%' : '0%';
 
             const avgMealCal = state.history.caloriesHistory.length > 0
                 ? Math.round(state.history.caloriesHistory.reduce((sum, h) => sum + h.calories, 0) / state.history.caloriesHistory.length)
@@ -766,6 +2247,8 @@
 
             const streak = calculateStreak();
             document.getElementById('sidebarStreak').textContent = streak;
+
+            updateFullscreenAnalytics();
         }
 
         function calculateWeekAverage() {
@@ -804,7 +2287,410 @@
             return div.innerHTML;
         }
 
+
+        // ══════════════════════════════════════════════════════
+        //  INTERACTIVE MAP ENGINE
+        // ══════════════════════════════════════════════════════
+        const mapKey = 'axisMapData';
+
+        let mapData = loadMapData();
+        let mapView = { x: 0, y: 0, zoom: 1 };
+        let selectedNode = null;
+        let dragging = null;          // {nodeId, startX, startY, origX, origY}
+        let panning  = null;          // {startX, startY, origPanX, origPanY}
+        let edgeDraw = null;          // {fromId, tempLine}
+
+        function loadMapData() {
+            const saved = localStorage.getItem(mapKey);
+            if (saved) return JSON.parse(saved);
+            return { nodes: [], edges: [], nextId: 1 };
+        }
+
+        function saveMapData() {
+            localStorage.setItem(mapKey, JSON.stringify(mapData));
+        }
+
+        // ── Coordinate helpers ──────────────────────────────────
+        function canvasToWorld(cx, cy) {
+            const rect = document.getElementById('mapCanvas').getBoundingClientRect();
+            return {
+                x: (cx - rect.left - mapView.x) / mapView.zoom,
+                y: (cy - rect.top  - mapView.y) / mapView.zoom
+            };
+        }
+
+        function applyTransform() {
+            const w = document.getElementById('mapWorld');
+            w.style.transform = `translate(${mapView.x}px, ${mapView.y}px) scale(${mapView.zoom})`;
+        }
+
+        // ── Render all nodes + edges ────────────────────────────
+        function renderMap() {
+            const world = document.getElementById('mapWorld');
+            // Remove old nodes (keep svg)
+            Array.from(world.children).forEach(c => {
+                if (c.id !== 'mapSvg') c.remove();
+            });
+            mapData.nodes.forEach(n => renderNode(n));
+            renderEdges();
+        }
+
+        function renderNode(n) {
+            const world = document.getElementById('mapWorld');
+            const div = document.createElement('div');
+            div.className = 'map-node' + (selectedNode === n.id ? ' selected' : '');
+            div.dataset.id = n.id;
+            div.style.left = n.x + 'px';
+            div.style.top  = n.y + 'px';
+            div.style.borderColor = n.color || '#3a3a3a';
+
+            div.innerHTML = `
+                <button class="map-node-del" data-id="${n.id}">×</button>
+                <div class="map-node-text" data-id="${n.id}">${escapeHtml(n.text || 'Note')}</div>
+                <div class="map-node-handle" data-id="${n.id}"></div>
+            `;
+
+            // Node drag
+            div.addEventListener('mousedown', onNodeMousedown);
+            // Double-click to edit
+            div.addEventListener('dblclick', onNodeDblclick);
+            // Delete button
+            div.querySelector('.map-node-del').addEventListener('click', e => {
+                e.stopPropagation();
+                deleteMapNode(parseInt(e.target.dataset.id));
+            });
+            // Handle drag (start edge)
+            div.querySelector('.map-node-handle').addEventListener('mousedown', onHandleMousedown);
+
+            world.appendChild(div);
+        }
+
+        function renderEdges() {
+            const svg = document.getElementById('mapSvg');
+            svg.innerHTML = '';
+
+            mapData.edges.forEach(e => {
+                const from = mapData.nodes.find(n => n.id === e.from);
+                const to   = mapData.nodes.find(n => n.id === e.to);
+                if (!from || !to) return;
+
+                const x1 = from.x + 70, y1 = from.y + 30;
+                const x2 = to.x + 70,   y2 = to.y + 30;
+
+                const dx = x2 - x1, dy = y2 - y1;
+                const cx1 = x1 + dx * 0.5, cy1 = y1;
+                const cx2 = x2 - dx * 0.5, cy2 = y2;
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+                path.setAttribute('d', `M${x1},${y1} C${cx1},${cy1} ${cx2},${cy2} ${x2},${y2}`);
+                path.setAttribute('stroke', 'rgba(255,255,255,0.25)');
+                path.setAttribute('stroke-width', '1.5');
+                path.setAttribute('fill', 'none');
+                path.setAttribute('marker-end', 'url(#arrowhead)');
+
+                // invisible wider stroke for easier clicking
+                const hitPath = document.createElementNS('http://www.w3.org/2000/svg','path');
+                hitPath.setAttribute('d', `M${x1},${y1} C${cx1},${cy1} ${cx2},${cy2} ${x2},${y2}`);
+                hitPath.setAttribute('stroke', 'transparent');
+                hitPath.setAttribute('stroke-width', '12');
+                hitPath.setAttribute('fill', 'none');
+                hitPath.style.cursor = 'pointer';
+                hitPath.addEventListener('click', () => deleteMapEdge(e.id));
+
+                // arrowhead marker
+                if (!svg.querySelector('defs')) {
+                    const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+                    const marker = document.createElementNS('http://www.w3.org/2000/svg','marker');
+                    marker.setAttribute('id','arrowhead');
+                    marker.setAttribute('markerWidth','8');
+                    marker.setAttribute('markerHeight','6');
+                    marker.setAttribute('refX','8');
+                    marker.setAttribute('refY','3');
+                    marker.setAttribute('orient','auto');
+                    const polygon = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+                    polygon.setAttribute('points','0 0, 8 3, 0 6');
+                    polygon.setAttribute('fill','rgba(255,255,255,0.3)');
+                    marker.appendChild(polygon);
+                    defs.appendChild(marker);
+                    svg.appendChild(defs);
+                }
+
+                svg.appendChild(hitPath);
+                svg.appendChild(path);
+            });
+        }
+
+        // ── Node interaction ────────────────────────────────────
+        function onNodeMousedown(e) {
+            if (e.target.classList.contains('map-node-handle')) return;
+            if (e.target.classList.contains('map-node-del')) return;
+            if (e.target.classList.contains('map-node-text') && e.currentTarget.classList.contains('editing')) return;
+            e.stopPropagation();
+
+            const id = parseInt(e.currentTarget.dataset.id);
+            selectNode(id);
+
+            const n = mapData.nodes.find(n => n.id === id);
+            dragging = {
+                nodeId: id,
+                startX: e.clientX,
+                startY: e.clientY,
+                origX: n.x,
+                origY: n.y
+            };
+        }
+
+        function onNodeDblclick(e) {
+            if (e.target.classList.contains('map-node-handle')) return;
+            if (e.target.classList.contains('map-node-del')) return;
+            e.stopPropagation();
+
+            const div = e.currentTarget;
+            const textEl = div.querySelector('.map-node-text');
+            const id = parseInt(div.dataset.id);
+
+            div.classList.add('editing');
+            div.style.cursor = 'default';
+            textEl.contentEditable = 'true';
+            textEl.focus();
+
+            const range = document.createRange();
+            range.selectNodeContents(textEl);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+
+            function finishEdit() {
+                div.classList.remove('editing');
+                div.style.cursor = 'grab';
+                textEl.contentEditable = 'false';
+                const n = mapData.nodes.find(n => n.id === id);
+                if (n) n.text = textEl.textContent;
+                saveMapData();
+                textEl.removeEventListener('blur', finishEdit);
+                textEl.removeEventListener('keydown', onEditKey);
+            }
+
+            function onEditKey(e) {
+                if (e.key === 'Escape') { finishEdit(); }
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); finishEdit(); }
+                e.stopPropagation();
+            }
+
+            textEl.addEventListener('blur', finishEdit);
+            textEl.addEventListener('keydown', onEditKey);
+        }
+
+        function onHandleMousedown(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            const id = parseInt(e.target.dataset.id);
+            const svg = document.getElementById('mapSvg');
+            const from = mapData.nodes.find(n => n.id === id);
+
+            const tempLine = document.createElementNS('http://www.w3.org/2000/svg','line');
+            tempLine.setAttribute('stroke','rgba(255,255,255,0.4)');
+            tempLine.setAttribute('stroke-width','1.5');
+            tempLine.setAttribute('stroke-dasharray','4 3');
+            tempLine.setAttribute('x1', from.x + 70);
+            tempLine.setAttribute('y1', from.y + 30);
+            tempLine.setAttribute('x2', from.x + 70);
+            tempLine.setAttribute('y2', from.y + 30);
+            svg.appendChild(tempLine);
+
+            edgeDraw = { fromId: id, tempLine };
+        }
+
+        function selectNode(id) {
+            selectedNode = id;
+            renderMap();
+        }
+
+        function deselect() {
+            selectedNode = null;
+            document.querySelectorAll('.map-node').forEach(n => n.classList.remove('selected'));
+        }
+
+        // ── Add / Delete ────────────────────────────────────────
+        function addMapNodeAt(worldX, worldY) {
+            const n = {
+                id: mapData.nextId++,
+                x: worldX - 70,
+                y: worldY - 20,
+                text: 'Note',
+                color: '#3a3a3a'
+            };
+            mapData.nodes.push(n);
+            saveMapData();
+            renderMap();
+            // auto-enter edit mode for new node
+            setTimeout(() => {
+                const el = document.querySelector(`.map-node[data-id="${n.id}"]`);
+                if (el) el.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+            }, 50);
+        }
+
+        function deleteMapNode(id) {
+            mapData.nodes = mapData.nodes.filter(n => n.id !== id);
+            mapData.edges = mapData.edges.filter(e => e.from !== id && e.to !== id);
+            if (selectedNode === id) selectedNode = null;
+            saveMapData();
+            renderMap();
+        }
+
+        function deleteMapEdge(id) {
+            mapData.edges = mapData.edges.filter(e => e.id !== id);
+            saveMapData();
+            renderEdges();
+        }
+
+        // ── Canvas mouse events ─────────────────────────────────
+        function initMapEvents() {
+            const canvas = document.getElementById('mapCanvas');
+
+            // Pan (middle-button or space+drag)
+            canvas.addEventListener('mousedown', e => {
+                if (e.button === 1 || (e.button === 0 && e.target === canvas)) {
+                    e.preventDefault();
+                    panning = { startX: e.clientX, startY: e.clientY, origX: mapView.x, origY: mapView.y };
+                }
+                if (e.button === 0 && e.target === canvas) deselect();
+            });
+
+            // Dblclick on empty canvas = create node
+            canvas.addEventListener('dblclick', e => {
+                if (e.target !== canvas && e.target !== document.getElementById('mapWorld')) return;
+                const w = canvasToWorld(e.clientX, e.clientY);
+                addMapNodeAt(w.x, w.y);
+            });
+
+            window.addEventListener('mousemove', e => {
+                if (panning) {
+                    mapView.x = panning.origX + (e.clientX - panning.startX);
+                    mapView.y = panning.origY + (e.clientY - panning.startY);
+                    applyTransform();
+                }
+                if (dragging) {
+                    const n = mapData.nodes.find(n => n.id === dragging.nodeId);
+                    if (n) {
+                        n.x = dragging.origX + (e.clientX - dragging.startX) / mapView.zoom;
+                        n.y = dragging.origY + (e.clientY - dragging.startY) / mapView.zoom;
+                        const el = document.querySelector(`.map-node[data-id="${n.id}"]`);
+                        if (el) {
+                            el.style.left = n.x + 'px';
+                            el.style.top  = n.y + 'px';
+                        }
+                        renderEdges();
+                    }
+                }
+                if (edgeDraw) {
+                    const w = canvasToWorld(e.clientX, e.clientY);
+                    edgeDraw.tempLine.setAttribute('x2', w.x);
+                    edgeDraw.tempLine.setAttribute('y2', w.y);
+                }
+            });
+
+            window.addEventListener('mouseup', e => {
+                if (dragging) {
+                    saveMapData();
+                    dragging = null;
+                }
+                if (panning) { panning = null; }
+                if (edgeDraw) {
+                    edgeDraw.tempLine.remove();
+                    // detect target node under cursor
+                    const els = document.elementsFromPoint(e.clientX, e.clientY);
+                    const targetEl = els.find(el => el.classList.contains('map-node') && parseInt(el.dataset.id) !== edgeDraw.fromId);
+                    if (targetEl) {
+                        const toId = parseInt(targetEl.dataset.id);
+                        const exists = mapData.edges.some(ed => ed.from === edgeDraw.fromId && ed.to === toId);
+                        if (!exists) {
+                            mapData.edges.push({ id: mapData.nextId++, from: edgeDraw.fromId, to: toId });
+                            saveMapData();
+                            renderEdges();
+                        }
+                    }
+                    edgeDraw = null;
+                }
+            });
+
+            // Scroll to zoom
+            canvas.addEventListener('wheel', e => {
+                e.preventDefault();
+                const factor = e.deltaY < 0 ? 1.1 : 0.9;
+                const rect = canvas.getBoundingClientRect();
+                const mx = e.clientX - rect.left;
+                const my = e.clientY - rect.top;
+                mapView.x = mx - (mx - mapView.x) * factor;
+                mapView.y = my - (my - mapView.y) * factor;
+                mapView.zoom *= factor;
+                mapView.zoom = Math.min(Math.max(mapView.zoom, 0.1), 4);
+                applyTransform();
+            }, { passive: false });
+
+            // Delete selected node with backspace/delete
+            window.addEventListener('keydown', e => {
+                const mapPanel = document.getElementById('fsMapPanel');
+                if (!mapPanel.classList.contains('active')) return;
+                if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNode !== null) {
+                    const editing = document.querySelector('.map-node.editing');
+                    if (editing) return;
+                    deleteMapNode(selectedNode);
+                }
+            });
+
+            // Toolbar buttons
+            document.getElementById('mapAddBtn').addEventListener('click', () => {
+                addMapNodeAt(-mapView.x / mapView.zoom + 200, -mapView.y / mapView.zoom + 150);
+            });
+            document.getElementById('mapZoomIn').addEventListener('click', () => {
+                const canvas = document.getElementById('mapCanvas');
+                const cx = canvas.clientWidth / 2, cy = canvas.clientHeight / 2;
+                mapView.x = cx - (cx - mapView.x) * 1.2;
+                mapView.y = cy - (cy - mapView.y) * 1.2;
+                mapView.zoom = Math.min(mapView.zoom * 1.2, 4);
+                applyTransform();
+            });
+            document.getElementById('mapZoomOut').addEventListener('click', () => {
+                const canvas = document.getElementById('mapCanvas');
+                const cx = canvas.clientWidth / 2, cy = canvas.clientHeight / 2;
+                mapView.x = cx - (cx - mapView.x) * 0.8;
+                mapView.y = cy - (cy - mapView.y) * 0.8;
+                mapView.zoom = Math.max(mapView.zoom * 0.8, 0.1);
+                applyTransform();
+            });
+            document.getElementById('mapReset').addEventListener('click', () => {
+                mapView = { x: 0, y: 0, zoom: 1 };
+                applyTransform();
+            });
+        }
+
+        // ── Tab switching ───────────────────────────────────────
+        function initTabs() {
+            document.querySelectorAll('.fs-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.fs-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.fs-panel').forEach(p => p.classList.remove('active'));
+                    tab.classList.add('active');
+                    const panelId = tab.dataset.tab === 'map' ? 'fsMapPanel' : 'fsAnalyticsPanel';
+                    document.getElementById(panelId).classList.add('active');
+                    if (tab.dataset.tab === 'map') renderMap();
+                });
+            });
+        }
+
+        // ── Boot ──────────────────────────────────────────────
+        function initMap() {
+            initTabs();
+            initMapEvents();
+            renderMap();
+        }
+
         init();
+        initMap();
     </script>
+    <div class="goose-mascot">   (•>
+  / )
+---m---</div>
 </body>
 </html>

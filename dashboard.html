@@ -635,12 +635,14 @@
         /* HABITS SECTION */
         .habits-sidebar {
             width: 400px;
+            height: 100vh;
+            position: sticky;
+            top: 0;
             background: var(--bg);
-            overflow-y: auto;
             padding: 0.8rem;
             display: flex;
             flex-direction: column;
-            position: relative;
+            overflow: hidden;
         }
 
         .habits-sidebar::after {
@@ -679,31 +681,71 @@
             opacity: 1;
         }
 
-        .toggle-tabs {
+        .sidebar-switch-header {
+            display: none;
+        }
+
+        .habits-header-left {
             display: flex;
-            gap: 0.5rem;
+            align-items: center;
+            gap: 0.6rem;
         }
 
-        .toggle-tab {
-            background: none;
-            border: none;
-            color: var(--white);
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+        .habits-title {
+            min-width: 50px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 32px;
+            height: 18px;
+            margin: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
             cursor: pointer;
-            opacity: 0.5;
-            font-weight: 600;
-            transition: opacity 0.2s ease;
-            padding: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.15);
+            transition: 0.3s;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
         }
 
-        .toggle-tab.active {
-            opacity: 1;
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 12px;
+            width: 12px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--white);
+            transition: 0.3s;
+            border-radius: 50%;
         }
 
-        .toggle-tab:hover {
-            opacity: 0.8;
+        input:checked + .slider {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(14px);
+        }
+
+        .habits-view {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
         }
 
         .notes-view {
@@ -858,6 +900,8 @@
             flex-direction: column;
             gap: 0.6rem;
             flex: 1;
+            overflow-y: auto;
+            padding-right: 4px;
         }
 
         .habit-item {
@@ -1376,16 +1420,20 @@
 
             <!-- HABITS SIDEBAR -->
             <div class="habits-sidebar">
-                <div class="habits-header">
-                    <div class="toggle-tabs">
-                        <button class="toggle-tab active" data-view="habits">Habits</button>
-                        <button class="toggle-tab" data-view="notes">Notes</button>
-                    </div>
-                    <button class="habits-add-btn" id="habitsAddBtn">+</button>
-                </div>
-
                 <!-- Habits View -->
-                <div class="habits-list" id="habitsList"></div>
+                <div class="habits-view">
+                    <div class="habits-header">
+                        <div class="habits-header-left">
+                            <span class="habits-title">Habits</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="habitsNotesToggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <button class="habits-add-btn" id="habitsAddBtn">+</button>
+                    </div>
+                    <div class="habits-list" id="habitsList"></div>
+                </div>
 
                 <!-- Notes View -->
                 <div class="notes-view" style="display: none;">
@@ -1504,20 +1552,7 @@
         function loadHabits() {
             const saved = localStorage.getItem(habitsKey);
             if (saved) return JSON.parse(saved);
-            const colors = ['shade1', 'shade2', 'shade3', 'shade4'];
-            return [
-                { id: 1, name: 'Wake up early', color: 'shade1', tracking: {} },
-                { id: 2, name: 'Cook healthy dinner', color: 'shade2', tracking: {} },
-                { id: 3, name: 'Write journal', color: 'shade3', tracking: {} },
-                { id: 4, name: 'Track time', color: 'shade4', tracking: {} },
-                { id: 5, name: 'Meditate', color: 'shade1', tracking: {} },
-                { id: 6, name: 'Run', color: 'shade2', tracking: {} },
-                { id: 7, name: 'Read books', color: 'shade3', tracking: {} },
-                { id: 8, name: 'Learn French', color: 'shade4', tracking: {} },
-                { id: 9, name: 'Play chess', color: 'shade1', tracking: {} },
-                { id: 10, name: 'Practice guitar', color: 'shade2', tracking: {} },
-                { id: 11, name: 'Call a friend', color: 'shade3', tracking: {} }
-            ];
+            return [];
         }
 
         function saveHabits() {
@@ -1658,12 +1693,20 @@
                 midnight.setHours(24, 0, 0, 0);
                 const diff = midnight - now;
 
+                if (diff <= 0) {
+                    document.getElementById('dayCountdown').textContent = "00:00:00";
+                    return;
+                }
+
                 const h = Math.floor(diff / 3600000);
                 const m = Math.floor((diff % 3600000) / 60000);
                 const s = Math.floor((diff % 60000) / 1000);
 
                 const pad = n => String(n).padStart(2, '0');
-                document.getElementById('dayCountdown').textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
+                const el = document.getElementById('dayCountdown');
+                if (el) {
+                    el.textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
+                }
             }
 
             tick();
@@ -1725,16 +1768,26 @@
 
         function initNotesEventListeners() {
             // Toggle between views
-            document.querySelectorAll('.toggle-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const view = tab.dataset.view;
-                    document.querySelectorAll('.toggle-tab').forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
+            const toggle = document.getElementById('habitsNotesToggle');
+            if (toggle) {
+                toggle.addEventListener('change', () => {
+                    const isNotes = toggle.checked;
+                    const title = document.querySelector('.habits-title');
+                    const addBtn = document.getElementById('habitsAddBtn');
+                    const habitsList = document.getElementById('habitsList');
+                    const notesView = document.querySelector('.notes-view');
 
-                    document.getElementById('habitsList').style.display = view === 'habits' ? '' : 'none';
-                    document.querySelector('.notes-view').style.display = view === 'notes' ? 'flex' : 'none';
+                    // Change header title
+                    title.textContent = isNotes ? 'Notes' : 'Habits';
+
+                    // Toggle + button visibility
+                    addBtn.style.display = isNotes ? 'none' : '';
+
+                    // Toggle content visibility
+                    habitsList.style.display = isNotes ? 'none' : '';
+                    notesView.style.display = isNotes ? 'flex' : 'none';
                 });
-            });
+            }
 
             // Save note
             document.getElementById('noteSaveBtn').addEventListener('click', () => {
@@ -2689,8 +2742,10 @@
         init();
         initMap();
     </script>
-    <div class="goose-mascot">   (•>
-  / )
----m---</div>
+    <div class="goose-mascot">      (•>
+     / )
+  /---m---
+ /
+/</div>
 </body>
 </html>

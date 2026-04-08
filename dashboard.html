@@ -75,8 +75,20 @@
                 </div>
             </div>
 
+            <!-- WORKOUT HEATMAP -->
+            <div class="analytics-card" style="margin-top: 2rem;">
+                <div class="analytics-card-label">Workout Heatmap (Last 12 Weeks)</div>
+                <div id="workoutHeatmapContainer" style="min-height: 120px; padding: 1rem 0; overflow-x: auto;">
+                    <div id="workoutHeatmap" style="display: flex; gap: 4px;"></div>
+                </div>
+            </div>
+
             <div class="section-title" style="margin-top: 3rem; margin-bottom: 1rem;">Workout History</div>
             <div class="folder-grid" id="analyticsWorkoutFolders"></div>
+
+            <!-- MEDIA VAULT -->
+            <div class="section-title" style="margin-top: 3rem; margin-bottom: 1rem;">Media Vault</div>
+            <div class="vault-grid" id="vaultGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; margin-bottom: 2rem;"></div>
         </div>
     </div>
 
@@ -189,13 +201,7 @@
                 <!-- Habits View -->
                 <div class="habits-view">
                     <div class="habits-header">
-                        <div class="habits-header-left">
-                            <div class="habits-title">Habits</div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="habitsNotesToggle">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
+                        <div class="habits-title">Habits</div>
                         <div style="display: flex; gap: 0.6rem; align-items: center;">
                             <button class="habits-delete-toggle-btn" id="habitDeleteToggle"
                                 onclick="toggleHabitDeleteMode()" title="Toggle Delete Mode">

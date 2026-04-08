@@ -9,6 +9,7 @@ function openFullscreenAnalytics() {
     updateFullscreenAnalytics();
     renderAnalyticsCharts();
     renderWorkoutFolders(); // Refresh folders in analytics view
+    renderVault(); // Refresh photo vault
 }
 
 function closeFullscreenAnalytics() {
@@ -28,6 +29,8 @@ function renderAnalyticsCharts() {
     const ctxHabit = document.getElementById('habitChart').getContext('2d');
     const ctxGoal = document.getElementById('goalChart').getContext('2d');
     const ctxScatter = document.getElementById('nutritionScatterChart').getContext('2d');
+
+    renderWorkoutHeatmap();
 
     // NUTRITION DATA (Last 7 Days)
     const nutritionLabels = [];
@@ -258,6 +261,80 @@ function updateSidebars() {
 
     snapshotGoals();
     updateFullscreenAnalytics();
+}
+
+function renderWorkoutHeatmap() {
+    const container = document.getElementById('workoutHeatmap');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const weeks = 12;
+    const days = 7;
+    const totalDays = weeks * days;
+
+    // Aggregate data
+    const workoutData = {};
+    Object.entries(workoutFolders).forEach(([folderName, dates]) => {
+        dates.forEach(d => {
+            if (!workoutData[d]) workoutData[d] = [];
+            workoutData[d].push(folderName);
+        });
+    });
+
+    const now = new Date();
+    // Move to next Saturday to align the grid
+    const end = new Date(now);
+    end.setDate(end.getDate() + (6 - end.getDay()));
+
+    const daySquares = [];
+
+    for (let i = totalDays - 1; i >= 0; i--) {
+        const d = new Date(end);
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().split('T')[0];
+        const folderList = workoutData[key] || [];
+        
+        const square = document.createElement('div');
+        square.className = 'heatmap-square';
+        square.style.width = '12px';
+        square.style.height = '12px';
+        square.style.borderRadius = '2px';
+        
+        const count = folderList.length;
+        if (count === 0) {
+            square.style.background = 'rgba(255, 255, 255, 0.05)';
+        } else if (count === 1) {
+            square.style.background = 'rgba(74, 222, 128, 0.3)';
+        } else if (count === 2) {
+            square.style.background = 'rgba(74, 222, 128, 0.6)';
+        } else {
+            square.style.background = 'rgba(74, 222, 128, 1)';
+        }
+
+        if (count > 0) {
+            square.title = `${key}: ${folderList.join(', ')}`;
+        } else {
+            square.title = `${key}: No workouts`;
+        }
+
+        daySquares.push(square);
+    }
+
+    // Wrap into columns (weeks)
+    for (let w = 0; w < weeks; w++) {
+        const weekCol = document.createElement('div');
+        weekCol.style.display = 'flex';
+        weekCol.style.flexDirection = 'column';
+        weekCol.style.gap = '4px';
+        
+        for (let d = 0; d < days; d++) {
+            const idx = w * days + d;
+            if (daySquares[idx]) {
+                weekCol.appendChild(daySquares[idx]);
+            }
+        }
+        container.appendChild(weekCol);
+    }
 }
 
 function snapshotGoals() {

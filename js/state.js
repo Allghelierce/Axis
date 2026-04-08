@@ -43,7 +43,8 @@ function loadState() {
             mealsHistory: [],
             caloriesHistory: [],
             proteinHistory: [],
-            goalsHistory: []
+            goalsHistory: [],
+            photosHistory: []
         }
     };
 }

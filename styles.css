@@ -717,7 +717,6 @@ input[type=number] {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 1rem;
             margin-bottom: 0.7rem;
         }
 
@@ -785,15 +784,7 @@ input[type=number] {
             display: none;
         }
 
-        .habits-header-left {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
-
-        .habits-title {
-            min-width: 50px;
-        }
+        /* .habits-header-left removed - no longer used */
 
         .toggle-switch {
             position: relative;

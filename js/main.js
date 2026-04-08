@@ -100,14 +100,23 @@ function init() {
 }
 
 function setupEventListeners() {
+    console.log('setupEventListeners starting...');
     const addFoodBtn = document.getElementById('addFoodBtn');
-    if (addFoodBtn) addFoodBtn.addEventListener('click', addMeal);
+    if (addFoodBtn) {
+        addFoodBtn.addEventListener('click', addMeal);
+        console.log('✓ addFoodBtn listener attached');
+    } else {
+        console.warn('✗ addFoodBtn not found');
+    }
 
     const foodInput = document.getElementById('foodInput');
     if (foodInput) {
         foodInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') addMeal();
         });
+        console.log('✓ foodInput listener attached');
+    } else {
+        console.warn('✗ foodInput not found');
     }
 
     const photoUpload = document.getElementById('photoUpload');
@@ -176,6 +185,9 @@ function setupEventListeners() {
         taskInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') addTask();
         });
+        console.log('✓ taskInput listener attached');
+    } else {
+        console.warn('✗ taskInput not found');
     }
 
     const addGoalBtn = document.getElementById('addGoalBtn');

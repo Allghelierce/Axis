@@ -1,5 +1,7 @@
 let nutritionChart = null;
 let habitChart = null;
+let goalChart = null;
+let scatterChart = null;
 
 function openFullscreenAnalytics() {
     const overlay = document.getElementById('fullscreenAnalytics');
@@ -24,6 +26,8 @@ function updateFullscreenAnalytics() {
 function renderAnalyticsCharts() {
     const ctxNutrition = document.getElementById('nutritionChart').getContext('2d');
     const ctxHabit = document.getElementById('habitChart').getContext('2d');
+    const ctxGoal = document.getElementById('goalChart').getContext('2d');
+    const ctxScatter = document.getElementById('nutritionScatterChart').getContext('2d');
 
     // NUTRITION DATA (Last 7 Days)
     const nutritionLabels = [];
@@ -130,6 +134,99 @@ function renderAnalyticsCharts() {
             plugins: { legend: { display: false } }
         }
     });
+
+    // GOAL DATA (Last 30 Days)
+    const goalLabels = [];
+    const goalProgressData = [];
+    
+    // Ensure history exists
+    if (!state.history.goalsHistory) state.history.goalsHistory = [];
+    
+    // Fill with mock data if empty to show "Over Time" immediately
+    if (state.history.goalsHistory.length === 0) {
+        for (let i = 30; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dateStr = d.toISOString().split('T')[0];
+            state.history.goalsHistory.push({
+                date: dateStr,
+                total: 5,
+                done: Math.floor(Math.random() * 6)
+            });
+        }
+        saveState();
+    }
+
+    for (let i = 29; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().split('T')[0];
+        goalLabels.push(i % 5 === 0 ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '');
+        
+        const entry = state.history.goalsHistory.find(h => h.date === key);
+        if (entry) {
+            const percent = entry.total > 0 ? (entry.done / entry.total) * 100 : 0;
+            goalProgressData.push(percent);
+        } else {
+            goalProgressData.push(0);
+        }
+    }
+
+    if (goalChart) goalChart.destroy();
+    goalChart = new Chart(ctxGoal, {
+        type: 'line',
+        data: {
+            labels: goalLabels,
+            datasets: [{
+                label: 'Goal Completion %',
+                data: goalProgressData,
+                borderColor: '#4ade80',
+                backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 8 } }, grid: { display: false } },
+                y: { min: 0, max: 100, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 }, callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // NUTRITION SCATTER (All meals in history)
+    const scatterData = (state.history.caloriesHistory || []).map((h, i) => {
+        const p = state.history.proteinHistory[i];
+        return { x: h.calories, y: p ? p.protein : 0 };
+    }).filter(d => d.x > 0 || d.y > 0);
+
+    if (scatterChart) scatterChart.destroy();
+    scatterChart = new Chart(ctxScatter, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Correlation',
+                data: scatterData,
+                backgroundColor: '#4ade80',
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { title: { display: true, text: 'kcal', color: 'rgba(255,255,255,0.4)', font: { size: 10 } }, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { title: { display: true, text: 'Protein (g)', color: 'rgba(255,255,255,0.4)', font: { size: 10 } }, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
 }
 
 
@@ -159,7 +256,24 @@ function updateSidebars() {
     const habitStreak = habits.length > 0 ? Math.max(...habits.map(h => calculateHabitStreak(h))) : 0;
     document.getElementById('sidebarStreak').textContent = habitStreak;
 
+    snapshotGoals();
     updateFullscreenAnalytics();
+}
+
+function snapshotGoals() {
+    if (!state.history.goalsHistory) state.history.goalsHistory = [];
+    const todayStr = new Date().toISOString().split('T')[0];
+    const total = state.goals.length;
+    const done = state.goals.filter(g => g.done).length;
+    
+    const existing = state.history.goalsHistory.find(h => h.date === todayStr);
+    if (existing) {
+        existing.total = total;
+        existing.done = done;
+    } else {
+        state.history.goalsHistory.push({ date: todayStr, total, done });
+    }
+    saveState();
 }
 
 function calculateWeekAverage() {

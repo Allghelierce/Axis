@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #0a0a0a;
+            --white: #fafaf9;
+            --gray-dark: #1a1a1a;
+            --gray-light: #e8e8e7;
+            --bg: #0f0f0f;
+            --border: #2a2a2a;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: #0f0f0f;
+            color: var(--white);
+            min-height: 100vh;
+            display: flex;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+
+        .layout {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* SIDEBARS */
+        .sidebar {
+            background: var(--gray-dark);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-today {
+            width: 140px;
+            padding: 0.6rem;
+        }
+
+        .sidebar-analytics {
+            width: 140px;
+            padding: 0.6rem;
+            border-left: 1px solid var(--border);
+        }
+
+        .sidebar-title {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--white);
+            opacity: 0.6;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .sidebar-stat {
+            margin-bottom: 0.8rem;
+        }
+
+        .sidebar-label {
+            font-size: 0.5rem;
+            opacity: 0.5;
+            margin-bottom: 0.2rem;
+            text-transform: uppercase;
+        }
+
+        .sidebar-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--white);
+            letter-spacing: -0.02em;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            margin-bottom: 1rem;
+        }
+
+        .date-display {
+            font-size: 0.6rem;
+            opacity: 0.6;
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+        }
+
+        h1 {
+            font-size: 0.95rem;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        /* NUTRITION SECTION */
+        .nutrition-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.6;
+            margin-bottom: 0.7rem;
+            font-weight: 600;
+        }
+
+        .meal-input-group {
+            display: flex;
+            gap: 0.3rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .meal-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--white);
+            padding: 0.4rem 0.6rem;
+            border-radius: 2px;
+            font-size: 0.65rem;
+            font-family: inherit;
+        }
+
+        .meal-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .cal-input {
+            width: 60px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--white);
+            padding: 0.4rem;
+            border-radius: 2px;
+            font-size: 0.65rem;
+            font-family: inherit;
+        }
+
+        .btn {
+            background: var(--white);
+            border: none;
+            color: var(--black);
+            padding: 0.4rem 0.7rem;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        .btn-unknown {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            border: 1px solid var(--border);
+        }
+
+        .btn-unknown:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .meals-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .meal-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            font-size: 0.65rem;
+        }
+
+        .meal-info {
+            flex: 1;
+        }
+
+        .meal-name {
+            display: block;
+            margin-bottom: 0.15rem;
+        }
+
+        .meal-cal {
+            font-size: 0.55rem;
+            opacity: 0.6;
+        }
+
+        .meal-delete {
+            background: none;
+            border: none;
+            color: var(--white);
+            cursor: pointer;
+            opacity: 0.5;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+        }
+
+        .meal-delete:hover {
+            opacity: 1;
+        }
+
+        /* PHOTO GALLERY */
+        .gallery-view {
+            margin-bottom: 1.5rem;
+        }
+
+        .photo-upload {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed var(--white);
+            border-radius: 2px;
+            padding: 0.6rem;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .photo-upload:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .photo-upload p {
+            font-size: 0.6rem;
+            opacity: 0.6;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 0.4rem;
+        }
+
+        .gallery-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 2px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .gallery-item:hover {
+            border-color: var(--white);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-item .delete-btn {
+            position: absolute;
+            top: 1px;
+            right: 1px;
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--white);
+            border: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 1px;
+            cursor: pointer;
+            font-size: 0.55rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .gallery-item:hover .delete-btn {
+            opacity: 1;
+        }
+
+        /* WORKOUT FOLDERS */
+        .workouts-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .folder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .workout-folder {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            padding: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .workout-folder:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--white);
+        }
+
+        .folder-name {
+            font-size: 0.65rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+        }
+
+        .folder-count {
+            font-size: 0.55rem;
+            opacity: 0.6;
+        }
+
+        .movement-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--white);
+            padding: 0.5rem;
+            border-radius: 2px;
+            margin-bottom: 0.5rem;
+            font-size: 0.7rem;
+            font-family: inherit;
+        }
+
+        .movement-notes {
+            width: 100%;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--white);
+            padding: 0.5rem;
+            border-radius: 2px;
+            font-size: 0.7rem;
+            font-family: inherit;
+            resize: none;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--white);
+            border-radius: 2px;
+            opacity: 0.3;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            opacity: 0.6;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 1rem;
+            opacity: 0.5;
+            font-size: 0.65rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- TODAY SIDEBAR -->
+        <div class="sidebar sidebar-today">
+            <div class="sidebar-title">Today</div>
+            <div class="sidebar-stat">
+                <div class="sidebar-label">Tasks</div>
+                <div class="sidebar-value" id="sidebarTasks">0</div>
+            </div>
+            <div class="sidebar-stat">
+                <div class="sidebar-label">Complete</div>
+                <div class="sidebar-value" id="sidebarComplete">0%</div>
+            </div>
+            <div class="sidebar-stat">
+                <div class="sidebar-label">Meals</div>
+                <div class="sidebar-value" id="sidebarMeals">0</div>
+            </div>
+            <div class="sidebar-stat">
+                <div class="sidebar-label">Cals</div>
+                <div class="sidebar-value" id="sidebarCals">0</div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <div class="header">
+                <div class="date-display" id="dateDisplay"></div>
+                <h1>Dashboard</h1>
+            </div>
+
+            <!-- NUTRITION -->
+            <div class="nutrition-section">
+                <div class="section-title">Nutrition</div>
+                <div class="meal-input-group">
+                    <input type="text" class="meal-input" id="foodInput" placeholder="What did you eat?">
+                    <input type="number" class="cal-input" id="calInput" placeholder="Cal" min="0">
+                    <button class="btn" id="addFoodBtn">Log</button>
+                    <button class="btn btn-unknown" id="unknownBtn">?</button>
+                </div>
+                <div class="meals-list" id="mealsList"></div>
+
+                <!-- GALLERY -->
+                <div class="gallery-view">
+                    <div class="section-title">Photos</div>
+                    <div class="photo-upload" id="photoUpload">
+                        <p>+ Add photos</p>
+                        <input type="file" id="photoInput" class="file-input" accept="image/*" multiple>
+                    </div>
+                    <div class="gallery-grid" id="gallery"></div>
+                </div>
+            </div>
+
+            <!-- WORKOUTS -->
+            <div class="workouts-section">
+                <div class="section-title">Movement</div>
+                <input type="text" class="movement-input" id="splitInput" placeholder="Today's split (e.g. Push/Legs)">
+                <textarea class="movement-notes" id="movementNotes" placeholder="Workout notes..."></textarea>
+
+                <div class="section-title" style="margin-top: 1rem;">Recent Workouts</div>
+                <div class="folder-grid" id="workoutFolders"></div>
+            </div>
+        </div>
+
+        <!-- ANALYTICS SIDEBAR -->
+        <div class="sidebar sidebar-analytics">
+            <div class="sidebar-title">Analytics</div>
+            <div class="sidebar-stat">
+                <div class="sidebar-label">Streak</div>
+                <div class="sidebar-value" id="sidebarStreak">0</div>
+            </div>
+            <div class="sidebar-stat">
+                <div class="sidebar-label">All Time</div>
+                <div class="sidebar-value" id="sidebarAllTime">0</div>
+            </div>
+            <div class="sidebar-stat">
+                <div class="sidebar-label">Week Avg</div>
+                <div class="sidebar-value" id="sidebarWeekAvg">0</div>
+            </div>
+            <div class="sidebar-stat">
+                <div class="sidebar-label">Avg Cal</div>
+                <div class="sidebar-value" id="sidebarAvgCal">0</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const today = new Date();
+        const storageKey = 'dashboardData';
+        const workoutKey = 'workoutFolders';
+
+        let state = loadState();
+        let workoutFolders = loadWorkoutFolders();
+
+        function getTodayKey() {
+            return today.toISOString().split('T')[0];
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem(storageKey);
+            if (saved) {
+                const data = JSON.parse(saved);
+                if (data.lastDate !== getTodayKey()) {
+                    data.meals = [];
+                    data.photos = [];
+                    data.movementNotes = '';
+                    data.splitInput = '';
+                    data.lastDate = getTodayKey();
+                }
+                return data;
+            }
+            return {
+                lastDate: getTodayKey(),
+                meals: [],
+                photos: [],
+                movementNotes: '',
+                splitInput: '',
+                history: {
+                    mealsHistory: [],
+                    caloriesHistory: []
+                }
+            };
+        }
+
+        function loadWorkoutFolders() {
+            const saved = localStorage.getItem(workoutKey);
+            return saved ? JSON.parse(saved) : {};
+        }
+
+        function saveState() {
+            localStorage.setItem(storageKey, JSON.stringify(state));
+        }
+
+        function saveWorkoutFolders() {
+            localStorage.setItem(workoutKey, JSON.stringify(workoutFolders));
+        }
+
+        function updateDate() {
+            document.getElementById('dateDisplay').textContent = today.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function init() {
+            updateDate();
+            setupEventListeners();
+            render();
+            updateSidebars();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('addFoodBtn').addEventListener('click', addMeal);
+            document.getElementById('unknownBtn').addEventListener('click', addMealUnknown);
+            document.getElementById('foodInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addMeal();
+            });
+
+            document.getElementById('photoUpload').addEventListener('click', () => {
+                document.getElementById('photoInput').click();
+            });
+
+            document.getElementById('photoInput').addEventListener('change', (e) => {
+                handlePhotoUpload(e.files);
+            });
+
+            document.getElementById('splitInput').addEventListener('change', (e) => {
+                state.splitInput = e.target.value;
+                updateWorkoutFolders();
+                saveState();
+            });
+
+            document.getElementById('movementNotes').addEventListener('change', (e) => {
+                state.movementNotes = e.target.value;
+                saveState();
+            });
+        }
+
+        function addMeal() {
+            const food = document.getElementById('foodInput').value;
+            const cals = document.getElementById('calInput').value;
+
+            if (!food.trim()) return;
+
+            state.meals.push({
+                id: Date.now(),
+                name: food,
+                calories: cals ? parseInt(cals) : null,
+                date: getTodayKey()
+            });
+
+            if (cals) {
+                state.history.caloriesHistory.push({
+                    date: getTodayKey(),
+                    calories: parseInt(cals)
+                });
+            }
+
+            state.history.mealsHistory.push(food);
+            saveState();
+            document.getElementById('foodInput').value = '';
+            document.getElementById('calInput').value = '';
+            render();
+            updateSidebars();
+        }
+
+        function addMealUnknown() {
+            const food = document.getElementById('foodInput').value;
+            if (!food.trim()) return;
+
+            state.meals.push({
+                id: Date.now(),
+                name: food,
+                calories: null,
+                date: getTodayKey()
+            });
+
+            state.history.mealsHistory.push(food);
+            saveState();
+            document.getElementById('foodInput').value = '';
+            document.getElementById('calInput').value = '';
+            render();
+            updateSidebars();
+        }
+
+        function deleteMeal(id) {
+            state.meals = state.meals.filter(m => m.id !== id);
+            saveState();
+            render();
+            updateSidebars();
+        }
+
+        function handlePhotoUpload(files) {
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    state.photos.push({
+                        id: Date.now() + Math.random(),
+                        src: e.target.result,
+                        date: getTodayKey()
+                    });
+                    saveState();
+                    render();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function deletePhoto(id) {
+            state.photos = state.photos.filter(p => p.id !== id);
+            saveState();
+            render();
+        }
+
+        function updateWorkoutFolders() {
+            if (!state.splitInput.trim()) return;
+
+            const today = getTodayKey();
+            if (!workoutFolders[state.splitInput]) {
+                workoutFolders[state.splitInput] = [];
+            }
+
+            if (!workoutFolders[state.splitInput].includes(today)) {
+                workoutFolders[state.splitInput].unshift(today);
+                if (workoutFolders[state.splitInput].length > 20) {
+                    workoutFolders[state.splitInput].pop();
+                }
+            }
+
+            saveWorkoutFolders();
+            renderWorkoutFolders();
+        }
+
+        function renderWorkoutFolders() {
+            const container = document.getElementById('workoutFolders');
+            container.innerHTML = '';
+
+            const folders = Object.entries(workoutFolders)
+                .sort((a, b) => new Date(b[1][0]) - new Date(a[1][0]))
+                .slice(0, 8);
+
+            if (folders.length === 0) {
+                container.innerHTML = '<div class="empty-state">No workouts logged</div>';
+                return;
+            }
+
+            folders.forEach(([name, dates]) => {
+                const folder = document.createElement('div');
+                folder.className = 'workout-folder';
+                const lastDate = new Date(dates[0]);
+                const daysAgo = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+                const dateStr = daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : `${daysAgo}d ago`;
+
+                folder.innerHTML = `
+                    <div class="folder-name">${name}</div>
+                    <div class="folder-count">${dates.length}x</div>
+                    <div class="folder-count" style="font-size: 0.5rem; opacity: 0.4; margin-top: 0.2rem;">${dateStr}</div>
+                `;
+                container.appendChild(folder);
+            });
+        }
+
+        function render() {
+            renderMeals();
+            renderGallery();
+            document.getElementById('splitInput').value = state.splitInput;
+            document.getElementById('movementNotes').value = state.movementNotes;
+            renderWorkoutFolders();
+        }
+
+        function renderMeals() {
+            const container = document.getElementById('mealsList');
+            container.innerHTML = '';
+
+            if (state.meals.length === 0) {
+                container.innerHTML = '<div class="empty-state">No meals logged</div>';
+                return;
+            }
+
+            state.meals.forEach(meal => {
+                const item = document.createElement('div');
+                item.className = 'meal-item';
+                const calText = meal.calories ? `${meal.calories} cal` : 'Cal unknown';
+                item.innerHTML = `
+                    <div class="meal-info">
+                        <span class="meal-name">${escapeHtml(meal.name)}</span>
+                        <span class="meal-cal">${calText}</span>
+                    </div>
+                    <button class="meal-delete" onclick="deleteMeal(${meal.id})">×</button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function renderGallery() {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+
+            state.photos.forEach(photo => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.innerHTML = `
+                    <img src="${photo.src}" alt="photo">
+                    <button class="delete-btn" onclick="deletePhoto(${photo.id})">×</button>
+                `;
+                gallery.appendChild(item);
+            });
+        }
+
+        function updateSidebars() {
+            const totalCals = state.meals.reduce((sum, m) => sum + (m.calories || 0), 0);
+            const totalMeals = state.meals.length;
+
+            document.getElementById('sidebarMeals').textContent = totalMeals;
+            document.getElementById('sidebarCals').textContent = totalCals;
+
+            const avgMealCal = state.history.caloriesHistory.length > 0
+                ? Math.round(state.history.caloriesHistory.reduce((sum, h) => sum + h.calories, 0) / state.history.caloriesHistory.length)
+                : 0;
+
+            document.getElementById('sidebarAvgCal').textContent = avgMealCal;
+            document.getElementById('sidebarAllTime').textContent = state.history.mealsHistory.length;
+
+            const weekAvg = calculateWeekAverage();
+            document.getElementById('sidebarWeekAvg').textContent = weekAvg;
+
+            const streak = calculateStreak();
+            document.getElementById('sidebarStreak').textContent = streak;
+        }
+
+        function calculateWeekAverage() {
+            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const weekMeals = state.history.mealsHistory.filter(meal => new Date(meal) >= weekAgo).length;
+            return Math.round(weekMeals / 7);
+        }
+
+        function calculateStreak() {
+            let streak = 0;
+            const now = new Date();
+
+            for (let i = 1; i < 365; i++) {
+                const checkDate = new Date(now);
+                checkDate.setDate(checkDate.getDate() - i);
+                const dateKey = checkDate.toISOString().split('T')[0];
+
+                const hasActivity = state.history.mealsHistory.some(meal => {
+                    const mealDate = new Date(meal);
+                    return mealDate.toISOString().split('T')[0] === dateKey;
+                });
+
+                if (hasActivity) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+
+            return streak;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        init();
+    </script>
+</body>
+</html>

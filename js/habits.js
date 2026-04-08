@@ -134,7 +134,7 @@ function renderHabits() {
     });
 }
 
-function toggleHabitDay(habitId, dayKey, element, event) {
+function toggleHabitDay(habitId, dayKey, element, event, skipRender = false) {
     if (isHabitDeleteMode) return;
     const habit = habits.find(h => h.id === habitId);
     if (!habit) return;
@@ -147,6 +147,8 @@ function toggleHabitDay(habitId, dayKey, element, event) {
     if (!previousStatus) {
         habit.tracking[dayKey] = 'completed';
         if (element) {
+            element.classList.add('completed');
+            if (habit.color) element.classList.add(habit.color);
             element.classList.add('animate-pop');
             element.addEventListener('animationend', () => {
                 element.classList.remove('animate-pop');
@@ -155,15 +157,27 @@ function toggleHabitDay(habitId, dayKey, element, event) {
     } else if (previousStatus === 'completed') {
         if (isShiftClick) {
             delete habit.tracking[dayKey];
+            if (element) {
+                element.classList.remove('completed');
+                if (habit.color) element.classList.remove(habit.color);
+            }
         } else {
             habit.tracking[dayKey] = 'prevented';
+            if (element) {
+                element.classList.remove('completed');
+                if (habit.color) element.classList.remove(habit.color);
+                element.classList.add('prevented');
+            }
         }
     } else {
         delete habit.tracking[dayKey];
+        if (element) element.classList.remove('prevented');
     }
 
     saveHabits();
-    renderHabits();
+    if (!skipRender) {
+        renderHabits();
+    }
     updateSidebars();
 }
 

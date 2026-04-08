@@ -8,11 +8,21 @@ function addTask() {
     updateSidebars();
 }
 
-function toggleTask(id) {
+function toggleTask(id, skipRender = false) {
     const task = state.tasks.find(t => t.id === id);
-    if (task) task.done = !task.done;
+    if (task) {
+        task.done = !task.done;
+        if (skipRender) {
+            const el = document.querySelector(`.task-item[data-id="${id}"][data-type="task"]`);
+            if (el) {
+                el.classList.toggle('done', task.done);
+                const checkbox = el.querySelector('.task-checkbox');
+                if (checkbox) checkbox.textContent = task.done ? '✓' : '';
+            }
+        }
+    }
     saveState();
-    renderTasks();
+    if (!skipRender) renderTasks();
     updateSidebars();
 }
 
@@ -37,6 +47,7 @@ function renderTasks() {
         item.className = 'task-item' + (task.done ? ' done' : '');
         item.draggable = true;
         item.dataset.index = index;
+        item.dataset.id = task.id;
         item.dataset.type = 'task';
         item.innerHTML = `
             <div class="drag-handle">⋮</div>
@@ -62,11 +73,21 @@ function addGoal() {
     renderGoals();
 }
 
-function toggleGoal(id) {
+function toggleGoal(id, skipRender = false) {
     const goal = state.goals.find(g => g.id === id);
-    if (goal) goal.done = !goal.done;
+    if (goal) {
+        goal.done = !goal.done;
+        if (skipRender) {
+            const el = document.querySelector(`.task-item[data-id="${id}"][data-type="goal"]`);
+            if (el) {
+                el.classList.toggle('done', goal.done);
+                const checkbox = el.querySelector('.task-checkbox');
+                if (checkbox) checkbox.textContent = goal.done ? '✓' : '';
+            }
+        }
+    }
     saveState();
-    renderGoals();
+    if (!skipRender) renderGoals();
 }
 
 function deleteGoal(id) {
@@ -89,6 +110,7 @@ function renderGoals() {
         item.className = 'task-item' + (goal.done ? ' done' : '');
         item.draggable = true;
         item.dataset.index = index;
+        item.dataset.id = goal.id;
         item.dataset.type = 'goal';
         item.innerHTML = `
             <div class="drag-handle">⋮</div>

@@ -69,6 +69,11 @@ function init() {
     } catch (e) { console.error('✗ setupEventListeners:', e); }
 
     try {
+        initShiftDrag();
+        console.log('✓ initShiftDrag');
+    } catch (e) { console.error('✗ initShiftDrag:', e); }
+
+    try {
         render();
         console.log('✓ render');
     } catch (e) { console.error('✗ render:', e); }

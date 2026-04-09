@@ -73,6 +73,7 @@ function addGoal() {
     document.getElementById('goalInput').value = '';
     document.getElementById('goalDateInput').value = '';
     renderGoals();
+    updateSidebars();
 }
 
 function toggleGoal(id, skipRender = false) {
@@ -90,6 +91,7 @@ function toggleGoal(id, skipRender = false) {
     }
     saveState();
     if (!skipRender) renderGoals();
+    updateSidebars();
 }
 
 function deleteGoal(id) {
@@ -98,6 +100,7 @@ function deleteGoal(id) {
     state.goals = state.goals.filter(g => g.id !== id);
     saveState();
     renderGoals();
+    updateSidebars();
 }
 
 function renderGoals() {
@@ -117,10 +120,8 @@ function renderGoals() {
         item.innerHTML = `
             <div class="drag-handle">⋮</div>
             <div class="task-checkbox" onclick="toggleGoal(${goal.id})">${goal.done ? '✓' : ''}</div>
-            <div class="task-content">
-                <span class="task-text">${escapeHtml(goal.text)}</span>
-                ${goal.dueDate ? `<span class="task-date">${goal.dueDate}</span>` : ''}
-            </div>
+            <span class="task-text">${escapeHtml(goal.text)}</span>
+            ${goal.dueDate ? `<span class="task-date">${goal.dueDate}</span>` : ''}
             <button class="task-delete" onclick="deleteGoal(${goal.id})">×</button>
         `;
         // TODO: Drag listeners disabled - causing textbox interaction issues

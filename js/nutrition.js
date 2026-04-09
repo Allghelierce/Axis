@@ -51,6 +51,20 @@ function deleteMeal(id) {
 
 function renderMeals() {
     const container = document.getElementById('mealsList');
+
+    // Calculate totals
+    let totalCals = 0;
+    let totalProt = 0;
+    state.meals.forEach(m => {
+        totalCals += m.calories || 0;
+        totalProt += m.protein || 0;
+    });
+
+    const calsEl = document.getElementById('inlineTotalCals');
+    const protEl = document.getElementById('inlineTotalProt');
+    if (calsEl) calsEl.textContent = totalCals;
+    if (protEl) protEl.textContent = totalProt;
+
     container.innerHTML = '';
 
     if (state.meals.length === 0) {
@@ -74,11 +88,6 @@ function renderMeals() {
             </div>
             <button class="meal-delete" onclick="deleteMeal(${meal.id})">×</button>
         `;
-        // TODO: Drag listeners disabled - causing textbox interaction issues
-        // item.addEventListener('dragstart', handleDragStart);
-        // item.addEventListener('dragover', handleDragOver);
-        // item.addEventListener('drop', handleDrop);
-        // item.addEventListener('dragend', handleDragEnd);
         container.appendChild(item);
     });
 }

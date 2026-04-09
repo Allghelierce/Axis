@@ -18,17 +18,17 @@ input[type=number] {
 }
 
         :root {
-            --black: #0a0a0a;
-            --white: #fafaf9;
-            --gray-dark: #1a1a1a;
-            --gray-light: #e8e8e7;
-            --bg: #0f0f0f;
-            --border: #2a2a2a;
+            --black: #020202;
+            --white: #a0a09e;
+            --gray-dark: #070707;
+            --gray-light: #a0a09e;
+            --bg: #040404;
+            --border: #111111;
         }
 
         body {
             font-family: 'Space Grotesk', sans-serif;
-            background: #0f0f0f;
+            background: #040404;
             color: var(--white);
             min-height: 100vh;
             display: flex;
@@ -76,6 +76,59 @@ input[type=number] {
             opacity: 0.6;
             margin-bottom: 0.5rem;
             font-weight: 600;
+        }
+
+        .sidebar-checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-check-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.3rem;
+        }
+
+        .sidebar-check-box {
+            flex-shrink: 0;
+            width: 8px;
+            height: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 1px;
+            margin-top: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.35rem;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .sidebar-check-done .sidebar-check-box {
+            border-color: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.06);
+        }
+
+        .sidebar-check-text {
+            font-size: 0.48rem;
+            line-height: 1.3;
+            opacity: 0.75;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100px;
+        }
+
+        .sidebar-check-done .sidebar-check-text {
+            opacity: 0.3;
+            text-decoration: line-through;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 0.5rem 0 0.8rem;
         }
 
         .sidebar-stat {
@@ -137,7 +190,7 @@ input[type=number] {
 
         .task-input {
             flex: 1;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--border);
             color: var(--white);
             padding: 0.4rem 0.6rem;
@@ -166,7 +219,7 @@ input[type=number] {
             align-items: center;
             gap: 0.5rem;
             padding: 0.5rem;
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--border);
             border-radius: 2px;
             font-size: 0.65rem;
@@ -176,7 +229,7 @@ input[type=number] {
 
         .task-item.dragging {
             opacity: 0.5;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
         }
 
         .drag-handle {
@@ -203,7 +256,7 @@ input[type=number] {
             border-radius: 2px;
             cursor: pointer;
             flex-shrink: 0;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -242,6 +295,34 @@ input[type=number] {
             margin-bottom: 1.5rem;
         }
 
+        .nutrition-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin: 1rem 0;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        .nut-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .nut-stat-label {
+            font-size: 0.5rem;
+            text-transform: uppercase;
+            opacity: 0.5;
+            letter-spacing: 0.05em;
+        }
+
+        .nut-stat-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
         .section-title {
             font-size: 0.6rem;
             text-transform: uppercase;
@@ -249,6 +330,23 @@ input[type=number] {
             opacity: 0.6;
             margin-bottom: 0.7rem;
             font-weight: 600;
+        }
+
+        .section-header-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 0.7rem;
+        }
+
+        .section-header-row .section-title {
+            margin-bottom: 0;
+        }
+
+        .macro-inline-stats {
+            font-size: 0.5rem;
+            opacity: 0.45;
+            letter-spacing: 0.04em;
         }
 
         .meal-input-group {
@@ -259,7 +357,7 @@ input[type=number] {
 
         .meal-input {
             flex: 1;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--border);
             color: var(--white);
             padding: 0.4rem 0.6rem;
@@ -278,7 +376,7 @@ input[type=number] {
 
         .cal-input {
             width: 60px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--border);
             color: var(--white);
             padding: 0.4rem;
@@ -332,7 +430,7 @@ input[type=number] {
             justify-content: space-between;
             align-items: center;
             padding: 0.5rem;
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--border);
             border-radius: 2px;
             font-size: 0.65rem;
@@ -341,7 +439,7 @@ input[type=number] {
 
         .meal-item.dragging {
             opacity: 0.5;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
         }
 
         .meal-info {
@@ -378,7 +476,7 @@ input[type=number] {
         }
 
         .photo-upload {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px dashed var(--white);
             border-radius: 2px;
             padding: 0.6rem;
@@ -389,7 +487,7 @@ input[type=number] {
         }
 
         .photo-upload:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
         }
 
         .photo-upload p {
@@ -456,17 +554,33 @@ input[type=number] {
             margin-bottom: 1.5rem;
         }
 
+        .daily-note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.6rem;
+        }
+
+        .daily-note-date {
+            font-size: 0.45rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            opacity: 0.4;
+        }
+
         .daily-note-input {
             width: 100%;
-            height: 100px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--border);
             color: var(--white);
             padding: 0.6rem;
             border-radius: 2px;
             font-size: 0.65rem;
             font-family: inherit;
-            resize: vertical;
+            resize: none;
+            overflow: hidden;
+            min-height: 32px;
+            box-sizing: border-box;
         }
 
         .daily-note-input::placeholder {
@@ -475,8 +589,68 @@ input[type=number] {
 
         .daily-note-input:focus {
             outline: none;
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.02);
             border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .note-textarea-container {
+            position: relative;
+        }
+
+        .note-submit-icon {
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+            width: 18px;
+            height: 18px;
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.25);
+            transition: color 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .note-submit-icon svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .note-submit-icon:hover {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .submitted-note-display {
+            margin-bottom: 0.5rem;
+        }
+
+        .submitted-note-text {
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.35);
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .note-edit-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.2);
+            font-family: inherit;
+            font-size: 0.55rem;
+            cursor: pointer;
+            padding: 0.2rem 0;
+            margin-top: 0.2rem;
+            display: block;
+            letter-spacing: 0.04em;
+            transition: color 0.15s;
+        }
+
+        .note-edit-btn:hover {
+            color: rgba(255, 255, 255, 0.5);
         }
 
         .folder-grid {
@@ -486,7 +660,7 @@ input[type=number] {
         }
 
         .workout-folder {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--border);
             border-radius: 2px;
             padding: 0.4rem;
@@ -496,7 +670,7 @@ input[type=number] {
         }
 
         .workout-folder:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
             border-color: var(--white);
         }
 
@@ -519,7 +693,7 @@ input[type=number] {
 
         .movement-input {
             flex: 1;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--border);
             color: var(--white);
             padding: 0.45rem;
@@ -534,7 +708,7 @@ input[type=number] {
 
         .workout-folder {
             position: relative;
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--border);
             border-radius: 2px;
             padding: 0.6rem;
@@ -566,8 +740,7 @@ input[type=number] {
 
         .movement-notes {
             width: 100%;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--border);
             color: var(--white);
             padding: 0.5rem;
@@ -575,6 +748,9 @@ input[type=number] {
             font-size: 0.7rem;
             font-family: inherit;
             resize: none;
+            overflow: hidden;
+            min-height: 32px;
+            box-sizing: border-box;
         }
 
         .movement-notes:focus {
@@ -605,6 +781,68 @@ input[type=number] {
             padding: 1rem;
             opacity: 0.5;
             font-size: 0.65rem;
+        }
+
+        /* ANALYTICS RIGHT SIDEBAR */
+        .analytics-right-sidebar {
+            width: 180px;
+            min-width: 180px;
+            border-left: 1px solid var(--border);
+            background: var(--black);
+            padding: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            gap: 0;
+        }
+
+        .folder-sidebar-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .folder-sidebar-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .folder-sidebar-name {
+            font-size: 0.55rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--white);
+            opacity: 0.9;
+        }
+
+        .folder-sidebar-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .folder-sidebar-count {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--white);
+        }
+
+        .folder-sidebar-last {
+            font-size: 0.45rem;
+            opacity: 0.45;
+            text-transform: uppercase;
+        }
+
+        .folder-sidebar-chart-label {
+            font-size: 0.45rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            opacity: 0.4;
+            margin-bottom: 0.4rem;
         }
 
         /* FULLSCREEN ANALYTICS */
@@ -696,7 +934,7 @@ input[type=number] {
         }
 
         .analytics-card {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--border);
             border-radius: 4px;
             padding: 2rem;
@@ -725,8 +963,14 @@ input[type=number] {
             display: flex;
             flex-direction: column;
             overflow-y: auto;
-            border-left: 1px solid rgba(255, 255, 255, 0.05);
+            border-left: 1px solid rgba(255, 255, 255, 0.01);
             position: relative;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        .habits-sidebar::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
         }
 
         .habits-sidebar::after {
@@ -910,7 +1154,7 @@ input[type=number] {
         }
 
         .note-input {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--white);
             padding: 0.6rem;
@@ -966,7 +1210,7 @@ input[type=number] {
         }
 
         .note-item {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 2px;
             padding: 0.6rem;
@@ -1014,6 +1258,12 @@ input[type=number] {
             flex: 1;
             overflow-y: auto;
             padding-right: 4px;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        .habits-list::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
         }
 
         .habit-item {
@@ -1152,8 +1402,8 @@ input[type=number] {
 
         /* WEEKLY CHART */
         .habits-weekly-chart-container {
-            margin-top: 0.8rem;
-            height: 60px;
+            margin-top: 1rem;
+            height: 120px;
             padding: 0.4rem 0;
         }
 
@@ -1168,7 +1418,7 @@ input[type=number] {
         }
 
         .detail-target-select {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--border);
             color: rgba(255, 255, 255, 0.8);
             padding: 0.2rem 0.4rem;
@@ -1179,7 +1429,7 @@ input[type=number] {
         }
 
         .detail-target-select:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.02);
         }
 
         .detail-target-select:focus {
@@ -1230,7 +1480,7 @@ input[type=number] {
             justify-content: center;
             width: 14px;
             height: 14px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--border);
             border-radius: 2px;
             color: rgba(248, 250, 252, 0.6);
@@ -1245,7 +1495,7 @@ input[type=number] {
 
         .habit-day.today-habit {
             border-color: rgba(255, 255, 255, 0.35);
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.02);
         }
 
         .habit-day.past-week {
@@ -1274,7 +1524,7 @@ input[type=number] {
         }
 
         .habit-day.prevented {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
             border-color: rgba(255, 255, 255, 0.2);
             color: rgba(248, 250, 252, 0.6);
             font-size: 0.5rem;
@@ -1304,6 +1554,43 @@ input[type=number] {
             overflow-y: auto;
         }
 
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            align-items: start;
+        }
+
+        .dashboard-column {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1000px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .habits-sidebar {
+            width: 400px;
+            flex-shrink: 0;
+            background: var(--bg);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            border-left: 1px solid rgba(255, 255, 255, 0.01);
+            position: relative;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .habits-sidebar::-webkit-scrollbar {
+            display: none;
+        }
+
         .header {
             display: flex;
             justify-content: space-between;
@@ -1321,7 +1608,7 @@ input[type=number] {
         }
 
         .analytics-button, .settings-button {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--border);
             color: var(--white);
             opacity: 0.6;
@@ -1356,7 +1643,7 @@ input[type=number] {
         }
 
         .fs-tab {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--border);
             color: var(--white);
             padding: 0.4rem 1rem;
@@ -1594,8 +1881,8 @@ input[type=number] {
         }
 
         .detail-stat {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.02);
             border-radius: 2px;
             padding: 0.25rem;
             text-align: center;
@@ -1618,7 +1905,7 @@ input[type=number] {
 
         .detail-chart {
             background: rgba(255, 255, 255, 0.01);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.02);
             border-radius: 2px;
             padding: 0.3rem;
             height: 120px;
@@ -1627,7 +1914,7 @@ input[type=number] {
 
         .detail-calendar {
             background: rgba(255, 255, 255, 0.01);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.02);
             border-radius: 2px;
             padding: 0.3rem;
             display: flex;
@@ -1683,7 +1970,7 @@ input[type=number] {
         }
 
         .calendar-month:nth-child(2) {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.01);
             padding: 0.1rem;
             margin: -0.1rem -0.1rem 0.15rem -0.1rem;
             border-radius: 1px;
@@ -1710,8 +1997,8 @@ input[type=number] {
             align-items: center;
             justify-content: center;
             border-radius: 0.5px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 0.5px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.015);
+            border: 0.5px solid rgba(255, 255, 255, 0.02);
             font-size: 0.32rem;
             font-weight: 700;
             min-width: 3.5px;
@@ -1727,7 +2014,7 @@ input[type=number] {
         }
 
         .calendar-day.prevented {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.02);
             border-color: rgba(255, 255, 255, 0.2);
             color: rgba(248, 250, 252, 0.7);
         }
@@ -1797,13 +2084,13 @@ input[type=number] {
 
         .wn-date-item:hover {
             opacity: 0.8;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.015);
         }
 
         .wn-date-item.active {
             opacity: 1;
             border-left-color: var(--white);
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.02);
         }
 
         .wn-empty {
@@ -1982,7 +2269,7 @@ input[type=number] {
 
         .auth-email {
             padding: 0.8rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--border);
             border-radius: 4px;
             font-size: 0.85rem;
@@ -1991,7 +2278,7 @@ input[type=number] {
         }
 
         .task-input-date {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.015);
             border: 1px solid var(--border);
             border-left: none;
             color: var(--white);
@@ -2023,10 +2310,13 @@ input[type=number] {
         }
 
         .task-date {
-            font-size: 0.65rem;
+            font-size: 0.5rem;
             color: var(--white);
             opacity: 0.3;
             letter-spacing: 0.02em;
+            margin-left: auto;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .task-item.done .task-date {
@@ -2035,7 +2325,7 @@ input[type=number] {
 
         .auth-message {
             padding: 1rem;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.015);
             border: 1px solid var(--border);
             border-radius: 4px;
             font-size: 0.85rem;
@@ -2066,7 +2356,7 @@ input[type=number] {
         .goal-input-group input {
             width: 60px;
             padding: 0.3rem 0.5rem;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
             border: 1px solid var(--border);
             border-radius: 2px;
             color: var(--white);
@@ -2082,8 +2372,8 @@ input[type=number] {
 
         .note-heatmap-cell {
             aspect-ratio: 1;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.01);
             border-radius: 3px;
             cursor: pointer;
             transition: all 0.2s;
@@ -2092,3 +2382,141 @@ input[type=number] {
         .note-heatmap-cell:hover {
             border-color: rgba(255, 255, 255, 0.2);
         }
+
+.corner-icon {
+    position: fixed;
+    bottom: 1.5rem;
+    width: 18px;
+    height: 18px;
+    opacity: 0.2;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.sun-icon {
+    left: 1.5rem;
+}
+
+.moon-icon {
+    right: 1.5rem;
+}
+
+/* POP OUT BUTTONS & SUMMARY */
+.pop-out-btn {
+    background: none;
+    border: none;
+    padding: 2px;
+    margin-left: 8px;
+    cursor: pointer;
+    opacity: 0.3;
+    transition: opacity 0.2s;
+    display: inline-flex;
+    align-items: center;
+}
+
+.pop-out-btn:hover {
+    opacity: 0.8;
+}
+
+.pop-out-btn svg {
+    width: 12px;
+    height: 12px;
+    color: var(--fg);
+}
+
+.summary-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.summary-panel {
+    background: var(--black);
+    width: 100%;
+    max-width: 600px;
+    max-height: 80vh;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.summary-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.summary-title {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    opacity: 0.8;
+}
+
+.summary-close-btn {
+    background: none;
+    border: none;
+    color: var(--fg);
+    opacity: 0.4;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+.summary-content {
+    padding: 2rem;
+    overflow-y: auto;
+    font-family: 'Space Grotesk', sans-serif;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+}
+
+.summary-section {
+    margin-bottom: 2rem;
+}
+
+.summary-section-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.3);
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    padding-bottom: 0.4rem;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.summary-item-label {
+    opacity: 0.5;
+}
+
+.summary-list-item {
+    margin-bottom: 0.4rem;
+    padding-left: 1rem;
+    position: relative;
+    font-size: 0.9rem;
+}
+
+.summary-list-item::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    opacity: 0.3;
+}

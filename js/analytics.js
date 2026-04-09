@@ -4,6 +4,8 @@ let taskCompletionChart = null;
 let goalCompletionChart = null;
 let habitChart = null;
 let streakChart = null;
+let folderSessionsChart = null;
+let workoutFrequencyChart = null;
 
 let prevCalorieChart = null;
 let prevProteinChart = null;
@@ -22,6 +24,8 @@ function openFullscreenAnalytics() {
     renderAnalyticsCharts();
     renderWorkoutFolders(); // Refresh folders in analytics view
     renderVault(); // Refresh photo vault
+    renderFolderSidebar();
+    renderWorkoutFrequencyChart();
 }
 
 function closeFullscreenAnalytics() {
@@ -748,6 +752,18 @@ function calculateHabitStreakAt(habit, daysAgo) {
     return streak;
 }
 
+function renderSidebarChecklist(containerId, items) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = '';
+    items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'sidebar-check-row' + (item.done ? ' sidebar-check-done' : '');
+        row.innerHTML = `<span class="sidebar-check-box">${item.done ? '✓' : ''}</span><span class="sidebar-check-text">${escapeHtml(item.text)}</span>`;
+        el.appendChild(row);
+    });
+}
+
 function updateSidebars() {
     const totalCals = state.meals.reduce((sum, m) => sum + (m.calories || 0), 0);
     const totalProt = state.meals.reduce((sum, m) => sum + (m.protein || 0), 0);
@@ -759,6 +775,9 @@ function updateSidebars() {
     const doneTasks = state.tasks.filter(t => t.done).length;
     document.getElementById('sidebarTasks').textContent = totalTasks;
     document.getElementById('sidebarComplete').textContent = totalTasks > 0 ? Math.round(doneTasks / totalTasks * 100) + '%' : '0%';
+
+    renderSidebarChecklist('sidebarTaskChecklist', state.tasks.map(t => ({ text: t.text, done: t.done })));
+    renderSidebarChecklist('sidebarGoalChecklist', state.goals.map(g => ({ text: g.text, done: g.done })));
 
     const avgMealCal = state.history.caloriesHistory.length > 0
         ? Math.round(state.history.caloriesHistory.reduce((sum, h) => sum + h.calories, 0) / state.history.caloriesHistory.length)
@@ -961,4 +980,152 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function renderFolderSidebar() {
+    const statsContainer = document.getElementById('folderSidebarStats');
+    const chartCanvas = document.getElementById('folderSessionsChart');
+    if (!statsContainer || !chartCanvas) return;
+
+    const folders = Object.entries(workoutFolders);
+    const todayKey = new Date().toISOString().split('T')[0];
+
+    statsContainer.innerHTML = '';
+
+    if (folders.length === 0) {
+        statsContainer.innerHTML = '<div style="font-size:0.55rem; opacity:0.4;">No folders yet</div>';
+        return;
+    }
+
+    const folderNames = [];
+    const sessionCounts = [];
+
+    folders.forEach(([name, dates]) => {
+        folderNames.push(name);
+        sessionCounts.push(dates.length);
+
+        const lastDateStr = dates.length > 0 ? dates[0] : null;
+        let lastLabel = 'Never';
+        if (lastDateStr) {
+            const diffDays = Math.floor((new Date(todayKey) - new Date(lastDateStr)) / 86400000);
+            lastLabel = diffDays === 0 ? 'Today' : diffDays === 1 ? 'Yesterday' : `${diffDays}d ago`;
+        }
+
+        const row = document.createElement('div');
+        row.className = 'folder-sidebar-row';
+        row.innerHTML = `
+            <div class="folder-sidebar-name">${escapeHtml(name)}</div>
+            <div class="folder-sidebar-meta">
+                <span class="folder-sidebar-count">${dates.length}</span>
+                <span class="folder-sidebar-last">${lastLabel}</span>
+            </div>
+        `;
+        statsContainer.appendChild(row);
+    });
+
+    if (folderSessionsChart) folderSessionsChart.destroy();
+    folderSessionsChart = new Chart(chartCanvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: folderNames,
+            datasets: [{
+                data: sessionCounts,
+                backgroundColor: 'rgba(209, 213, 219, 0.15)',
+                borderColor: 'rgba(209, 213, 219, 0.6)',
+                borderWidth: 1,
+                borderRadius: 2
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 }, stepSize: 1 },
+                    grid: { color: 'rgba(255,255,255,0.05)' }
+                },
+                y: {
+                    ticks: { color: 'rgba(255,255,255,0.7)', font: { size: 9 } },
+                    grid: { display: false }
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+}
+
+function renderWorkoutFrequencyChart() {
+    const canvas = document.getElementById('workoutFrequencyChart');
+    if (!canvas) return;
+
+    const weeks = 12;
+    const labels = [];
+    const data = [];
+
+    const end = new Date();
+    end.setDate(end.getDate() + (6 - end.getDay()));
+
+    for (let w = weeks - 1; w >= 0; w--) {
+        const weekEnd = new Date(end);
+        weekEnd.setDate(weekEnd.getDate() - w * 7);
+        const weekStart = new Date(weekEnd);
+        weekStart.setDate(weekStart.getDate() - 6);
+
+        const weekEndKey = weekEnd.toISOString().split('T')[0];
+        const weekStartKey = weekStart.toISOString().split('T')[0];
+
+        labels.push(weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+
+        const workoutDays = new Set();
+        Object.values(workoutFolders).forEach(dates => {
+            dates.forEach(d => {
+                if (d >= weekStartKey && d <= weekEndKey) workoutDays.add(d);
+            });
+        });
+        data.push(workoutDays.size);
+    }
+
+    if (workoutFrequencyChart) workoutFrequencyChart.destroy();
+    workoutFrequencyChart = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Active Days',
+                data,
+                backgroundColor: data.map(v => v >= 4 ? 'rgba(34, 197, 94, 0.7)' : v >= 2 ? 'rgba(209, 213, 219, 0.5)' : 'rgba(209, 213, 219, 0.2)'),
+                borderColor: data.map(v => v >= 4 ? 'rgba(34, 197, 94, 0.9)' : 'rgba(209, 213, 219, 0.4)'),
+                borderWidth: 1,
+                borderRadius: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { display: false } },
+                y: {
+                    beginAtZero: true,
+                    max: 7,
+                    ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 }, stepSize: 1 },
+                    grid: { color: 'rgba(255,255,255,0.05)' }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#111',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    cornerRadius: 4,
+                    displayColors: false,
+                    callbacks: { label: ctx => `${ctx.raw} active day${ctx.raw !== 1 ? 's' : ''}` }
+                }
+            }
+        }
+    });
 }

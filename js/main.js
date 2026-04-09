@@ -172,11 +172,43 @@ function setupEventListeners() {
 
     const movementNotes = document.getElementById('movementNotes');
     if (movementNotes) {
-        movementNotes.addEventListener('change', (e) => {
+        movementNotes.addEventListener('input', (e) => {
+            autoGrow(e.target);
             state.movementNotes = e.target.value;
+            state.movementNotesSubmitted = false;
             workoutNotesHistory[getTodayKey()] = e.target.value;
             saveWorkoutNotesHistory();
             saveState();
+        });
+    }
+
+    const submitMovementBtn = document.getElementById('submitMovementNotes');
+    if (submitMovementBtn) {
+        submitMovementBtn.addEventListener('click', () => {
+            const textarea = document.getElementById('movementNotes');
+            const content = textarea.value.trim();
+            if (!content) return;
+            state.movementNotes = content;
+            state.movementNotesSubmitted = true;
+            workoutNotesHistory[getTodayKey()] = content;
+            saveWorkoutNotesHistory();
+            saveState();
+            renderMovementNotes();
+        });
+    }
+
+    const editMovementBtn = document.getElementById('editMovementNotes');
+    if (editMovementBtn) {
+        editMovementBtn.addEventListener('click', () => {
+            const content = state.movementNotes || '';
+            state.movementNotesSubmitted = false;
+            saveState();
+            const textarea = document.getElementById('movementNotes');
+            if (textarea) {
+                textarea.value = content;
+                autoGrow(textarea);
+            }
+            document.getElementById('movementNotesDisplay').style.display = 'none';
         });
     }
 
@@ -324,13 +356,33 @@ function handleUndo() {
 
 
 
+function renderMovementNotes() {
+    const textarea = document.getElementById('movementNotes');
+    const display = document.getElementById('movementNotesDisplay');
+    const noteText = document.getElementById('movementNotesText');
+
+    if (!textarea || !display || !noteText) return;
+
+    if (state.movementNotesSubmitted && state.movementNotes) {
+        noteText.textContent = state.movementNotes;
+        display.style.display = '';
+        textarea.value = '';
+        textarea.placeholder = 'Add another workout note...';
+    } else {
+        textarea.value = state.movementNotes || '';
+        textarea.placeholder = 'Workout notes...';
+        display.style.display = 'none';
+    }
+    autoGrow(textarea);
+}
+
 function render() {
     renderSplitSelect();
     renderTasks();
     renderGoals();
     renderMeals();
     renderGallery();
-    document.getElementById('movementNotes').value = state.movementNotes;
+    renderMovementNotes();
     renderWorkoutFolders();
 }
 

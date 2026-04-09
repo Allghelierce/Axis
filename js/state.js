@@ -33,6 +33,7 @@ function loadState() {
             data.meals = [];
             data.photos = [];
             data.movementNotes = '';
+            data.movementNotesSubmitted = false;
             data.splitInput = '';
             data.tasks = [];
             data.goals = [];
@@ -43,6 +44,7 @@ function loadState() {
         if (!data.history.tasksHistory) data.history.tasksHistory = [];
         if (!data.nutritionGoals) data.nutritionGoals = { calories: null, protein: null };
         if (!data.viewState) data.viewState = { analyticsActive: false };
+        if (data.movementNotesSubmitted === undefined) data.movementNotesSubmitted = false;
         return data;
     }
     return {
@@ -50,6 +52,7 @@ function loadState() {
         meals: [],
         photos: [],
         movementNotes: '',
+        movementNotesSubmitted: false,
         splitInput: '',
         tasks: [],
         goals: [],

@@ -1162,34 +1162,38 @@ input[type=number] {
             margin-bottom: 1rem;
         }
 
-        .analytics-button {
+        .dashboard-actions {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            display: flex;
+            gap: 0.6rem;
+            z-index: 100;
+        }
+
+        .analytics-button, .settings-button {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border);
             color: var(--white);
             opacity: 0.6;
             cursor: pointer;
             transition: all 0.2s ease;
-            position: absolute;
-            bottom: 1rem;
-            left: 1rem;
-            right: auto;
             width: 36px;
             height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 100;
             border-radius: 4px;
         }
 
-        .analytics-button:hover {
+        .analytics-button:hover, .settings-button:hover {
             opacity: 1;
             transform: scale(1.1);
             background: rgba(255, 255, 255, 0.1);
             border-color: var(--white);
         }
 
-        .analytics-button svg {
+        .analytics-button svg, .settings-button svg {
             width: 18px;
             height: 18px;
         }
@@ -1418,18 +1422,21 @@ input[type=number] {
 
         .time-arc-container {
             position: fixed;
-            bottom: 0;
+            bottom: 0px;
             left: 0;
-            right: 0;
+            width: 100%;
             height: 120px;
             pointer-events: none;
-            z-index: 1;
+            z-index: 1000;
         }
 
         .time-arc-svg {
             width: 100%;
             height: 100%;
-            filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.1));
+        }
+
+        #moonGroup {
+            transition: transform 0.1s linear;
         }
 
         .moon {

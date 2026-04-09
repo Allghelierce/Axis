@@ -61,7 +61,7 @@ function renderMeals() {
     state.meals.forEach((meal, index) => {
         const item = document.createElement('div');
         item.className = 'meal-item';
-        item.draggable = true;
+
         item.dataset.index = index;
         item.dataset.type = 'meal';
         const calText = meal.calories ? `${meal.calories} cal` : 'Cal unknown';

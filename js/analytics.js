@@ -304,17 +304,24 @@ function renderWorkoutHeatmap() {
         if (count === 0) {
             square.style.background = 'rgba(255, 255, 255, 0.05)';
         } else if (count === 1) {
-            square.style.background = 'rgba(74, 222, 128, 0.3)';
+            square.style.background = 'rgba(74, 180, 100, 0.4)'; // Subdued green
         } else if (count === 2) {
-            square.style.background = 'rgba(74, 222, 128, 0.6)';
+            square.style.background = 'rgba(74, 222, 128, 0.7)'; // Bright green
         } else {
-            square.style.background = 'rgba(74, 222, 128, 1)';
+            square.style.background = '#4ade80'; // Neon green for 3+
+            square.style.boxShadow = '0 0 8px rgba(74, 222, 128, 0.4)';
         }
 
+        square.style.cursor = 'pointer';
+        square.onclick = () => {
+            if (count > 0) openDailyWorkoutLogs(key);
+        };
+
         if (count > 0) {
-            square.title = `${key}: ${folderList.join(', ')}`;
+            const dStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            square.title = `${dStr}: ${folderList.join(', ')}`;
         } else {
-            square.title = `${key}: No workouts`;
+            square.title = `${d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}: No workouts`;
         }
 
         daySquares.push(square);

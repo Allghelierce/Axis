@@ -137,3 +137,27 @@ function renderSplitSelect() {
         saveState();
     }
 }
+
+function openDailyWorkoutLogs(dateStr) {
+    const sidebar = document.getElementById('workoutNotesSidebar');
+    const folderNameEl = document.getElementById('workoutNotesFolderName');
+    const datesList = document.getElementById('workoutNotesDates');
+    const contentEl = document.getElementById('workoutNotesContent');
+
+    const d = new Date(dateStr + 'T00:00:00');
+    folderNameEl.textContent = d.toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' });
+    
+    // Find all folders for this day
+    const foldersThisDay = [];
+    Object.entries(workoutFolders).forEach(([name, dates]) => {
+        if (dates.includes(dateStr)) foldersThisDay.push(name);
+    });
+
+    datesList.innerHTML = '<div class="wn-date-item active">Folders Today</div>';
+    
+    let summaryHTML = `<div style="margin-bottom: 1rem; opacity: 0.6; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em;">Categories: ${foldersThisDay.join(', ')}</div>`;
+    summaryHTML += `<div class="wn-note-text" style="white-space: pre-wrap;">${workoutNotesHistory[dateStr] || 'No notes for this session.'}</div>`;
+    
+    contentEl.innerHTML = summaryHTML;
+    sidebar.classList.add('active');
+}

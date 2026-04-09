@@ -45,7 +45,7 @@ function renderTasks() {
     state.tasks.forEach((task, index) => {
         const item = document.createElement('div');
         item.className = 'task-item' + (task.done ? ' done' : '');
-        item.draggable = true;
+
         item.dataset.index = index;
         item.dataset.id = task.id;
         item.dataset.type = 'task';
@@ -108,7 +108,7 @@ function renderGoals() {
     state.goals.forEach((goal, index) => {
         const item = document.createElement('div');
         item.className = 'task-item' + (goal.done ? ' done' : '');
-        item.draggable = true;
+
         item.dataset.index = index;
         item.dataset.id = goal.id;
         item.dataset.type = 'goal';
@@ -126,8 +126,6 @@ function renderGoals() {
         container.appendChild(item);
     });
 }
-
-let draggedItem = null;
 
 function handleDragStart(e) {
     draggedItem = this;

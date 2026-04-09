@@ -212,6 +212,68 @@ function setupEventListeners() {
     });
 }
 
+let isMouseDownMain = false;
+let isShiftDraggingMain = false;
+let draggedOverElementsMain = new Set();
+
+function initShiftDrag() {
+    window.addEventListener('mousedown', (e) => {
+        const tag = e.target.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+        isMouseDownMain = true;
+        if (e.shiftKey) {
+            const target = e.target.closest('.habit-day, .task-checkbox');
+            if (target) {
+                isShiftDraggingMain = true;
+                draggedOverElementsMain.clear();
+                draggedOverElementsMain.add(target);
+                e.preventDefault();
+                handleBoxInteraction(target, e);
+            }
+        }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (isMouseDownMain && isShiftDraggingMain) {
+            const target = e.target.closest('.habit-day, .task-checkbox');
+            if (target && !draggedOverElementsMain.has(target)) {
+                draggedOverElementsMain.add(target);
+                handleBoxInteraction(target, e);
+            }
+        }
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (isShiftDraggingMain) {
+            // Final render to ensure everything is synced
+            renderHabits();
+            renderTasks();
+            renderGoals();
+        }
+        isMouseDownMain = false;
+        isShiftDraggingMain = false;
+        draggedOverElementsMain.clear();
+    });
+}
+
+function handleBoxInteraction(el, event) {
+    if (el.classList.contains('habit-day')) {
+        const habitId = parseInt(el.dataset.habitId);
+        const dayKey = el.dataset.dayKey;
+        toggleHabitDay(habitId, dayKey, el, event, true);
+    } else if (el.classList.contains('task-checkbox')) {
+        const item = el.closest('.task-item');
+        if (item) {
+            const id = parseInt(item.dataset.id);
+            if (item.dataset.type === 'task') {
+                toggleTask(id, true);
+            } else if (item.dataset.type === 'goal') {
+                toggleGoal(id, true);
+            }
+        }
+    }
+}
+
 function handleUndo() {
     const item = undoStack.pop();
     if (!item) return;
@@ -280,7 +342,7 @@ try {
 
 // Time Arc Moon Animation
 (function() {
-    const moonEl = document.querySelector('.moon');
+    const moonEl = document.getElementById('moonGroup');
     if (!moonEl) return;
 
     function updateMoonPosition() {
@@ -299,8 +361,13 @@ try {
         const arcProgress = progress * Math.PI; // 0 to π for semicircle
         const y = 50 - Math.sin(arcProgress) * 45; // Semicircle from 50 down to 5 and back to 50
         
-        moonEl.setAttribute('cx', x);
-        moonEl.setAttribute('cy', y);
+        // Subtle rotation: 90 degrees over 24 hours
+        const rotation = progress * 90;
+        
+        const moonGroup = document.getElementById('moonGroup');
+        if (moonGroup) {
+            moonGroup.setAttribute('transform', `translate(${x}, ${y}) rotate(${rotation})`);
+        }
     }
     
     // Update moon position immediately and then every second

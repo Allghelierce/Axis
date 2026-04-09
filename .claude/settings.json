@@ -11,7 +11,9 @@
       "Bash(node -c js/nutrition.js)",
       "Bash(node -c js/main.js)",
       "Bash(grep -n \"function updateSidebars\" js/*.js)",
-      "Bash(grep -n \"function initMap\" js/*.js)"
+      "Bash(grep -n \"function initMap\" js/*.js)",
+      "Bash(grep -n \"workoutHeatmap\\\\|heatmap\" js/*.js)",
+      "Bash(grep -n \"workoutHeatmap\" js/*.js)"
     ]
   }
 }

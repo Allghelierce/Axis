@@ -1716,3 +1716,30 @@ input[type=number] {
             white-space: pre-wrap;
             color: var(--white);
         }
+
+        /* HEATMAP TOOLTIP */
+        .heatmap-square {
+            position: relative;
+        }
+
+        .heatmap-square::after {
+            content: attr(data-date);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: var(--white);
+            padding: 0.4rem 0.6rem;
+            border-radius: 3px;
+            font-size: 0.65rem;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 1000;
+        }
+
+        .heatmap-square:hover::after {
+            opacity: 1;
+        }

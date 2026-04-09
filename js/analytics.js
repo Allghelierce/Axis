@@ -317,12 +317,10 @@ function renderWorkoutHeatmap() {
             if (count > 0) openDailyWorkoutLogs(key);
         };
 
-        if (count > 0) {
-            const dStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-            square.title = `${dStr}: ${folderList.join(', ')}`;
-        } else {
-            square.title = `${d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}: No workouts`;
-        }
+        const dStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        const tooltip = count > 0 ? `${dStr}: ${folderList.join(', ')}` : `${dStr}: No workouts`;
+        square.title = tooltip;
+        square.dataset.date = tooltip;
 
         daySquares.push(square);
     }

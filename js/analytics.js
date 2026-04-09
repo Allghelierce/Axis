@@ -781,12 +781,15 @@ function updateSidebars() {
     renderSidebarChecklist('sidebarTaskChecklist', state.tasks.map(t => ({ text: t.text, done: t.done })));
     renderSidebarChecklist('sidebarGoalChecklist', state.goals.map(g => ({ text: g.text, done: g.done })));
 
+    const todayStr = new Date().toISOString().split('T')[0];
     const todayDone = state.tasks.filter(t => t.done).length + state.goals.filter(g => g.done).length;
-    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+    // Moon = past 6 complete days + today (7-day rolling window)
+    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 6);
     const weekKey = weekAgo.toISOString().split('T')[0];
-    const weeklyDone =
-        (state.history.tasksHistory || []).filter(h => h.date >= weekKey).reduce((s, h) => s + (h.done || 0), 0) +
-        (state.history.goalsHistory || []).filter(h => h.date >= weekKey).reduce((s, h) => s + (h.done || 0), 0);
+    const pastDone =
+        (state.history.tasksHistory || []).filter(h => h.date >= weekKey && h.date < todayStr).reduce((s, h) => s + (h.done || 0), 0) +
+        (state.history.goalsHistory || []).filter(h => h.date >= weekKey && h.date < todayStr).reduce((s, h) => s + (h.done || 0), 0);
+    const weeklyDone = pastDone + todayDone;
     const taskCountEl = document.getElementById('taskCircleCount');
     const goalCountEl = document.getElementById('goalCircleCount');
     if (taskCountEl) taskCountEl.textContent = todayDone;

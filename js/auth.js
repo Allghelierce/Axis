@@ -1,6 +1,6 @@
 // Supabase Configuration
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://tknvrfmmsjmnmbthkjnu.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrbnZyZm1tc2ptbm1idGhram51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NTY5NDMsImV4cCI6MjA5MTMzMjk0M30.8gmQcwSknEt21ud4KBDiNmXhsi5t21-oqc013FipQfw';
 
 let supabase = null;
 let currentSession = null;
@@ -23,13 +23,21 @@ function initSupabase() {
 // Initialize authentication
 async function initAuth() {
     if (!supabase) {
-        console.log('Supabase not initialized');
         renderAuthUI(null);
         return;
     }
 
     try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+            console.warn('Auth session error:', error.message);
+            // Clear invalid hash
+            if (window.location.hash) {
+                window.history.replaceState(null, null, window.location.pathname);
+            }
+        }
+
         currentSession = session;
         renderAuthUI(session);
         setupAuthStateListener();
@@ -54,8 +62,9 @@ function setupAuthStateListener() {
 
 // Sign up with email and password
 async function signUp(email, password, confirmPassword) {
+    if (!supabase) initSupabase();
     if (!supabase) {
-        alert('Supabase not configured');
+        alert('Could not connect to sync server. Check your internet connection.');
         return;
     }
 
@@ -72,7 +81,10 @@ async function signUp(email, password, confirmPassword) {
     try {
         const { data, error } = await supabase.auth.signUp({
             email,
-            password
+            password,
+            options: {
+                emailRedirectTo: window.location.origin + window.location.pathname
+            }
         });
 
         if (error) {
@@ -80,7 +92,6 @@ async function signUp(email, password, confirmPassword) {
             return;
         }
 
-        alert('Sign up successful! Please check your email to confirm your account.');
         return data;
     } catch (error) {
         console.error('Sign up error:', error);
@@ -90,8 +101,9 @@ async function signUp(email, password, confirmPassword) {
 
 // Sign in with email and password
 async function signIn(email, password) {
+    if (!supabase) initSupabase();
     if (!supabase) {
-        alert('Supabase not configured');
+        alert('Could not connect to sync server. Check your internet connection.');
         return;
     }
 
@@ -133,58 +145,37 @@ function renderAuthUI(session) {
     const container = document.getElementById('authContainer');
     if (!container) return;
 
-    if (!supabase || SUPABASE_URL === 'YOUR_SUPABASE_URL') {
-        container.innerHTML = `
-            <div class="auth-message">
-                <p>Supabase not configured</p>
-                <p style="font-size: 0.85rem; opacity: 0.6; margin-top: 0.5rem;">
-                    Please configure Supabase credentials in js/auth.js to enable cloud sync
-                </p>
-            </div>
-        `;
-        return;
-    }
-
     if (session) {
-        // User is signed in
         container.innerHTML = `
             <div class="auth-signed-in">
                 <div class="auth-email">${session.user.email}</div>
-                <button class="btn" onclick="handleSignOut()" style="margin-top: 1rem; width: 100%;">Sign Out</button>
-                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
-                    <div class="settings-section-title" style="margin-bottom: 0.5rem;">Data Sync</div>
-                    <div class="sync-status">
-                        <span id="syncStatusIndicator">🟢</span>
-                        <span id="syncStatusText">Connected</span>
-                    </div>
+                <div class="sync-status" style="margin-top: 0.6rem;">
+                    <span id="syncStatusIndicator" style="font-size:0.6rem;">●</span>
+                    <span id="syncStatusText">Synced</span>
                 </div>
+                <button class="btn" onclick="handleSignOut()" style="margin-top: 1rem; width: 100%;">Sign Out</button>
             </div>
         `;
     } else {
-        // User is not signed in
+        const note = !supabase ? '<p class="auth-offline-note">Sync unavailable — check connection</p>' : '';
         container.innerHTML = `
             <div id="authForm" class="auth-form">
                 <div class="auth-toggle">
                     <button class="auth-toggle-btn active" onclick="showSignIn()">Sign In</button>
                     <button class="auth-toggle-btn" onclick="showSignUp()">Sign Up</button>
                 </div>
-
                 <div id="signInForm" class="auth-input-group">
-                    <input type="email" id="signInEmail" class="task-input" placeholder="Email" style="width: 100%; margin-bottom: 0.5rem;">
-                    <input type="password" id="signInPassword" class="task-input" placeholder="Password" style="width: 100%; margin-bottom: 0.5rem;">
-                    <button class="btn" onclick="handleSignIn()" style="width: 100%;">Sign In</button>
+                    <input type="email" id="signInEmail" class="task-input auth-field" placeholder="Email">
+                    <input type="password" id="signInPassword" class="task-input auth-field" placeholder="Password">
+                    <button class="btn auth-submit-btn" onclick="handleSignIn()">Sign In</button>
                 </div>
-
-                <div id="signUpForm" class="auth-input-group" style="display: none;">
-                    <input type="email" id="signUpEmail" class="task-input" placeholder="Email" style="width: 100%; margin-bottom: 0.5rem;">
-                    <input type="password" id="signUpPassword" class="task-input" placeholder="Password" style="width: 100%; margin-bottom: 0.5rem;">
-                    <input type="password" id="signUpConfirm" class="task-input" placeholder="Confirm Password" style="width: 100%; margin-bottom: 0.5rem;">
-                    <button class="btn" onclick="handleSignUp()" style="width: 100%;">Create Account</button>
+                <div id="signUpForm" class="auth-input-group" style="display:none;">
+                    <input type="email" id="signUpEmail" class="task-input auth-field" placeholder="Email">
+                    <input type="password" id="signUpPassword" class="task-input auth-field" placeholder="Password">
+                    <input type="password" id="signUpConfirm" class="task-input auth-field" placeholder="Confirm Password">
+                    <button class="btn auth-submit-btn" onclick="handleSignUp()">Create Account</button>
                 </div>
-
-                <p style="font-size: 0.85rem; opacity: 0.6; margin-top: 1rem; text-align: center;">
-                    You can use the app offline without signing in
-                </p>
+                ${note}
             </div>
         `;
     }
@@ -219,7 +210,6 @@ async function handleSignIn() {
     await signIn(email, password);
 }
 
-// UI Handler: Sign up
 async function handleSignUp() {
     const email = document.getElementById('signUpEmail').value.trim();
     const password = document.getElementById('signUpPassword').value;
@@ -230,7 +220,41 @@ async function handleSignUp() {
         return;
     }
 
-    await signUp(email, password, confirm);
+    const data = await signUp(email, password, confirm);
+    if (data && data.user) {
+        // Successful sign up with confirmation pending
+        const container = document.getElementById('authContainer');
+        if (container) {
+            container.innerHTML = `
+                <div class="auth-form" style="text-align: center; padding: 1rem 0;">
+                    <div style="font-size: 1.5rem; margin-bottom: 0.8rem;">✉️</div>
+                    <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--white);">Verify with Email</div>
+                    <p style="font-size: 0.8rem; opacity: 0.6; line-height: 1.4; margin-bottom: 1.2rem;">
+                        We've sent a link to <br><strong>${email}</strong>.<br>
+                        Check your inbox to activate your account.
+                    </p>
+                    <button class="btn" style="width: 100%; margin-bottom: 0.5rem;" onclick="renderAuthUI(null)">Back to Sign In</button>
+                    <button class="btn btn-secondary" style="width: 100%; background: transparent; border: 1px solid var(--border); color: var(--white); opacity: 0.6;" onclick="handleResendEmail('${email}')">Resend Link</button>
+                </div>
+            `;
+        }
+    }
+}
+
+async function handleResendEmail(email) {
+    if (!supabase) initSupabase();
+    const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+            emailRedirectTo: window.location.origin + window.location.pathname
+        }
+    });
+    if (error) {
+        alert('Resend failed: ' + error.message);
+    } else {
+        alert('Verification link resent to ' + email);
+    }
 }
 
 // UI Handler: Sign out

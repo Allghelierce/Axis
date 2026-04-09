@@ -221,6 +221,9 @@ function setupEventListeners() {
     const settingsBtn = document.getElementById('openSettingsBtn');
     if (settingsBtn) settingsBtn.addEventListener('click', openSettings);
 
+    const storageBtn = document.getElementById('storageBtn');
+    if (storageBtn) storageBtn.addEventListener('click', openSettings);
+
     const habitsAddBtn = document.getElementById('habitsAddBtn');
     if (habitsAddBtn) habitsAddBtn.addEventListener('click', addHabit);
 
@@ -386,6 +389,20 @@ function render() {
     renderWorkoutFolders();
 }
 
+
+// Cross-tab / mobile-desktop sync via localStorage storage event
+window.addEventListener('storage', (e) => {
+    const keys = [storageKey, workoutKey, habitsKey, workoutNotesHistoryKey];
+    if (!keys.includes(e.key)) return;
+    if (e.key === storageKey) state = loadState();
+    if (e.key === workoutKey) workoutFolders = loadWorkoutFolders();
+    if (e.key === habitsKey) habits = loadHabits();
+    if (e.key === workoutNotesHistoryKey) workoutNotesHistory = loadWorkoutNotesHistory();
+    render();
+    renderHabits();
+    renderNotes();
+    updateSidebars();
+});
 
 // Boot
 try {

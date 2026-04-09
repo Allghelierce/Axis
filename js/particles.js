@@ -88,6 +88,7 @@ function _loop(timestamp) {
                 void p.toEl.offsetWidth;
                 p.toEl.classList.add('circle-arrive');
             }
+            if (p.onArrive) p.onArrive();
         }
     }
 
@@ -99,7 +100,7 @@ function _loop(timestamp) {
     }
 }
 
-function flyToCircle(fromEl, toEl, colors) {
+function flyToCircle(toEl, colors, onArrive) {
     if (!_initCanvas() || !toEl) return;
 
     const toRect = toEl.getBoundingClientRect();
@@ -107,7 +108,7 @@ function flyToCircle(fromEl, toEl, colors) {
     const y2 = toRect.top + toRect.height / 2;
 
     const x1 = Math.random() * window.innerWidth;
-    const y1 = Math.random() * window.innerHeight;
+    const y1 = -(20 + Math.random() * 60);
 
     const dx = x2 - x1;
     const dy = y2 - y1;
@@ -124,7 +125,7 @@ function flyToCircle(fromEl, toEl, colors) {
 
     const duration = 380 + Math.random() * 160;
 
-    _particles.push({ x1, y1, x2, y2, cpx, cpy, toEl, colors, duration, start: null });
+    _particles.push({ x1, y1, x2, y2, cpx, cpy, toEl, colors, duration, start: null, onArrive: onArrive || null });
 
     if (!_rafId) {
         _rafId = requestAnimationFrame(_loop);
@@ -137,30 +138,46 @@ function _playChime(freq) {
     try {
         if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const ctx = _audioCtx;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(freq * 0.85, ctx.currentTime + 0.18);
-        gain.gain.setValueAtTime(0, ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 0.01);
-        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.22);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.22);
+        const play = () => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(freq * 0.82, ctx.currentTime + 0.22);
+            gain.gain.setValueAtTime(0, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 0.012);
+            gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.28);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.28);
+        };
+        if (ctx.state === 'suspended') {
+            ctx.resume().then(play);
+        } else {
+            play();
+        }
     } catch (e) {}
 }
 
 // Called from toggleTask / toggleGoal after state flip
+// updateSidebars has already run, so the counter DOM shows the new value.
+// We revert to old, then let each particle update on arrival.
 function onItemChecked(itemEl, type) {
     const taskCircle = document.getElementById('taskSidebarCircle');
     const goalCircle = document.getElementById('goalSidebarCircle');
-    if (!itemEl) return;
+    const taskCountEl = document.getElementById('taskCircleCount');
+    const goalCountEl = document.getElementById('goalCircleCount');
 
-    flyToCircle(itemEl, taskCircle, SUN_COLOR);
-    flyToCircle(itemEl, goalCircle, MOON_COLOR);
+    const newSun  = taskCountEl  ? (parseInt(taskCountEl.textContent)  || 0) : 0;
+    const newMoon = goalCountEl  ? (parseInt(goalCountEl.textContent)  || 0) : 0;
 
-    // Sun: warm lower tone, Moon: cool higher tone
+    // Revert display to pre-check value while particle is in flight
+    if (taskCountEl)  taskCountEl.textContent  = Math.max(0, newSun  - 1);
+    if (goalCountEl)  goalCountEl.textContent  = Math.max(0, newMoon - 1);
+
+    flyToCircle(taskCircle, SUN_COLOR,  () => { if (taskCountEl) taskCountEl.textContent = newSun;  });
+    flyToCircle(goalCircle, MOON_COLOR, () => { if (goalCountEl) goalCountEl.textContent = newMoon; });
+
     _playChime(type === 'task' ? 620 : 780);
 }

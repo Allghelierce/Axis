@@ -3,15 +3,58 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Life Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#040404">
+    <title>Axis</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
 </head>
 
 <body>
+    <div class="constellations-wrapper">
+        <div class="constellation c1">
+            <svg width="200" height="200" viewBox="0 0 100 100">
+                <circle cx="20" cy="10" r="1.2" class="star" />
+                <circle cx="50" cy="30" r="1" class="star" />
+                <circle cx="80" cy="15" r="1.2" class="star" />
+                <circle cx="45" cy="70" r="0.8" class="star" />
+                <circle cx="10" cy="80" r="1" class="star" />
+                <line x1="20" y1="10" x2="50" y2="30" class="const-line" />
+                <line x1="50" y1="30" x2="80" y2="15" class="const-line" />
+                <line x1="50" y1="30" x2="45" y2="70" class="const-line" />
+                <line x1="45" y1="70" x2="10" y2="80" class="const-line" />
+            </svg>
+        </div>
+        <div class="constellation c2">
+            <svg width="250" height="250" viewBox="0 0 100 100">
+                <circle cx="10" cy="20" r="1" class="star" />
+                <circle cx="40" cy="10" r="0.9" class="star" />
+                <circle cx="70" cy="25" r="1.1" class="star" />
+                <circle cx="90" cy="60" r="1" class="star" />
+                <circle cx="60" cy="80" r="0.8" class="star" />
+                <circle cx="30" cy="90" r="1" class="star" />
+                <line x1="10" y1="20" x2="40" y2="10" class="const-line" />
+                <line x1="40" y1="10" x2="70" y2="25" class="const-line" />
+                <line x1="70" y1="25" x2="90" y2="60" class="const-line" />
+                <line x1="90" y1="60" x2="60" y2="80" class="const-line" />
+                <line x1="60" y1="80" x2="30" y2="90" class="const-line" />
+            </svg>
+        </div>
+        <div class="constellation c3">
+            <svg width="180" height="180" viewBox="0 0 100 100">
+                <circle cx="30" cy="20" r="1.1" class="star" />
+                <circle cx="60" cy="40" r="0.9" class="star" />
+                <circle cx="40" cy="80" r="1" class="star" />
+                <line x1="30" y1="20" x2="60" y2="40" class="const-line" />
+                <line x1="60" y1="40" x2="40" y2="80" class="const-line" />
+            </svg>
+        </div>
+    </div>
     <!-- FULLSCREEN ANALYTICS OVERLAY -->
     <div class="fullscreen-overlay" id="fullscreenAnalytics">
         <div class="sidebar sidebar-today" style="border-right: 1px solid var(--border); background: var(--black);">
@@ -38,6 +81,7 @@
         </div>
 
         <div class="main-content" style="background: var(--bg); padding: 2rem;">
+            <button class="mobile-analytics-back" onclick="closeFullscreenAnalytics()">← Back</button>
             <div class="fullscreen-header" style="margin-bottom: 2rem;">
                 <h2 class="fullscreen-title">Performance Insights</h2>
             </div>
@@ -237,6 +281,11 @@
                                     style="font-size: 0.9rem; letter-spacing: -0.02em; opacity: 0.6;">--:--:--</div>
                             </div>
                         </div>
+                        <button class="mobile-sync-btn" id="mobileSyncBtn" onclick="openSettings()" title="Sync / Sign In">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                            </svg>
+                        </button>
                     </div>
 
                     <div class="dashboard-grid">
@@ -325,29 +374,7 @@
                     </div>
                 </div>
 
-                <div class="dashboard-actions">
-                    <button class="analytics-button" id="fullscreenAnalyticsBtn" title="Performance Insights">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 3v18h18" />
-                            <path d="m19 9-5 5-4-4-3 3" />
-                        </svg>
-                    </button>
-                    <button class="storage-button" id="storageBtn" title="Storage / Sync">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="3" width="20" height="18" rx="2" ry="2"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="2" y1="15" x2="22" y2="15"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="12" x2="6.01" y2="12"/><line x1="6" y1="18" x2="6.01" y2="18"/>
-                        </svg>
-                    </button>
-                    <button class="settings-button" id="openSettingsBtn" title="Settings">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path
-                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                            </path>
-                        </svg>
-                    </button>
-                </div>
+
             </div>
 
             <!-- HABITS SIDEBAR -->
@@ -437,6 +464,29 @@
         </div>
 
         <div class="sidebar sidebar-analytics">
+            <div class="dashboard-actions">
+                <button class="analytics-button" id="fullscreenAnalyticsBtn" title="Performance Insights">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 3v18h18" />
+                        <path d="m19 9-5 5-4-4-3 3" />
+                    </svg>
+                </button>
+                <button class="storage-button" id="storageBtn" title="Storage / Sync">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="3" width="20" height="18" rx="2" ry="2"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="2" y1="15" x2="22" y2="15"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="12" x2="6.01" y2="12"/><line x1="6" y1="18" x2="6.01" y2="18"/>
+                    </svg>
+                </button>
+                <button class="settings-button" id="openSettingsBtn" title="Settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
             <div class="sidebar-title">
                 This Week
                 <button class="pop-out-btn" onclick="openDataSummary('week')" title="View Weekly Summary">
@@ -522,6 +572,37 @@
     <!-- SELECTION BOX -->
     <div id="selectionBox" class="selection-box"></div>
 
+    <!-- MOBILE BOTTOM NAV -->
+    <nav class="mobile-nav" id="mobileNav">
+        <button class="mobile-nav-btn active" data-tab="home" onclick="switchMobileTab('home')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+            <span>Home</span>
+        </button>
+        <button class="mobile-nav-btn" data-tab="habits" onclick="switchMobileTab('habits')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg>
+            <span>Habits</span>
+        </button>
+        <button class="mobile-nav-btn" data-tab="stats" onclick="switchMobileTab('stats')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            <span>Stats</span>
+        </button>
+    </nav>
+
+    <!-- MOBILE STATS PANEL -->
+    <div class="mobile-stats-panel" id="mobileStatsPanel">
+        <div class="section-title" style="margin-bottom: 1rem;">Today</div>
+        <div class="mobile-stats-grid">
+            <div class="mobile-stat-card"><div class="mobile-stat-label">Tasks</div><div class="mobile-stat-value" id="mStatTasks">0</div></div>
+            <div class="mobile-stat-card"><div class="mobile-stat-label">Complete</div><div class="mobile-stat-value" id="mStatComplete">0%</div></div>
+            <div class="mobile-stat-card"><div class="mobile-stat-label">Protein</div><div class="mobile-stat-value" id="mStatProt">0</div></div>
+            <div class="mobile-stat-card"><div class="mobile-stat-label">Calories</div><div class="mobile-stat-value" id="mStatCals">0</div></div>
+            <div class="mobile-stat-card"><div class="mobile-stat-label">Streak</div><div class="mobile-stat-value" id="mStatStreak">0</div></div>
+            <div class="mobile-stat-card"><div class="mobile-stat-label">Week Avg</div><div class="mobile-stat-value" id="mStatWeekAvg">0</div></div>
+            <div class="mobile-stat-card"><div class="mobile-stat-label">Today</div><div class="mobile-stat-value" id="mStatToday">0</div></div>
+            <div class="mobile-stat-card"><div class="mobile-stat-label">This Week</div><div class="mobile-stat-value" id="mStatWeek">0</div></div>
+        </div>
+    </div>
+
     <script src="js/state.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/settings.js"></script>
@@ -537,24 +618,52 @@
     <script src="js/summary.js"></script>
     <script src="js/selection.js"></script>
     <script src="js/main.js"></script>
-</body>
+    <script>
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        }
 
-</html>
-<script src="js/state.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/settings.js"></script>
-<script src="js/habits.js"></script>
-<script src="js/notes.js"></script>
-<script src="js/analytics.js"></script>
-<script src="js/nutrition.js"></script>
-<script src="js/gallery.js"></script>
-<script src="js/workouts.js"></script>
-<script src="js/tasks.js"></script>
-<script src="js/particles.js"></script>
-<script src="js/map.js"></script>
-<script src="js/summary.js"></script>
-<script src="js/selection.js"></script>
-<script src="js/main.js"></script>
-</body>
+        // Mobile tab switching
+        function switchMobileTab(tab) {
+            if (window.innerWidth > 768) return;
+            document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+            const main = document.querySelector('.dashboard-main');
+            const habits = document.querySelector('.habits-sidebar');
+            const statsPanel = document.getElementById('mobileStatsPanel');
+            main.style.display = tab === 'home' ? '' : 'none';
+            habits.classList.toggle('mobile-visible', tab === 'habits');
+            statsPanel.classList.toggle('mobile-visible', tab === 'stats');
+            if (tab === 'analytics') {
+                document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-tab="home"]').classList.add('active');
+            }
+        }
 
+        // Keep mobile stats in sync
+        function updateMobileStats() {
+            if (window.innerWidth > 768) return;
+            const get = id => { const e = document.getElementById(id); return e ? e.textContent : '0'; };
+            const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+            set('mStatTasks',    get('sidebarTasks'));
+            set('mStatComplete', get('sidebarComplete'));
+            set('mStatProt',     get('sidebarProt'));
+            set('mStatCals',     get('sidebarCals'));
+            set('mStatStreak',   get('sidebarStreak'));
+            set('mStatWeekAvg',  get('sidebarWeekAvg'));
+            set('mStatToday',    get('taskCircleCount'));
+            set('mStatWeek',     get('goalCircleCount'));
+        }
+
+        // Patch updateSidebars to also update mobile stats
+        // (all scripts already loaded synchronously above, so window.updateSidebars is defined)
+        const _origUpdateSidebars = window.updateSidebars;
+        window.updateSidebars = function() {
+            _origUpdateSidebars && _origUpdateSidebars.apply(this, arguments);
+            updateMobileStats();
+        };
+        // Populate initial state now (init() has already run)
+        updateMobileStats();
+    </script>
+</body>
 </html>

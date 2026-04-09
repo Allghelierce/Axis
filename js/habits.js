@@ -118,9 +118,13 @@ function renderHabits() {
             <button class="habit-archive-btn" onclick="archiveHabit(${habit.id}); event.stopPropagation();" title="Archive">⊟</button>
         ` : '';
 
+        const todayKey = (new Date(today)).toISOString().split('T')[0];
+        const isHandledToday = !!habit.tracking[todayKey];
+        const blinkClass = !isHandledToday ? ' blink-red' : '';
+
         habitEl.innerHTML = `
             <div class="habit-controls">${deleteModeBtns}</div>
-            <div class="habit-name" onclick="if(isHabitDeleteMode) deleteHabit(${habit.id}); else openHabitDetail(${habit.id})">${habit.name}</div>
+            <div class="habit-name${blinkClass}" onclick="if(isHabitDeleteMode) deleteHabit(${habit.id}); else openHabitDetail(${habit.id})">${habit.name}</div>
             <div class="habit-bottom-row">
                 ${trackingHTML}
             </div>
@@ -581,9 +585,10 @@ function renderHabitsUnifiedChart() {
             scales: {
                 y: {
                     beginAtZero: true,
-                    ticks: { 
-                        font: { size: 8 }, 
-                        color: 'rgba(255, 255, 255, 0.2)', 
+                    suggestedMax: activeHabits.length,
+                    ticks: {
+                        font: { size: 8 },
+                        color: 'rgba(255, 255, 255, 0.2)',
                         stepSize: 1,
                         precision: 0
                     },

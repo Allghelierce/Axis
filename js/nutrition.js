@@ -78,14 +78,13 @@ function renderMeals() {
 
         item.dataset.index = index;
         item.dataset.type = 'meal';
-        const calText = meal.calories ? `${meal.calories} cal` : 'Cal unknown';
-        const protText = meal.protein ? ` • ${meal.protein}g prot` : '';
+        const calText = meal.calories ? `${meal.calories} cal` : 'N/A';
+        const protText = meal.protein ? ` • ${meal.protein}g` : '';
         item.innerHTML = `
-            <div class="drag-handle">⋮</div>
             <div class="meal-info">
                 <span class="meal-name">${escapeHtml(meal.name)}</span>
-                <span class="meal-cal">${calText}${protText}</span>
             </div>
+            <span class="meal-cal">${calText}${protText}</span>
             <button class="meal-delete" onclick="deleteMeal(${meal.id})">×</button>
         `;
         container.appendChild(item);

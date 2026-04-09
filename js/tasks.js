@@ -10,6 +10,7 @@ function addTask() {
 
 function toggleTask(id, skipRender = false) {
     const task = state.tasks.find(t => t.id === id);
+    const justDone = task && !task.done;
     if (task) {
         task.done = !task.done;
         if (skipRender) {
@@ -24,6 +25,10 @@ function toggleTask(id, skipRender = false) {
     saveState();
     if (!skipRender) renderTasks();
     updateSidebars();
+    if (justDone) {
+        const el = document.querySelector(`.task-item[data-id="${id}"][data-type="task"]`);
+        if (typeof onItemChecked === 'function') onItemChecked(el, 'task');
+    }
 }
 
 function deleteTask(id) {
@@ -50,9 +55,8 @@ function renderTasks() {
         item.dataset.id = task.id;
         item.dataset.type = 'task';
         item.innerHTML = `
-            <div class="drag-handle">⋮</div>
             <div class="task-checkbox" onclick="toggleTask(${task.id})">${task.done ? '✓' : ''}</div>
-            <span class="task-text">${escapeHtml(task.text)}</span>
+            <span class="task-text" onclick="toggleTask(${task.id})">${escapeHtml(task.text)}</span>
             <button class="task-delete" onclick="deleteTask(${task.id})">×</button>
         `;
         // TODO: Drag listeners disabled - causing textbox interaction issues
@@ -78,6 +82,7 @@ function addGoal() {
 
 function toggleGoal(id, skipRender = false) {
     const goal = state.goals.find(g => g.id === id);
+    const justDone = goal && !goal.done;
     if (goal) {
         goal.done = !goal.done;
         if (skipRender) {
@@ -92,6 +97,10 @@ function toggleGoal(id, skipRender = false) {
     saveState();
     if (!skipRender) renderGoals();
     updateSidebars();
+    if (justDone) {
+        const el = document.querySelector(`.task-item[data-id="${id}"][data-type="goal"]`);
+        if (typeof onItemChecked === 'function') onItemChecked(el, 'goal');
+    }
 }
 
 function deleteGoal(id) {
@@ -118,9 +127,8 @@ function renderGoals() {
         item.dataset.id = goal.id;
         item.dataset.type = 'goal';
         item.innerHTML = `
-            <div class="drag-handle">⋮</div>
             <div class="task-checkbox" onclick="toggleGoal(${goal.id})">${goal.done ? '✓' : ''}</div>
-            <span class="task-text">${escapeHtml(goal.text)}</span>
+            <span class="task-text" onclick="toggleGoal(${goal.id})">${escapeHtml(goal.text)}</span>
             ${goal.dueDate ? `<span class="task-date">${goal.dueDate}</span>` : ''}
             <button class="task-delete" onclick="deleteGoal(${goal.id})">×</button>
         `;

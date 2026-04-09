@@ -123,7 +123,6 @@ function renderHabits() {
             <div class="habit-name" onclick="if(isHabitDeleteMode) deleteHabit(${habit.id}); else openHabitDetail(${habit.id})">${habit.name}</div>
             <div class="habit-bottom-row">
                 ${trackingHTML}
-                <div class="habit-streak" style="color: ${streakColor}">${streak}</div>
             </div>
         `;
 
@@ -182,8 +181,7 @@ function renderHabits() {
     }
 
     // Render weekly chart
-    renderHabitsWeeklyChart();
-    renderHabitsDailyCountChart();
+    renderHabitsUnifiedChart();
 }
 
 function toggleHabitDay(habitId, dayKey, element, event, skipRender = false) {
@@ -515,120 +513,108 @@ function setupCalendarNavigation() {
 }
 
 // Module-level variables for habits charts
-let habitsWeeklyChart = null;
-let habitsDailyCountChart = null;
+let habitsUnifiedChart = null;
 
-function renderHabitsWeeklyChart() {
-    const canvas = document.getElementById('habitsWeeklyChart');
+function renderHabitsUnifiedChart() {
+    const canvas = document.getElementById('habitsUnifiedChart');
     if (!canvas) return;
 
     const activeHabits = habits.filter(h => !h.archived);
     if (activeHabits.length === 0) return;
 
     const ctx = canvas.getContext('2d');
-    const weeks = 4;
-    const weekLabels = [];
-    const completionData = [];
-
-    const dateRanges = [];
+    const daysCount = 28; // 4 weeks
+    const labels = [];
+    const completedCounts = [];
+    const preventedCounts = [];
 
     const now = new Date(today);
-    for (let w = weeks - 1; w >= 0; w--) {
-        const weekStart = new Date(now);
-        weekStart.setDate(weekStart.getDate() - w * 7);
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekEnd.getDate() + 6);
+    for (let i = daysCount - 1; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        const dayKey = d.toISOString().split('T')[0];
         
-        dateRanges.push(`${weekStart.getDate()}-${weekEnd.getDate()}`);
+        // Only label MONDAYS for a cleaner look
+        if (d.getDay() === 1) {
+            labels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        } else {
+            labels.push('');
+        }
 
-        // Label each week
-        const weekNum = weeks - w;
-        weekLabels.push(`W${weekNum}`);
-
-        // Calculate overall completion % across all active habits for this week
-        let totalExpected = activeHabits.length * 7;
-        let totalCompleted = 0;
-
+        let completed = 0;
+        let prevented = 0;
         activeHabits.forEach(habit => {
-            const currentD = new Date(weekStart);
-            for (let i = 0; i < 7; i++) {
-                const dayKey = currentD.toISOString().split('T')[0];
-                if (habit.tracking[dayKey] === 'completed') totalCompleted++;
-                currentD.setDate(currentD.getDate() + 1);
-            }
+            if (habit.tracking[dayKey] === 'completed') completed++;
+            else if (habit.tracking[dayKey] === 'prevented') prevented++;
         });
-
-        const percentage = totalExpected > 0 ? Math.round((totalCompleted / totalExpected) * 100) : 0;
-        completionData.push(percentage);
+        completedCounts.push(completed);
+        preventedCounts.push(prevented);
     }
 
-    // Destroy existing chart if any
-    if (habitsWeeklyChart) {
-        habitsWeeklyChart.destroy();
+    if (habitsUnifiedChart) {
+        habitsUnifiedChart.destroy();
     }
 
-    // Create new chart
-    habitsWeeklyChart = new Chart(ctx, {
-        type: 'bar',
+    habitsUnifiedChart = new Chart(ctx, {
+        type: 'line',
         data: {
-            labels: weekLabels,
+            labels: labels,
             datasets: [{
-                label: 'Weekly Completion %',
-                data: completionData,
-                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                data: completedCounts,
                 borderColor: 'rgba(255, 255, 255, 0.4)',
-                borderWidth: 1,
-                borderRadius: 2,
-                barThickness: 'flex',
-                dateRanges: dateRanges
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                borderWidth: 1.5,
+                pointRadius: (context) => (context.dataIndex % 7 === 0 || context.dataIndex === daysCount - 1) ? 2 : 0,
+                pointBackgroundColor: 'rgba(255, 255, 255, 0.6)',
+                tension: 0.4,
+                fill: true,
+                preventedData: preventedCounts
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            indexAxis: 'x',
-            plugins: {
+            plugins: { 
                 legend: { display: false },
                 tooltip: { enabled: false }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        font: { size: 9 },
-                        color: 'rgba(255, 255, 255, 0.3)',
-                        stepSize: 25
+                    ticks: { 
+                        font: { size: 8 }, 
+                        color: 'rgba(255, 255, 255, 0.2)', 
+                        stepSize: 1,
+                        precision: 0
                     },
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.05)',
-                        drawBorder: false
-                    }
+                    grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false }
                 },
                 x: {
-                    ticks: {
-                        font: { size: 9 },
-                        color: 'rgba(255, 255, 255, 0.4)'
-                    },
+                    ticks: { font: { size: 8 }, color: 'rgba(255, 255, 255, 0.3)', autoSkip: false, maxRotation: 0 },
                     grid: { display: false }
                 }
             }
         },
         plugins: [{
-            id: 'weekDateRanges',
+            id: 'preventedDots',
             afterDatasetsDraw(chart) {
                 const { ctx, data } = chart;
                 ctx.save();
                 ctx.font = '8px Arial';
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
                 ctx.textAlign = 'center';
 
                 const dataset = data.datasets[0];
+                const preventedData = dataset.preventedData;
                 const meta = chart.getDatasetMeta(0);
 
-                meta.data.forEach((bar, index) => {
-                    const range = dataset.dateRanges[index];
-                    ctx.fillText(range, bar.x, bar.y - 8);
+                meta.data.forEach((point, index) => {
+                    const count = preventedData[index];
+                    if (count > 0) {
+                        for (let j = 0; j < count; j++) {
+                            ctx.fillText('◎', point.x, point.y - 12 - (j * 8));
+                        }
+                    }
                 });
                 ctx.restore();
             }
@@ -652,7 +638,6 @@ function renderHabitChart(habit) {
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekEnd.getDate() + 6);
 
-        // Show every other week label for cleaner look
         const weekNum = weeks - w;
         weekLabels.push(weekNum % 2 === 1 ? `W${weekNum}` : '');
 
@@ -711,108 +696,5 @@ function renderHabitChart(habit) {
                 }
             }
         }
-    });
-}
-
-function renderHabitsDailyCountChart() {
-    const canvas = document.getElementById('habitsDailyCountChart');
-    if (!canvas) return;
-
-    const activeHabits = habits.filter(h => !h.archived);
-    if (activeHabits.length === 0) return;
-
-    const ctx = canvas.getContext('2d');
-    const daysCount = 4;
-    const labels = [];
-    const completedCounts = [];
-    const preventedCounts = [];
-
-    const now = new Date(today);
-    for (let i = daysCount - 1; i >= 0; i--) {
-        const d = new Date(now);
-        d.setDate(d.getDate() - i);
-        const dayKey = d.toISOString().split('T')[0];
-        
-        labels.push(d.toLocaleDateString('en-US', { weekday: 'short' }).charAt(0));
-
-        let completed = 0;
-        let prevented = 0;
-        activeHabits.forEach(habit => {
-            if (habit.tracking[dayKey] === 'completed') completed++;
-            else if (habit.tracking[dayKey] === 'prevented') prevented++;
-        });
-        completedCounts.push(completed);
-        preventedCounts.push(prevented);
-    }
-
-    if (habitsDailyCountChart) {
-        habitsDailyCountChart.destroy();
-    }
-
-    habitsDailyCountChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: completedCounts,
-                borderColor: 'rgba(255, 255, 255, 0.4)',
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                borderWidth: 1.5,
-                pointRadius: 2,
-                pointBackgroundColor: 'rgba(255, 255, 255, 0.8)',
-                tension: 0.4,
-                fill: true,
-                preventedData: preventedCounts // Custom property for plugin access
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { 
-                legend: { display: false },
-                tooltip: { enabled: false }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { 
-                        font: { size: 8 }, 
-                        color: 'rgba(255, 255, 255, 0.3)', 
-                        stepSize: 1,
-                        precision: 0
-                    },
-                    grid: { color: 'rgba(255, 255, 255, 0.02)', drawBorder: false }
-                },
-                x: {
-                    ticks: { font: { size: 8 }, color: 'rgba(255, 255, 255, 0.4)' },
-                    grid: { display: false }
-                }
-            }
-        },
-        plugins: [{
-            id: 'preventedDots',
-            afterDatasetsDraw(chart) {
-                const { ctx, data } = chart;
-                ctx.save();
-                ctx.font = 'bold 9px Arial';
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
-                ctx.textAlign = 'center';
-
-                const dataset = data.datasets[0];
-                const preventedData = dataset.preventedData;
-                const meta = chart.getDatasetMeta(0);
-
-                meta.data.forEach((point, index) => {
-                    const count = preventedData[index];
-                    if (count > 0) {
-                        // Stack ◎ symbols vertically above the line points
-                        for (let j = 0; j < count; j++) {
-                            ctx.fillText('◎', point.x, point.y - 12 - (j * 9));
-                        }
-                    }
-                });
-                ctx.restore();
-            }
-        }]
     });
 }

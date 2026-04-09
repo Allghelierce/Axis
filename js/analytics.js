@@ -773,11 +773,24 @@ function updateSidebars() {
 
     const totalTasks = state.tasks.length;
     const doneTasks = state.tasks.filter(t => t.done).length;
-    document.getElementById('sidebarTasks').textContent = totalTasks;
-    document.getElementById('sidebarComplete').textContent = totalTasks > 0 ? Math.round(doneTasks / totalTasks * 100) + '%' : '0%';
+    const elTasks = document.getElementById('sidebarTasks');
+    const elComplete = document.getElementById('sidebarComplete');
+    if (elTasks) elTasks.textContent = totalTasks;
+    if (elComplete) elComplete.textContent = totalTasks > 0 ? Math.round(doneTasks / totalTasks * 100) + '%' : '0%';
 
     renderSidebarChecklist('sidebarTaskChecklist', state.tasks.map(t => ({ text: t.text, done: t.done })));
     renderSidebarChecklist('sidebarGoalChecklist', state.goals.map(g => ({ text: g.text, done: g.done })));
+
+    const todayDone = state.tasks.filter(t => t.done).length + state.goals.filter(g => g.done).length;
+    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+    const weekKey = weekAgo.toISOString().split('T')[0];
+    const weeklyDone =
+        (state.history.tasksHistory || []).filter(h => h.date >= weekKey).reduce((s, h) => s + (h.done || 0), 0) +
+        (state.history.goalsHistory || []).filter(h => h.date >= weekKey).reduce((s, h) => s + (h.done || 0), 0);
+    const taskCountEl = document.getElementById('taskCircleCount');
+    const goalCountEl = document.getElementById('goalCircleCount');
+    if (taskCountEl) taskCountEl.textContent = todayDone;
+    if (goalCountEl) goalCountEl.textContent = weeklyDone;
 
     const avgMealCal = state.history.caloriesHistory.length > 0
         ? Math.round(state.history.caloriesHistory.reduce((sum, h) => sum + h.calories, 0) / state.history.caloriesHistory.length)

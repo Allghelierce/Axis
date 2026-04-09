@@ -99,7 +99,10 @@ function renderAnalyticsCharts() {
     // HABIT DATA (Last 14 Days)
     const habitLabels = [];
     const completionData = [];
+    const rawDailyCount = []; // For tooltips
+    const totalHabitsCount = habits.length;
 
+    let runningTotal = 0;
     for (let i = 13; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
@@ -110,7 +113,10 @@ function renderAnalyticsCharts() {
         habits.forEach(h => {
             if (h.tracking[key] === 'completed') completedCount++;
         });
-        completionData.push(completedCount);
+        
+        runningTotal += completedCount;
+        rawDailyCount.push(completedCount);
+        completionData.push(runningTotal);
     }
 
     if (habitChart) habitChart.destroy();
@@ -119,12 +125,13 @@ function renderAnalyticsCharts() {
         data: {
             labels: habitLabels,
             datasets: [{
-                label: 'Habits Done',
+                label: 'Cumulative Habits',
                 data: completionData,
                 backgroundColor: 'rgba(74, 222, 128, 0.3)',
                 borderColor: '#4ade80',
                 borderWidth: 1,
-                borderRadius: 2
+                borderRadius: 2,
+                daily: rawDailyCount // Custom property for tooltip
             }]
         },
         options: {
@@ -132,9 +139,31 @@ function renderAnalyticsCharts() {
             maintainAspectRatio: false,
             scales: {
                 x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { display: false } },
-                y: { beginAtZero: true, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 }, stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                y: { beginAtZero: true, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 }, stepSize: 5 }, grid: { color: 'rgba(255,255,255,0.05)' } }
             },
-            plugins: { legend: { display: false } }
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(10, 10, 10, 0.9)',
+                    titleFont: { size: 10, weight: '600' },
+                    bodyFont: { size: 10 },
+                    padding: 8,
+                    cornerRadius: 4,
+                    displayColors: false,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    callbacks: {
+                        title: (items) => `Day ${items[0].label}`,
+                        label: (item) => {
+                            const daily = item.dataset.daily[item.dataIndex];
+                            return [
+                                `Total Progress: ${item.formattedValue}`,
+                                `Completed Today: ${daily} / ${totalHabitsCount}`
+                            ];
+                        }
+                    }
+                }
+            }
         }
     });
 

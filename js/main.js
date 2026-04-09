@@ -102,6 +102,13 @@ function init() {
         startCountdown();
         console.log('✓ startCountdown');
     } catch (e) { console.error('✗ startCountdown:', e); }
+
+    try {
+        if (state.viewState && state.viewState.analyticsActive) {
+            openFullscreenAnalytics();
+        }
+        console.log('✓ restoreViewState');
+    } catch (e) { console.error('✗ restoreViewState:', e); }
 }
 
 function setupEventListeners() {
@@ -178,6 +185,9 @@ function setupEventListeners() {
 
     const closeFsBtn = document.getElementById('closeFullscreenBtn');
     if (closeFsBtn) closeFsBtn.addEventListener('click', closeFullscreenAnalytics);
+
+    const settingsBtn = document.getElementById('openSettingsBtn');
+    if (settingsBtn) settingsBtn.addEventListener('click', openSettings);
 
     const habitsAddBtn = document.getElementById('habitsAddBtn');
     if (habitsAddBtn) habitsAddBtn.addEventListener('click', addHabit);
@@ -340,44 +350,3 @@ try {
     console.error('Error during initMap:', e);
 }
 
-// Time Arc Moon Animation
-(function() {
-    const moonEl = document.getElementById('moonGroup');
-    if (!moonEl) return;
-
-    function updateMoonPosition() {
-        const now = new Date();
-        const hours = now.getHours();
-        const minutes = now.getMinutes();
-        const seconds = now.getSeconds();
-        
-        // Convert current time to a value between 0 and 1 (0 = 00:00, 1 = 24:00)
-        const totalSeconds = hours * 3600 + minutes * 60 + seconds;
-        const progress = totalSeconds / 86400; // 86400 seconds in 24 hours
-        
-        // Arc path: starts at left (x=5), goes up and across to right (x=95)
-        // Height follows a semicircle arc
-        const x = 5 + progress * 90; // From 5 to 95
-        const arcProgress = progress * Math.PI; // 0 to π for semicircle
-        const y = 50 - Math.sin(arcProgress) * 45; // Semicircle from 50 down to 5 and back to 50
-        
-        // Subtle rotation: 90 degrees over 24 hours
-        const rotation = progress * 90;
-        
-        const moonGroup = document.getElementById('moonGroup');
-        if (moonGroup) {
-            moonGroup.setAttribute('transform', `translate(${x}, ${y}) rotate(${rotation})`);
-        }
-    }
-    
-    // Update moon position immediately and then every second
-    updateMoonPosition();
-    setInterval(updateMoonPosition, 1000);
-    
-    // Smoother animation with requestAnimationFrame
-    function animateMoon() {
-        updateMoonPosition();
-        requestAnimationFrame(animateMoon);
-    }
-    animateMoon();
-})();

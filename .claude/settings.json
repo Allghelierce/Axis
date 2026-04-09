@@ -13,7 +13,8 @@
       "Bash(grep -n \"function updateSidebars\" js/*.js)",
       "Bash(grep -n \"function initMap\" js/*.js)",
       "Bash(grep -n \"workoutHeatmap\\\\|heatmap\" js/*.js)",
-      "Bash(grep -n \"workoutHeatmap\" js/*.js)"
+      "Bash(grep -n \"workoutHeatmap\" js/*.js)",
+      "Bash(node -c /Users/trisn999/Axis/js/analytics.js)"
     ]
   }
 }

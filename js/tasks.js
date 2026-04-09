@@ -66,10 +66,12 @@ function renderTasks() {
 
 function addGoal() {
     const text = document.getElementById('goalInput').value.trim();
+    const dueDate = document.getElementById('goalDateInput').value;
     if (!text) return;
-    state.goals.push({ id: Date.now(), text, done: false });
+    state.goals.push({ id: Date.now(), text, done: false, dueDate });
     saveState();
     document.getElementById('goalInput').value = '';
+    document.getElementById('goalDateInput').value = '';
     renderGoals();
 }
 
@@ -115,7 +117,10 @@ function renderGoals() {
         item.innerHTML = `
             <div class="drag-handle">⋮</div>
             <div class="task-checkbox" onclick="toggleGoal(${goal.id})">${goal.done ? '✓' : ''}</div>
-            <span class="task-text">${escapeHtml(goal.text)}</span>
+            <div class="task-content">
+                <span class="task-text">${escapeHtml(goal.text)}</span>
+                ${goal.dueDate ? `<span class="task-date">${goal.dueDate}</span>` : ''}
+            </div>
             <button class="task-delete" onclick="deleteGoal(${goal.id})">×</button>
         `;
         // TODO: Drag listeners disabled - causing textbox interaction issues

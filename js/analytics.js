@@ -1,12 +1,24 @@
-let nutritionChart = null;
+let calorieChart = null;
+let proteinChart = null;
+let taskCompletionChart = null;
+let goalCompletionChart = null;
 let habitChart = null;
-let goalChart = null;
-let scatterChart = null;
+let streakChart = null;
+
+let prevCalorieChart = null;
+let prevProteinChart = null;
+let prevTaskCompletionChart = null;
+let prevGoalCompletionChart = null;
+let prevHabitChart = null;
+let prevStreakChart = null;
 
 function openFullscreenAnalytics() {
     const overlay = document.getElementById('fullscreenAnalytics');
     overlay.classList.add('active');
+    state.viewState.analyticsActive = true;
+    saveState();
     updateFullscreenAnalytics();
+    wireUpGoalInputs();
     renderAnalyticsCharts();
     renderWorkoutFolders(); // Refresh folders in analytics view
     renderVault(); // Refresh photo vault
@@ -15,7 +27,37 @@ function openFullscreenAnalytics() {
 function closeFullscreenAnalytics() {
     const overlay = document.getElementById('fullscreenAnalytics');
     overlay.classList.remove('active');
+    state.viewState.analyticsActive = false;
+    saveState();
 }
+
+function wireUpGoalInputs() {
+    const calInput = document.getElementById('calGoalInput');
+    const protInput = document.getElementById('protGoalInput');
+
+    if (calInput) {
+        calInput.value = state.nutritionGoals?.calories ?? '';
+        calInput.onchange = () => {
+            const val = calInput.value ? parseInt(calInput.value) : null;
+            if (!state.nutritionGoals) state.nutritionGoals = { calories: null, protein: null };
+            state.nutritionGoals.calories = val;
+            saveState();
+            renderAnalyticsCharts();
+        };
+    }
+
+    if (protInput) {
+        protInput.value = state.nutritionGoals?.protein ?? '';
+        protInput.onchange = () => {
+            const val = protInput.value ? parseInt(protInput.value) : null;
+            if (!state.nutritionGoals) state.nutritionGoals = { calories: null, protein: null };
+            state.nutritionGoals.protein = val;
+            saveState();
+            renderAnalyticsCharts();
+        };
+    }
+}
+
 
 function updateFullscreenAnalytics() {
     document.getElementById('fullscreenStreak').textContent = document.getElementById('sidebarStreak').textContent;
@@ -25,28 +67,82 @@ function updateFullscreenAnalytics() {
 }
 
 function renderAnalyticsCharts() {
-    const ctxNutrition = document.getElementById('nutritionChart').getContext('2d');
-    const ctxHabit = document.getElementById('habitChart').getContext('2d');
-    const ctxGoal = document.getElementById('goalChart').getContext('2d');
-    const ctxScatter = document.getElementById('nutritionScatterChart').getContext('2d');
-
     renderWorkoutHeatmap();
 
-    // NUTRITION DATA (Last 7 Days)
-    const nutritionLabels = [];
+    const ctxCalorie = document.getElementById('calorieChart').getContext('2d');
+    const ctxProtein = document.getElementById('proteinChart').getContext('2d');
+    const ctxHabit = document.getElementById('habitChart').getContext('2d');
+    const ctxStreak = document.getElementById('streakChart').getContext('2d');
+
+    // CALORIE CHART (Last 14 Days)
+    const calorieLabels = [];
     const calorieData = [];
-    const proteinData = [];
-    
-    for (let i = 6; i >= 0; i--) {
+    for (let i = 13; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
         const key = d.toISOString().split('T')[0];
-        nutritionLabels.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
-        
+        calorieLabels.push(d.getDate());
+
         const dayCals = (state.history.caloriesHistory || [])
             .filter(item => item.date === key)
             .reduce((sum, item) => sum + item.calories, 0);
         calorieData.push(dayCals);
+    }
+
+    if (calorieChart) calorieChart.destroy();
+    calorieChart = new Chart(ctxCalorie, {
+        type: 'bar',
+        data: {
+            labels: calorieLabels,
+            datasets: [{
+                label: 'Calories',
+                data: calorieData,
+                backgroundColor: '#d1d5db',
+                borderColor: '#d1d5db',
+                borderWidth: 1,
+                borderRadius: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { display: false } },
+                y: { beginAtZero: true, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            },
+            plugins: {
+                legend: { display: false },
+                annotation: {
+                    annotations: {}
+                }
+            }
+        }
+    });
+
+    // Add goal line if set
+    if (state.nutritionGoals?.calories) {
+        setTimeout(() => {
+            const yScale = calorieChart.scales.y;
+            const xScale = calorieChart.scales.x;
+            const goalPx = yScale.getPixelForValue(state.nutritionGoals.calories);
+            ctxCalorie.strokeStyle = '#f59e0b';
+            ctxCalorie.setLineDash([5, 5]);
+            ctxCalorie.beginPath();
+            ctxCalorie.moveTo(xScale.left, goalPx);
+            ctxCalorie.lineTo(xScale.right, goalPx);
+            ctxCalorie.stroke();
+            ctxCalorie.setLineDash([]);
+        }, 50);
+    }
+
+    // PROTEIN CHART (Last 14 Days)
+    const proteinLabels = [];
+    const proteinData = [];
+    for (let i = 13; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().split('T')[0];
+        proteinLabels.push(d.getDate());
 
         const dayProt = (state.history.proteinHistory || [])
             .filter(item => item.date === key)
@@ -54,33 +150,102 @@ function renderAnalyticsCharts() {
         proteinData.push(dayProt);
     }
 
-    if (nutritionChart) nutritionChart.destroy();
-    nutritionChart = new Chart(ctxNutrition, {
+    if (proteinChart) proteinChart.destroy();
+    proteinChart = new Chart(ctxProtein, {
+        type: 'bar',
+        data: {
+            labels: proteinLabels,
+            datasets: [{
+                label: 'Protein',
+                data: proteinData,
+                backgroundColor: '#d1d5db',
+                borderColor: '#d1d5db',
+                borderWidth: 1,
+                borderRadius: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { display: false } },
+                y: { beginAtZero: true, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // Add goal line if set
+    if (state.nutritionGoals?.protein) {
+        setTimeout(() => {
+            const yScale = proteinChart.scales.y;
+            const xScale = proteinChart.scales.x;
+            const goalPx = yScale.getPixelForValue(state.nutritionGoals.protein);
+            ctxProtein.strokeStyle = '#f59e0b';
+            ctxProtein.setLineDash([5, 5]);
+            ctxProtein.beginPath();
+            ctxProtein.moveTo(xScale.left, goalPx);
+            ctxProtein.lineTo(xScale.right, goalPx);
+            ctxProtein.stroke();
+            ctxProtein.setLineDash([]);
+        }, 50);
+    }
+
+    // EXECUTION PRECISION CHART (Goals vs Tasks - 14 Days)
+    const executionLabels = [];
+    const executionGoalsData = [];
+    const executionTasksData = [];
+    
+    for (let i = 13; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().split('T')[0];
+        executionLabels.push(d.getDate());
+
+        // Tasks
+        const taskEntry = (state.history.tasksHistory || []).find(h => h.date === key);
+        executionTasksData.push(taskEntry?.done ?? 0);
+
+        // Goals
+        const goalEntry = (state.history.goalsHistory || []).find(h => h.date === key);
+        if (goalEntry) {
+            const percent = goalEntry.total > 0 ? (goalEntry.done / goalEntry.total) * 100 : 0;
+            executionGoalsData.push(percent);
+        } else {
+            executionGoalsData.push(0);
+        }
+    }
+
+    const ctxExec = document.getElementById('executionChart').getContext('2d');
+    if (window.executionChartInstance) window.executionChartInstance.destroy();
+    window.executionChartInstance = new Chart(ctxExec, {
         type: 'line',
         data: {
-            labels: nutritionLabels,
+            labels: executionLabels,
             datasets: [
                 {
-                    label: 'Calories',
-                    data: calorieData,
-                    borderColor: '#fafaf9',
-                    borderWidth: 1.5,
-                    pointRadius: 2,
-                    backgroundColor: 'rgba(250, 250, 249, 0.05)',
+                    label: 'Goals %',
+                    data: executionGoalsData,
+                    borderColor: '#d1d5db',
+                    backgroundColor: 'rgba(209, 213, 219, 0.05)',
                     fill: true,
-                    tension: 0.3,
-                    yAxisID: 'y'
+                    tension: 0.4,
+                    pointRadius: 0,
+                    borderWidth: 2
                 },
                 {
-                    label: 'Protein',
-                    data: proteinData,
-                    borderColor: '#4ade80',
-                    borderWidth: 1.5,
-                    pointRadius: 2,
-                    backgroundColor: 'rgba(74, 222, 128, 0.05)',
-                    fill: true,
-                    tension: 0.3,
-                    yAxisID: 'y1'
+                    label: 'Tasks Count',
+                    data: executionTasksData,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'transparent',
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#ef4444',
+                    pointBorderColor: '#0f0f0f',
+                    pointBorderWidth: 2,
+                    borderWidth: 2,
+                    yAxisID: 'yTasks'
                 }
             ]
         },
@@ -89,34 +254,62 @@ function renderAnalyticsCharts() {
             maintainAspectRatio: false,
             scales: {
                 x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { display: false } },
-                y: { type: 'linear', display: true, position: 'left', ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                y1: { type: 'linear', display: true, position: 'right', ticks: { color: '#4ade80', font: { size: 9 } }, grid: { drawOnChartArea: false } }
+                y: { 
+                    min: 0, 
+                    max: 100, 
+                    position: 'left',
+                    ticks: { color: 'rgba(209, 213, 219, 0.6)', font: { size: 9 }, callback: v => v + '%' }, 
+                    grid: { color: 'rgba(255,255,255,0.05)' } 
+                },
+                yTasks: {
+                    min: 0,
+                    suggestedMax: 5,
+                    position: 'right',
+                    ticks: { color: 'rgba(239, 68, 68, 0.6)', font: { size: 9 } },
+                    grid: { display: false }
+                }
             },
-            plugins: { legend: { display: false } }
+            plugins: {
+                legend: { 
+                    display: true, 
+                    position: 'top', 
+                    align: 'end',
+                    labels: { color: 'rgba(255,255,255,0.4)', boxWidth: 10, font: { size: 9 } } 
+                },
+                tooltip: {
+                    backgroundColor: '#111',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    cornerRadius: 4
+                }
+            }
         }
     });
 
     // HABIT DATA (Last 14 Days)
     const habitLabels = [];
-    const completionData = [];
-    const rawDailyCount = []; // For tooltips
-    const totalHabitsCount = habits.length;
+    const dateKeys = [];
+    const dailyCounts = [];
+    window._habitDayTotals = {}; // Stash for tooltip
 
-    let runningTotal = 0;
     for (let i = 13; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
         const key = d.toISOString().split('T')[0];
         habitLabels.push(d.getDate());
+        dateKeys.push(key);
 
         let completedCount = 0;
+        let availableCount = 0;
         habits.forEach(h => {
             if (h.tracking[key] === 'completed') completedCount++;
+            if (h.tracking[key] !== 'skipped') availableCount++;
         });
         
-        runningTotal += completedCount;
-        rawDailyCount.push(completedCount);
-        completionData.push(runningTotal);
+        dailyCounts.push(completedCount);
+        window._habitDayTotals[key] = { completed: completedCount, available: availableCount };
     }
 
     if (habitChart) habitChart.destroy();
@@ -125,13 +318,12 @@ function renderAnalyticsCharts() {
         data: {
             labels: habitLabels,
             datasets: [{
-                label: 'Cumulative Habits',
-                data: completionData,
-                backgroundColor: 'rgba(74, 222, 128, 0.3)',
-                borderColor: '#4ade80',
+                label: 'Habits Completed',
+                data: dailyCounts,
+                backgroundColor: '#d1d5db',
+                borderColor: '#d1d5db',
                 borderWidth: 1,
-                borderRadius: 2,
-                daily: rawDailyCount // Custom property for tooltip
+                borderRadius: 2
             }]
         },
         options: {
@@ -139,27 +331,27 @@ function renderAnalyticsCharts() {
             maintainAspectRatio: false,
             scales: {
                 x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { display: false } },
-                y: { beginAtZero: true, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 }, stepSize: 5 }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                y: { 
+                    beginAtZero: true, 
+                    ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 }, stepSize: 1 }, 
+                    grid: { color: 'rgba(255,255,255,0.05)' } 
+                }
             },
-            plugins: { 
+            plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(10, 10, 10, 0.9)',
-                    titleFont: { size: 10, weight: '600' },
-                    bodyFont: { size: 10 },
-                    padding: 8,
+                    backgroundColor: '#111',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
                     cornerRadius: 4,
                     displayColors: false,
-                    borderWidth: 1,
-                    borderColor: 'rgba(255,255,255,0.1)',
                     callbacks: {
-                        title: (items) => `Day ${items[0].label}`,
-                        label: (item) => {
-                            const daily = item.dataset.daily[item.dataIndex];
-                            return [
-                                `Total Progress: ${item.formattedValue}`,
-                                `Completed Today: ${daily} / ${totalHabitsCount}`
-                            ];
+                        label: function(context) {
+                            const date = dateKeys[context.dataIndex];
+                            const totals = window._habitDayTotals[date] || { completed: 0, available: 0 };
+                            return [`Completed: ${totals.completed}`, `Available: ${totals.available}`];
                         }
                     }
                 }
@@ -167,101 +359,394 @@ function renderAnalyticsCharts() {
         }
     });
 
-    // GOAL DATA (Last 30 Days)
-    const goalLabels = [];
-    const goalProgressData = [];
-    
-    // Ensure history exists
-    if (!state.history.goalsHistory) state.history.goalsHistory = [];
-    
-    // Fill with mock data if empty to show "Over Time" immediately
-    if (state.history.goalsHistory.length === 0) {
-        for (let i = 30; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const dateStr = d.toISOString().split('T')[0];
-            state.history.goalsHistory.push({
-                date: dateStr,
-                total: 5,
-                done: Math.floor(Math.random() * 6)
-            });
-        }
-        saveState();
+
+    // STREAK DATA (Current Streaks)
+    const streakLabels = habits.map(h => h.name);
+    const currentStreaks = habits.map(h => calculateHabitStreak(h));
+
+    function getStreakColor(streak) {
+        if (streak === 0) return 'rgba(248, 250, 252, 0.4)';
+        if (streak <= 2) return 'rgba(234, 179, 8, 0.8)';
+        if (streak <= 5) return 'rgba(34, 197, 94, 0.8)';
+        if (streak <= 10) return 'rgba(34, 197, 94, 0.9)';
+        return 'rgba(34, 197, 94, 1)';
     }
 
-    for (let i = 29; i >= 0; i--) {
+    if (streakChart) streakChart.destroy();
+    streakChart = new Chart(ctxStreak, {
+        type: 'bar',
+        data: {
+            labels: streakLabels,
+            datasets: [
+                {
+                    label: 'Streak',
+                    data: currentStreaks,
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    borderRadius: 2,
+                    borderWidth: 0
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { beginAtZero: true, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { ticks: { color: 'rgba(255,255,255,0.8)', font: { size: 10 } }, grid: { display: false } }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#111',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    cornerRadius: 4,
+                    displayColors: false
+                }
+            }
+        },
+        plugins: [{
+            id: 'streakLabels',
+            afterDraw(chart) {
+                const { ctx, scales: { x, y } } = chart;
+                ctx.font = 'bold 11px Space Grotesk';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+
+                currentStreaks.forEach((streak, index) => {
+                    const yPos = y.getPixelForValue(index);
+                    const xPos = x.getPixelForValue(streak) + 8;
+                    ctx.fillStyle = getStreakColor(streak);
+                    ctx.fillText(streak, xPos, yPos);
+                });
+            }
+        }]
+    });
+
+    // PREVIOUS PERIOD DATA
+    renderPreviousPeriodCharts();
+}
+
+function renderPreviousPeriodCharts() {
+    // Previous period is 14-28 days ago (for 14D charts) and 6-12 months ago (for 6M charts)
+
+    const ctxPrevCalorie = document.getElementById('prevCalorieChart')?.getContext('2d');
+    const ctxPrevProtein = document.getElementById('prevProteinChart')?.getContext('2d');
+    const ctxPrevTaskCompletion = document.getElementById('prevTaskCompletionChart')?.getContext('2d');
+    const ctxPrevGoalCompletion = document.getElementById('prevGoalCompletionChart')?.getContext('2d');
+    const ctxPrevHabit = document.getElementById('prevHabitChart')?.getContext('2d');
+    const ctxPrevStreak = document.getElementById('prevStreakChart')?.getContext('2d');
+
+    if (!ctxPrevCalorie) return; // Elements don't exist, skip rendering
+
+    // PREVIOUS CALORIE CHART (28-14 days ago)
+    const prevCalLabels = [];
+    const prevCalData = [];
+    for (let i = 27; i >= 14; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
         const key = d.toISOString().split('T')[0];
-        goalLabels.push(i % 5 === 0 ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '');
-        
-        const entry = state.history.goalsHistory.find(h => h.date === key);
-        if (entry) {
-            const percent = entry.total > 0 ? (entry.done / entry.total) * 100 : 0;
-            goalProgressData.push(percent);
-        } else {
-            goalProgressData.push(0);
-        }
+        prevCalLabels.push(d.getDate());
+
+        const dayCals = (state.history.caloriesHistory || [])
+            .filter(item => item.date === key)
+            .reduce((sum, item) => sum + item.calories, 0);
+        prevCalData.push(dayCals);
     }
 
-    if (goalChart) goalChart.destroy();
-    goalChart = new Chart(ctxGoal, {
-        type: 'line',
+    if (prevCalorieChart) prevCalorieChart.destroy();
+    prevCalorieChart = new Chart(ctxPrevCalorie, {
+        type: 'bar',
         data: {
-            labels: goalLabels,
+            labels: prevCalLabels,
             datasets: [{
-                label: 'Goal Completion %',
-                data: goalProgressData,
-                borderColor: '#4ade80',
-                backgroundColor: 'rgba(74, 222, 128, 0.1)',
-                fill: true,
-                tension: 0.4,
-                pointRadius: 0,
-                borderWidth: 2
+                label: 'Calories',
+                data: prevCalData,
+                backgroundColor: '#fafaf9',
+                borderColor: '#fafaf9',
+                borderWidth: 1,
+                borderRadius: 2
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 8 } }, grid: { display: false } },
+                x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { display: false } },
+                y: { beginAtZero: true, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // PREVIOUS PROTEIN CHART (28-14 days ago)
+    const prevProtLabels = [];
+    const prevProtData = [];
+    for (let i = 27; i >= 14; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().split('T')[0];
+        prevProtLabels.push(d.getDate());
+
+        const dayProt = (state.history.proteinHistory || [])
+            .filter(item => item.date === key)
+            .reduce((sum, item) => sum + item.protein, 0);
+        prevProtData.push(dayProt);
+    }
+
+    if (prevProteinChart) prevProteinChart.destroy();
+    prevProteinChart = new Chart(ctxPrevProtein, {
+        type: 'bar',
+        data: {
+            labels: prevProtLabels,
+            datasets: [{
+                label: 'Protein',
+                data: prevProtData,
+                backgroundColor: '#4ade80',
+                borderColor: '#4ade80',
+                borderWidth: 1,
+                borderRadius: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { display: false } },
+                y: { beginAtZero: true, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // PREVIOUS TASK COMPLETION CHART (28-14 days ago)
+    const prevTaskLabels = [];
+    const prevTaskData = [];
+    for (let i = 27; i >= 14; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().split('T')[0];
+        prevTaskLabels.push(d.getDate());
+
+        const entry = (state.history.tasksHistory || []).find(h => h.date === key);
+        prevTaskData.push(entry?.done ?? 0);
+    }
+
+    if (prevTaskCompletionChart) prevTaskCompletionChart.destroy();
+    prevTaskCompletionChart = new Chart(ctxPrevTaskCompletion, {
+        type: 'bar',
+        data: {
+            labels: prevTaskLabels,
+            datasets: [{
+                label: 'Tasks Done',
+                data: prevTaskData,
+                backgroundColor: '#60a5fa',
+                borderColor: '#60a5fa',
+                borderWidth: 1,
+                borderRadius: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { display: false } },
+                y: { beginAtZero: true, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, stepSize: 1, grid: { color: 'rgba(255,255,255,0.05)' } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // PREVIOUS HABIT CONSISTENCY CHART (28-14 days ago)
+    const prevHabitLabels = [];
+    const prevHabitDateKeys = [];
+    const prevHabitData = [];
+    let prevRunningTotal = 0;
+
+    for (let i = 27; i >= 14; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().split('T')[0];
+        prevHabitLabels.push(d.getDate());
+        prevHabitDateKeys.push(key);
+
+        let completedCount = 0;
+        habits.forEach(h => {
+            if (h.tracking[key] === 'completed') completedCount++;
+        });
+        prevRunningTotal += completedCount;
+        prevHabitData.push(prevRunningTotal);
+    }
+
+    if (prevHabitChart) prevHabitChart.destroy();
+    prevHabitChart = new Chart(ctxPrevHabit, {
+        type: 'bar',
+        data: {
+            labels: prevHabitLabels,
+            datasets: [{
+                label: 'Cumulative Habits',
+                data: prevHabitData,
+                backgroundColor: '#d1d5db',
+                borderColor: '#d1d5db',
+                borderWidth: 1,
+                borderRadius: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { display: false } },
+                y: { beginAtZero: true, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 }, stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // PREVIOUS GOAL COMPLETION CHART (6-12 months ago)
+    const prevMonthlyGoals = {};
+    const now = new Date();
+    for (let m = 11; m >= 6; m--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - m, 1);
+        const monthKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+        prevMonthlyGoals[monthKey] = { total: 0, done: 0 };
+    }
+
+    (state.history.goalsHistory || []).forEach(entry => {
+        const monthKey = entry.date.substring(0, 7);
+        if (prevMonthlyGoals[monthKey]) {
+            prevMonthlyGoals[monthKey].total += entry.total;
+            prevMonthlyGoals[monthKey].done += entry.done;
+        }
+    });
+
+    const prevGoalLabels = [];
+    const prevGoalData = [];
+    Object.keys(prevMonthlyGoals).forEach(k => {
+        const [year, month] = k.split('-');
+        const d = new Date(year, parseInt(month) - 1);
+        prevGoalLabels.push(d.toLocaleDateString('en-US', { month: 'short' }));
+        const m = prevMonthlyGoals[k];
+        prevGoalData.push(m.total > 0 ? Math.round((m.done / m.total) * 100) : 0);
+    });
+
+    if (prevGoalCompletionChart) prevGoalCompletionChart.destroy();
+    prevGoalCompletionChart = new Chart(ctxPrevGoalCompletion, {
+        type: 'bar',
+        data: {
+            labels: prevGoalLabels,
+            datasets: [{
+                label: 'Goals Completed %',
+                data: prevGoalData,
+                backgroundColor: '#a78bfa',
+                borderColor: '#a78bfa',
+                borderWidth: 1,
+                borderRadius: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { display: false } },
                 y: { min: 0, max: 100, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 }, callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } }
             },
             plugins: { legend: { display: false } }
         }
     });
 
-    // NUTRITION SCATTER (All meals in history)
-    const scatterData = (state.history.caloriesHistory || []).map((h, i) => {
-        const p = state.history.proteinHistory[i];
-        return { x: h.calories, y: p ? p.protein : 0 };
-    }).filter(d => d.x > 0 || d.y > 0);
+    // PREVIOUS HABIT STREAKS CHART
+    const prevStreakLabels = habits.map(h => h.name);
+    const prevCurrentStreaks = habits.map(h => calculateHabitStreakAt(h, 28));
 
-    if (scatterChart) scatterChart.destroy();
-    scatterChart = new Chart(ctxScatter, {
-        type: 'scatter',
+    function getStreakColor(streak) {
+        if (streak === 0) return 'rgba(248, 250, 252, 0.4)';
+        if (streak <= 2) return 'rgba(234, 179, 8, 0.8)';
+        if (streak <= 5) return 'rgba(34, 197, 94, 0.8)';
+        if (streak <= 10) return 'rgba(34, 197, 94, 0.9)';
+        return 'rgba(34, 197, 94, 1)';
+    }
+
+    if (prevStreakChart) prevStreakChart.destroy();
+    prevStreakChart = new Chart(ctxPrevStreak, {
+        type: 'bar',
         data: {
-            datasets: [{
-                label: 'Correlation',
-                data: scatterData,
-                backgroundColor: '#4ade80',
-                pointRadius: 4,
-                pointHoverRadius: 6
-            }]
+            labels: prevStreakLabels,
+            datasets: [
+                {
+                    label: 'Streak',
+                    data: prevCurrentStreaks,
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    borderRadius: 2,
+                    borderWidth: 0
+                }
+            ]
         },
         options: {
+            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                x: { title: { display: true, text: 'kcal', color: 'rgba(255,255,255,0.4)', font: { size: 10 } }, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                y: { title: { display: true, text: 'Protein (g)', color: 'rgba(255,255,255,0.4)', font: { size: 10 } }, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                x: { beginAtZero: true, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { ticks: { color: 'rgba(255,255,255,0.8)', font: { size: 10 } }, grid: { display: false } }
             },
-            plugins: { legend: { display: false } }
-        }
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#111',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    cornerRadius: 4,
+                    displayColors: false
+                }
+            }
+        },
+        plugins: [{
+            id: 'prevStreakLabels',
+            afterDraw(chart) {
+                const { ctx, scales: { x, y } } = chart;
+                ctx.font = 'bold 11px Space Grotesk';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+
+                prevCurrentStreaks.forEach((streak, index) => {
+                    const yPos = y.getPixelForValue(index);
+                    const xPos = x.getPixelForValue(streak) + 8;
+                    ctx.fillStyle = getStreakColor(streak);
+                    ctx.fillText(streak, xPos, yPos);
+                });
+            }
+        }]
     });
 }
 
+function calculateHabitStreakAt(habit, daysAgo) {
+    // Calculate streak as of 'daysAgo' days in the past
+    let streak = 0;
+    const baseDate = new Date();
+    baseDate.setDate(baseDate.getDate() - daysAgo);
 
+    for (let i = 0; i < 365; i++) {
+        const checkDate = new Date(baseDate);
+        checkDate.setDate(checkDate.getDate() - i);
+        const dateKey = checkDate.toISOString().split('T')[0];
+        const status = habit.tracking[dateKey];
+
+        if (status === 'completed') {
+            streak++;
+        } else if (status === 'prevented') {
+            // Keep streak alive
+        } else {
+            break;
+        }
+    }
+    return streak;
+}
 
 function updateSidebars() {
     const totalCals = state.meals.reduce((sum, m) => sum + (m.calories || 0), 0);
@@ -288,20 +773,23 @@ function updateSidebars() {
     const habitStreak = habits.length > 0 ? Math.max(...habits.map(h => calculateHabitStreak(h))) : 0;
     document.getElementById('sidebarStreak').textContent = habitStreak;
 
+    snapshotTasks();
     snapshotGoals();
     updateFullscreenAnalytics();
 }
 
 function renderWorkoutHeatmap() {
     const container = document.getElementById('workoutHeatmap');
-    if (!container) return;
+    const monthsContainer = document.getElementById('heatmapMonths');
+    if (!container || !monthsContainer) return;
+    
     container.innerHTML = '';
+    monthsContainer.innerHTML = '';
 
     const weeks = 12;
     const days = 7;
     const totalDays = weeks * days;
 
-    // Aggregate data
     const workoutData = {};
     Object.entries(workoutFolders).forEach(([folderName, dates]) => {
         dates.forEach(d => {
@@ -311,11 +799,12 @@ function renderWorkoutHeatmap() {
     });
 
     const now = new Date();
-    // Move to next Saturday to align the grid
     const end = new Date(now);
     end.setDate(end.getDate() + (6 - end.getDay()));
 
     const daySquares = [];
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    let lastMonth = -1;
 
     for (let i = totalDays - 1; i >= 0; i--) {
         const d = new Date(end);
@@ -325,33 +814,30 @@ function renderWorkoutHeatmap() {
         
         const square = document.createElement('div');
         square.className = 'heatmap-square';
-        square.style.width = '12px';
-        square.style.height = '12px';
+        square.style.width = '11px';
+        square.style.height = '11px';
         square.style.borderRadius = '2px';
         
         const count = folderList.length;
         if (count === 0) {
-            square.style.background = 'rgba(255, 255, 255, 0.05)';
+            square.style.border = '1px solid rgba(255,255,255,0.03)';
+            square.style.background = 'rgba(255, 255, 255, 0.02)';
         } else if (count === 1) {
-            square.style.background = 'rgba(74, 180, 100, 0.4)'; // Subdued green
+            square.style.background = 'rgba(209, 213, 219, 0.2)';
         } else if (count === 2) {
-            square.style.background = 'rgba(74, 222, 128, 0.7)'; // Bright green
+            square.style.background = 'rgba(209, 213, 219, 0.5)';
         } else {
-            square.style.background = '#4ade80'; // Neon green for 3+
-            square.style.boxShadow = '0 0 8px rgba(74, 222, 128, 0.4)';
+            square.style.background = '#d1d5db';
+            square.style.boxShadow = '0 0 8px rgba(209, 213, 219, 0.3)';
         }
 
         square.style.cursor = 'pointer';
-        square.onclick = () => {
-            if (count > 0) openDailyWorkoutLogs(key);
-        };
+        square.onclick = () => { if (count > 0) openDailyWorkoutLogs(key); };
 
         const dStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-        const tooltip = count > 0 ? `${dStr}: ${folderList.join(', ')}` : `${dStr}: No workouts`;
-        square.title = tooltip;
-        square.dataset.date = tooltip;
-
-        daySquares.push(square);
+        square.title = count > 0 ? `${dStr}: ${folderList.join(', ')}` : `${dStr}: No workouts`;
+        
+        daySquares.push({ el: square, month: d.getMonth() });
     }
 
     // Wrap into columns (weeks)
@@ -361,14 +847,68 @@ function renderWorkoutHeatmap() {
         weekCol.style.flexDirection = 'column';
         weekCol.style.gap = '4px';
         
+        let monthToLabel = -1;
         for (let d = 0; d < days; d++) {
             const idx = w * days + d;
             if (daySquares[idx]) {
-                weekCol.appendChild(daySquares[idx]);
+                weekCol.appendChild(daySquares[idx].el);
+                if (d === 0) monthToLabel = daySquares[idx].month;
             }
         }
+        
+        // Month Label
+        const monthLabel = document.createElement('div');
+        monthLabel.style.width = '11px';
+        monthLabel.style.textAlign = 'left';
+        if (monthToLabel !== lastMonth) {
+            monthLabel.textContent = monthNames[monthToLabel];
+            lastMonth = monthToLabel;
+        }
+        monthsContainer.appendChild(monthLabel);
         container.appendChild(weekCol);
     }
+}
+
+function calculateMaxStreak(habit) {
+    let max = 0;
+    let current = 0;
+    const sortedDates = Object.keys(habit.tracking).sort();
+    if (sortedDates.length === 0) return 0;
+    
+    // We need to iterate chronologically through all days in history
+    const start = new Date(sortedDates[0]);
+    const end = new Date(today);
+    
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const key = d.toISOString().split('T')[0];
+        const status = habit.tracking[key];
+        
+        if (status === 'completed') {
+            current++;
+            max = Math.max(max, current);
+        } else if (status === 'prevented') {
+            // Keep streak alive
+        } else {
+            current = 0;
+        }
+    }
+    return max;
+}
+
+function snapshotTasks() {
+    if (!state.history.tasksHistory) state.history.tasksHistory = [];
+    const todayStr = new Date().toISOString().split('T')[0];
+    const total = state.tasks.length;
+    const done = state.tasks.filter(t => t.done).length;
+
+    const existing = state.history.tasksHistory.find(h => h.date === todayStr);
+    if (existing) {
+        existing.total = total;
+        existing.done = done;
+    } else {
+        state.history.tasksHistory.push({ date: todayStr, total, done });
+    }
+    saveState();
 }
 
 function snapshotGoals() {
@@ -376,7 +916,7 @@ function snapshotGoals() {
     const todayStr = new Date().toISOString().split('T')[0];
     const total = state.goals.length;
     const done = state.goals.filter(g => g.done).length;
-    
+
     const existing = state.history.goalsHistory.find(h => h.date === todayStr);
     if (existing) {
         existing.total = total;

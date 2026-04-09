@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -41,47 +42,139 @@
                 <h2 class="fullscreen-title">Performance Insights</h2>
             </div>
 
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 3rem;">
+                <!-- CURRENT DATA -->
+                <div>
+                    <div class="section-title" style="margin-bottom: 1.5rem;">Current Period</div>
+                    <div class="analytics-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+                        <!-- Calories Graph -->
+                        <div class="analytics-card">
+                            <div class="analytics-card-label">Calories (14D) <span class="goal-input-group">Goal: <input id="calGoalInput" type="number" min="0" placeholder="kcal"></span></div>
+                            <div style="height: 200px; position: relative;">
+                                <canvas id="calorieChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Protein Graph -->
+                        <div class="analytics-card">
+                            <div class="analytics-card-label">Protein (14D) <span class="goal-input-group">Goal: <input id="protGoalInput" type="number" min="0" placeholder="g"></span></div>
+                            <div style="height: 200px; position: relative;">
+                                <canvas id="proteinChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Tasks Completed Graph -->
+                        <div class="analytics-card">
+                            <div class="analytics-card-label">Tasks Completed (14D)</div>
+                            <div style="height: 200px; position: relative;">
+                                <canvas id="taskCompletionChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Habit Consistency Graph -->
+                        <div class="analytics-card">
+                            <div class="analytics-card-label">Habit Consistency (14D)</div>
+                            <div style="height: 200px; position: relative;">
+                                <canvas id="habitChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Goals Completed Graph -->
+                        <div class="analytics-card">
+                            <div class="analytics-card-label">Goals Completed (6M)</div>
+                            <div style="height: 200px; position: relative;">
+                                <canvas id="goalCompletionChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Habit Streaks Graph -->
+                        <div class="analytics-card">
+                            <div class="analytics-card-label">Habit Streaks</div>
+                            <div style="height: 200px; position: relative;">
+                                <canvas id="streakChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PREVIOUS DATA -->
+                <div>
+                    <div class="section-title" style="margin-bottom: 1.5rem;">Previous Period</div>
+                    <div class="analytics-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+                        <!-- Previous Calories Graph -->
+                        <div class="analytics-card">
+                            <div class="analytics-card-label">Calories</div>
+                            <div style="height: 200px; position: relative;">
+                                <canvas id="prevCalorieChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Previous Protein Graph -->
+                        <div class="analytics-card">
+                            <div class="analytics-card-label">Protein</div>
+                            <div style="height: 200px; position: relative;">
+                                <canvas id="prevProteinChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Previous Tasks Completed Graph -->
+                        <div class="analytics-card">
+                            <div class="analytics-card-label">Tasks Completed</div>
+                            <div style="height: 200px; position: relative;">
+                                <canvas id="prevTaskCompletionChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Previous Habit Consistency Graph -->
+                        <div class="analytics-card">
+                            <div class="analytics-card-label">Habit Consistency</div>
+                            <div style="height: 200px; position: relative;">
+                                <canvas id="prevHabitChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Previous Goals Completed Graph -->
+                        <div class="analytics-card">
+                            <div class="analytics-card-label">Goals Completed</div>
+                            <div style="height: 200px; position: relative;">
+                                <canvas id="prevGoalCompletionChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Previous Habit Streaks Graph -->
+                        <div class="analytics-card">
+                            <div class="analytics-card-label">Habit Streaks</div>
+                            <div style="height: 200px; position: relative;">
+                                <canvas id="prevStreakChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WORKOUT AND NOTES SECTION -->
             <div class="analytics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;">
-                <!-- Nutrition Graph -->
+                <!-- WORKOUT HEATMAP -->
                 <div class="analytics-card">
-                    <div class="analytics-card-label">Nutrition Trends (7D)</div>
-                    <div style="height: 200px; position: relative;">
-                        <canvas id="nutritionChart"></canvas>
+                    <div class="analytics-card-label">Workout Evolution (12W Activity)</div>
+                    <div id="workoutHeatmapContainer" style="padding: 1.5rem 1rem; overflow-x: auto;">
+                        <div id="heatmapMonths" style="display: flex; gap: 4px; margin-bottom: 0.5rem; margin-left: 20px; font-size: 0.65rem; color: rgba(255,255,255,0.4);"></div>
+                        <div style="display: flex; gap: 8px;">
+                            <div id="heatmapDays" style="display: flex; flex-direction: column; gap: 4px; font-size: 0.65rem; color: rgba(255,255,255,0.3); padding-top: 2px;">
+                                <span>M</span><span></span><span>W</span><span></span><span>F</span><span></span><span>S</span>
+                            </div>
+                            <div id="workoutHeatmap" style="display: flex; gap: 4px;"></div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Habits Graph -->
-                <div class="analytics-card">
-                    <div class="analytics-card-label">Habit Consistency (14D)</div>
-                    <div style="height: 200px; position: relative;">
-                        <canvas id="habitChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Goals Graph -->
-                <div class="analytics-card">
-                    <div class="analytics-card-label">Goal Progress (30D)</div>
-                    <div style="height: 200px; position: relative;">
-                        <canvas id="goalChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Correlation Graph -->
-                <div class="analytics-card">
-                    <div class="analytics-card-label">Nutrition Correlation (Protein vs kcal)</div>
-                    <div style="height: 200px; position: relative;">
-                        <canvas id="nutritionScatterChart"></canvas>
-                    </div>
+                <!-- DAILY NOTES HEATMAP -->
+                <div class="analytics-card" style="grid-column: 1/-1;">
+                    <div class="analytics-card-label">Daily Notes</div>
+                    <div id="noteHeatmap" class="note-heatmap" style="padding: 1rem;"></div>
                 </div>
             </div>
 
-            <!-- WORKOUT HEATMAP -->
-            <div class="analytics-card" style="margin-top: 2rem;">
-                <div class="analytics-card-label">Workout Heatmap (Last 12 Weeks)</div>
-                <div id="workoutHeatmapContainer" style="min-height: 120px; padding: 1rem 0; overflow-x: auto;">
-                    <div id="workoutHeatmap" style="display: flex; gap: 4px;"></div>
-                </div>
-            </div>
 
             <div class="section-title" style="margin-top: 3rem; margin-bottom: 1rem;">Workout History</div>
             <div class="folder-grid" id="analyticsWorkoutFolders"></div>
@@ -135,7 +228,6 @@
                         <div class="section-title">Tasks</div>
                         <div class="task-input-group">
                             <input type="text" class="task-input" id="taskInput" placeholder="Add a task...">
-                            <button class="btn" id="addTaskBtn">+</button>
                         </div>
                         <div class="tasks-list" id="tasksList"></div>
                     </div>
@@ -145,7 +237,7 @@
                         <div class="section-title">Goals</div>
                         <div class="task-input-group">
                             <input type="text" class="task-input" id="goalInput" placeholder="Add a goal...">
-                            <button class="btn" id="addGoalBtn">+</button>
+                            <input type="date" class="task-input-date" id="goalDateInput">
                         </div>
                         <div class="tasks-list" id="goalsList"></div>
                     </div>
@@ -155,9 +247,8 @@
                         <div class="section-title">Nutrition</div>
                         <div class="meal-input-group">
                             <input type="number" class="cal-input" id="calInput" placeholder="kcal" min="0" style="width: 45px;">
-                            <input type="number" class="cal-input" id="protInput" placeholder="p" min="0" style="width: 35px;">
+                            <input type="number" class="cal-input" id="protInput" placeholder="p" min="0" style="width: 45px;">
                             <input type="text" class="meal-input" id="foodInput" placeholder="What did you eat?">
-                            <button class="btn" id="addFoodBtn">+</button>
                         </div>
 
                         <!-- GALLERY -->
@@ -227,6 +318,9 @@
                         </div>
                     </div>
                     <div class="habits-list" id="habitsList"></div>
+                    <div class="habits-weekly-chart-container">
+                        <canvas id="habitsWeeklyChart"></canvas>
+                    </div>
                 </div>
 
                 <!-- Habit Detail View -->
@@ -252,6 +346,23 @@
                             <div class="detail-stat">
                                 <div class="stat-label">Completed</div>
                                 <div class="stat-value" id="detailTotalDays">0</div>
+                            </div>
+                            <div class="detail-stat">
+                                <div class="stat-label">This Week</div>
+                                <div class="stat-value" id="detailThisWeek">0</div>
+                                <div class="detail-stat-target" style="display: none;">
+                                    <span>Target:</span>
+                                    <select id="detailTargetSelect" class="detail-target-select" onchange="setHabitTarget(window.currentHabit?.id, parseInt(this.value) || null); closeHabitDetail(); openHabitDetail(window.currentHabit?.id);">
+                                        <option value="">None</option>
+                                        <option value="1">1/7</option>
+                                        <option value="2">2/7</option>
+                                        <option value="3">3/7</option>
+                                        <option value="4">4/7</option>
+                                        <option value="5">5/7</option>
+                                        <option value="6">6/7</option>
+                                        <option value="7">7/7</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="detail-chart">
@@ -291,55 +402,7 @@
                 <div class="sidebar-value" id="sidebarAvgCal">0</div>
             </div>
         </div>
-    </div>
-
-    <!-- Time Arc with Moon -->
-    <div class="time-arc-container">
-        <svg class="time-arc-svg" viewBox="0 0 100 60" preserveAspectRatio="xMidYMid meet">
-            <defs>
-                <!-- 3D Spherical Gradient -->
-                <radialGradient id="moonGradient" cx="40%" cy="40%" r="50%" fx="30%" fy="30%">
-                    <stop offset="0%" style="stop-color: #ffffff; stop-opacity: 1" />
-                    <stop offset="60%" style="stop-color: #f3f4f6; stop-opacity: 1" />
-                    <stop offset="100%" style="stop-color: #d1d5db; stop-opacity: 1" />
-                </radialGradient>
-                <!-- Inner Shadow for Roundness -->
-                <radialGradient id="moonShadow" cx="60%" cy="60%" r="50%">
-                    <stop offset="0%" style="stop-color: #000; stop-opacity: 0" />
-                    <stop offset="100%" style="stop-color: #000; stop-opacity: 0.15" />
-                </radialGradient>
-            </defs>
-            <!-- Dotted Path -->
-            <path id="arcPath" d="M 5 50 Q 50 -10 95 50" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.3" stroke-dasharray="0.5 1.5" />
-            
-            <!-- Detailed Moon Group -->
-            <g id="moonGroup">
-                <!-- Layered Atmospheric Glow -->
-                <circle r="35" fill="rgba(255,255,255,0.01)" />
-                <circle r="25" fill="rgba(255,255,255,0.02)" />
-                <circle r="18" fill="rgba(255,255,255,0.03)" />
-                
-                <!-- Moon Sphere -->
-                <circle r="14" fill="url(#moonGradient)" />
-                <circle r="14" fill="url(#moonShadow)" />
-
-                <!-- Hand-placed Detailed Craters (High Detail) -->
-                <g opacity="0.12">
-                    <circle cx="-5.0" cy="-3.5" r="3.0" fill="#000" />
-                    <circle cx="-4.5" cy="-3.0" r="3.0" fill="#fff" opacity="0.2" />
-                    
-                    <circle cx="6.0" cy="2.5" r="4.0" fill="#000" />
-                    <circle cx="6.5" cy="3.0" r="4.0" fill="#fff" opacity="0.2" />
-                    
-                    <circle cx="2.0" cy="-7.0" r="2.0" fill="#000" />
-                    <circle cx="2.2" cy="-6.5" r="2.0" fill="#fff" opacity="0.2" />
-                    
-                    <circle cx="-1.5" cy="7.0" r="2.5" fill="#000" />
-                    <circle cx="-1.0" cy="7.5" r="2.5" fill="#fff" opacity="0.2" />
-                </g>
-            </g>
-        </svg>
-    </div>
+     </div>
 
     <!-- WORKOUT NOTES SIDEBAR -->
     <div class="workout-notes-sidebar" id="workoutNotesSidebar">
@@ -353,7 +416,23 @@
         </div>
     </div>
 
+    <!-- SETTINGS OVERLAY -->
+    <div class="settings-overlay" id="settingsOverlay">
+        <div class="settings-panel">
+            <div class="settings-header">
+                <div class="settings-title">Settings</div>
+                <button class="settings-close-btn" onclick="closeSettings()">✕</button>
+            </div>
+            <div class="settings-body">
+                <div class="settings-section-title">Account</div>
+                <div id="authContainer"></div>
+            </div>
+        </div>
+    </div>
+
     <script src="js/state.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/settings.js"></script>
     <script src="js/habits.js"></script>
     <script src="js/notes.js"></script>
     <script src="js/analytics.js"></script>
@@ -363,11 +442,6 @@
     <script src="js/tasks.js"></script>
     <script src="js/map.js"></script>
     <script src="js/main.js"></script>
-    <div class="goose-mascot">      (•&gt;
-     / )
-  /---m---
- /
-/</div>
 </body>
 
 </html>

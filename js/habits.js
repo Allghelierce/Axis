@@ -57,21 +57,32 @@ function renderHabits() {
     const container = document.getElementById('habitsList');
     const existingElements = {};
 
+    // Normalize new fields for backward-compatibility
+    habits.forEach(habit => {
+        habit.archived ??= false;
+        habit.weeklyTarget ??= null;
+        habit.notes ??= {};
+    });
+
     // Store existing streak elements for comparison
     container.querySelectorAll('[data-habit-id]').forEach(el => {
         existingElements[el.dataset.habitId] = el.querySelector('.habit-streak');
     });
 
-    if (habits.length === 0) {
+    // Filter out archived habits
+    const activeHabits = habits.filter(h => !h.archived);
+    const archivedHabits = habits.filter(h => h.archived);
+
+    if (activeHabits.length === 0) {
         container.innerHTML = '<div class="empty-state">No habits yet. Click + to add one!</div>';
         return;
     }
 
     container.innerHTML = '';
 
-    habits.forEach(habit => {
+    activeHabits.forEach((habit, habitIndex) => {
         const habitEl = document.createElement('div');
-        habitEl.className = 'habit-item';
+        habitEl.className = 'habit-item' + (isHabitDeleteMode ? ' delete-mode' : '');
         habitEl.dataset.habitId = habit.id;
 
         let streak = 0;
@@ -102,7 +113,13 @@ function renderHabits() {
         }
         trackingHTML += '</div>';
 
+        const deleteModeBtns = isHabitDeleteMode ? `
+            <div class="habit-drag-handle" data-habit-index="${habits.indexOf(habit)}">⠿</div>
+            <button class="habit-archive-btn" onclick="archiveHabit(${habit.id}); event.stopPropagation();" title="Archive">⊟</button>
+        ` : '';
+
         habitEl.innerHTML = `
+            <div class="habit-controls">${deleteModeBtns}</div>
             <div class="habit-name" onclick="if(isHabitDeleteMode) deleteHabit(${habit.id}); else openHabitDetail(${habit.id})">${habit.name}</div>
             <div class="habit-bottom-row">
                 ${trackingHTML}
@@ -132,6 +149,40 @@ function renderHabits() {
             toggleHabitDay(habitId, dayKey, el, event);
         });
     });
+
+    // Setup drag-to-reorder in delete mode
+    if (isHabitDeleteMode) {
+        container.querySelectorAll('.habit-item').forEach(el => {
+            el.draggable = true;
+            el.addEventListener('dragstart', habitDragStart);
+            el.addEventListener('dragover', habitDragOver);
+            el.addEventListener('drop', habitDrop);
+            el.addEventListener('dragend', habitDragEnd);
+        });
+    }
+
+    // Append archived habits section if any
+    if (archivedHabits.length > 0) {
+        const archivedSection = document.createElement('div');
+        archivedSection.className = 'habits-archived-section';
+        archivedSection.innerHTML = `
+            <div class="habits-archived-toggle" onclick="toggleArchivedHabits()">
+                <span class="habits-archived-toggle-text">Archived (${archivedHabits.length}) ▸</span>
+            </div>
+            <div class="habits-archived-list" style="display: none;">
+                ${archivedHabits.map(habit => `
+                    <div class="habit-item habit-archived">
+                        <button class="habit-restore-btn" onclick="unarchiveHabit(${habit.id}); event.stopPropagation();" title="Restore">⊞</button>
+                        <div class="habit-name">${habit.name}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        container.parentElement.appendChild(archivedSection);
+    }
+
+    // Render weekly chart
+    renderHabitsWeeklyChart();
 }
 
 function toggleHabitDay(habitId, dayKey, element, event, skipRender = false) {
@@ -181,6 +232,100 @@ function toggleHabitDay(habitId, dayKey, element, event, skipRender = false) {
     updateSidebars();
 }
 
+// Drag-to-reorder functionality
+let habitDraggedIndex = null;
+
+function habitDragStart(e) {
+    habitDraggedIndex = parseInt(this.querySelector('.habit-drag-handle')?.dataset.habitIndex) ?? null;
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+}
+
+function habitDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+}
+
+function habitDrop(e) {
+    e.stopPropagation();
+    if (habitDraggedIndex === null) return;
+
+    const dropIndex = parseInt(this.querySelector('.habit-drag-handle')?.dataset.habitIndex) ?? null;
+    if (dropIndex === null || dropIndex === habitDraggedIndex) return;
+
+    // Splice-move the habit to the new position
+    const moved = habits.splice(habitDraggedIndex, 1)[0];
+    habits.splice(dropIndex, 0, moved);
+
+    saveHabits();
+    renderHabits();
+}
+
+function habitDragEnd(e) {
+    this.classList.remove('dragging');
+    habitDraggedIndex = null;
+}
+
+// Archive and restore functionality
+function archiveHabit(id) {
+    const habit = habits.find(h => h.id === id);
+    if (habit) {
+        habit.archived = true;
+        saveHabits();
+        renderHabits();
+    }
+}
+
+function unarchiveHabit(id) {
+    const habit = habits.find(h => h.id === id);
+    if (habit) {
+        habit.archived = false;
+        saveHabits();
+        renderHabits();
+    }
+}
+
+function toggleArchivedHabits() {
+    const list = document.querySelector('.habits-archived-list');
+    if (list) {
+        list.style.display = list.style.display === 'none' ? 'block' : 'none';
+        const toggle = document.querySelector('.habits-archived-toggle-text');
+        if (toggle) {
+            toggle.textContent = list.style.display === 'none' ? 'Archived ▸' : 'Archived ▾';
+        }
+    }
+}
+
+function setHabitTarget(habitId, target) {
+    const habit = habits.find(h => h.id === habitId);
+    if (habit) {
+        habit.weeklyTarget = target;
+        saveHabits();
+    }
+}
+
+function saveHabitNote(habitId, dayKey, noteText) {
+    const habit = habits.find(h => h.id === habitId);
+    if (habit) {
+        if (!habit.notes) habit.notes = {};
+        if (noteText.trim()) {
+            habit.notes[dayKey] = noteText.trim();
+        } else {
+            delete habit.notes[dayKey];
+        }
+        saveHabits();
+        renderHabitCalendarMonth(habit, calendarCurrentMonth);
+    }
+}
+
+function showNoteEditor(habitId, dayKey, currentNote) {
+    const input = prompt('Add note (max 60 chars):', currentNote);
+    if (input !== null) {
+        saveHabitNote(habitId, dayKey, input.substring(0, 60));
+    }
+}
+
 function addHabit() {
     const habitName = prompt('Habit name:');
     if (!habitName || !habitName.trim()) return;
@@ -225,6 +370,15 @@ function openHabitDetail(habitId) {
     document.getElementById('detailCompletion').textContent = stats.completionRate + '%';
     document.getElementById('detailTotalDays').textContent = stats.completedDays;
 
+    // Update this week stat and target selector
+    const target = habit.weeklyTarget || 0;
+    const thisWeekDisplay = target > 0 ? `${stats.thisWeekCount} / ${target}` : stats.thisWeekCount;
+    document.getElementById('detailThisWeek').textContent = thisWeekDisplay;
+    document.getElementById('detailTargetSelect').value = target;
+
+    // Show/hide target selector (only show if there's a target or user clicks to set one)
+    // For now, we'll show it always for easy access
+
     // Render calendar
     renderHabitCalendarMonth(habit, calendarCurrentMonth);
 
@@ -252,6 +406,11 @@ function calculateHabitStats(habit) {
     let currentStreak = 0;
     let completedDays = 0;
     let trackedDays = 0;
+    let thisWeekCount = 0;
+
+    // Calculate this week (starting from Sunday)
+    const weekStart = new Date(today);
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
 
     for (let d = new Date(today); d >= sixMonthsAgo; d.setDate(d.getDate() - 1)) {
         const dayKey = d.toISOString().split('T')[0];
@@ -260,6 +419,7 @@ function calculateHabitStats(habit) {
         if (status === 'completed') {
             completedDays++;
             currentStreak++;
+            if (d >= weekStart) thisWeekCount++;
         } else if (status === 'prevented') {
             longestStreak = Math.max(longestStreak, currentStreak);
             currentStreak = 0;
@@ -283,7 +443,8 @@ function calculateHabitStats(habit) {
         completionRate: Math.max(0, completionRate),
         totalDays,
         completedDays,
-        trackedDays
+        trackedDays,
+        thisWeekCount
     };
 }
 
@@ -313,9 +474,14 @@ function renderHabitCalendarMonth(habit, monthDate) {
         for (let d = new Date(monthStart); d <= monthEnd; d.setDate(d.getDate() + 1)) {
             const dayKey = d.toISOString().split('T')[0];
             const status = habit.tracking[dayKey];
+            const hasNote = habit.notes && habit.notes[dayKey];
             const dayEl = document.createElement('div');
             dayEl.className = `calendar-day ${status || ''}`;
-            dayEl.textContent = d.getDate();
+            dayEl.dataset.dayKey = dayKey;
+            dayEl.style.cursor = 'pointer';
+            dayEl.title = hasNote ? `${d.getDate()} - ${habit.notes[dayKey]}` : d.getDate();
+            dayEl.innerHTML = `${d.getDate()}${hasNote ? '<span class="note-dot">●</span>' : ''}`;
+            dayEl.addEventListener('click', () => showNoteEditor(habit.id, dayKey, habit.notes[dayKey] || ''));
             daysContainer.appendChild(dayEl);
         }
 
@@ -345,6 +511,100 @@ function setupCalendarNavigation() {
             renderHabitCalendarMonth(currentHabit, calendarCurrentMonth);
         }
     };
+}
+
+// Module-level variable for habits weekly chart
+let habitsWeeklyChart = null;
+
+function renderHabitsWeeklyChart() {
+    const canvas = document.getElementById('habitsWeeklyChart');
+    if (!canvas) return;
+
+    const activeHabits = habits.filter(h => !h.archived);
+    if (activeHabits.length === 0) return;
+
+    const ctx = canvas.getContext('2d');
+    const weeks = 7;
+    const weekLabels = [];
+    const completionData = [];
+
+    const now = new Date(today);
+    for (let w = weeks - 1; w >= 0; w--) {
+        const weekStart = new Date(now);
+        weekStart.setDate(weekStart.getDate() - w * 7);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+
+        // Label each week
+        const weekNum = weeks - w;
+        weekLabels.push(`W${weekNum}`);
+
+        // Calculate overall completion % across all active habits for this week
+        let totalExpected = activeHabits.length * 7; // Each habit for 7 days
+        let totalCompleted = 0;
+
+        activeHabits.forEach(habit => {
+            for (let d = new Date(weekStart); d <= weekEnd; d.setDate(d.getDate() + 1)) {
+                const dayKey = d.toISOString().split('T')[0];
+                if (habit.tracking[dayKey] === 'completed') totalCompleted++;
+            }
+        });
+
+        const percentage = totalExpected > 0 ? Math.round((totalCompleted / totalExpected) * 100) : 0;
+        completionData.push(percentage);
+    }
+
+    // Destroy existing chart if any
+    if (habitsWeeklyChart) {
+        habitsWeeklyChart.destroy();
+    }
+
+    // Create new chart
+    habitsWeeklyChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: weekLabels,
+            datasets: [{
+                label: 'Weekly Completion %',
+                data: completionData,
+                backgroundColor: 'rgba(74, 222, 128, 0.3)',
+                borderColor: 'rgba(74, 222, 128, 0.8)',
+                borderWidth: 1,
+                borderRadius: 2,
+                barThickness: 'flex',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'x',
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        font: { size: 9 },
+                        color: 'rgba(255, 255, 255, 0.3)',
+                        stepSize: 25
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.05)',
+                        drawBorder: false
+                    }
+                },
+                x: {
+                    ticks: {
+                        font: { size: 9 },
+                        color: 'rgba(255, 255, 255, 0.4)'
+                    },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
 }
 
 function renderHabitChart(habit) {

@@ -19,6 +19,17 @@ function loadState() {
     if (saved) {
         const data = JSON.parse(saved);
         if (data.lastDate !== getTodayKey()) {
+            // Snapshot task completion before wiping
+            if (!data.history.tasksHistory) data.history.tasksHistory = [];
+            const exists = data.history.tasksHistory.find(e => e.date === data.lastDate);
+            if (!exists && data.tasks?.length > 0) {
+                data.history.tasksHistory.push({
+                    date: data.lastDate,
+                    total: data.tasks.length,
+                    done: data.tasks.filter(t => t.done).length
+                });
+            }
+
             data.meals = [];
             data.photos = [];
             data.movementNotes = '';
@@ -29,6 +40,9 @@ function loadState() {
         }
         if (!data.tasks) data.tasks = [];
         if (!data.goals) data.goals = [];
+        if (!data.history.tasksHistory) data.history.tasksHistory = [];
+        if (!data.nutritionGoals) data.nutritionGoals = { calories: null, protein: null };
+        if (!data.viewState) data.viewState = { analyticsActive: false };
         return data;
     }
     return {
@@ -44,7 +58,15 @@ function loadState() {
             caloriesHistory: [],
             proteinHistory: [],
             goalsHistory: [],
+            tasksHistory: [],
             photosHistory: []
+        },
+        nutritionGoals: {
+            calories: null,
+            protein: null
+        },
+        viewState: {
+            analyticsActive: false
         }
     };
 }

@@ -146,6 +146,10 @@ input[type=number] {
             font-family: inherit;
         }
 
+        .task-input:focus {
+            outline: none;
+        }
+
         .task-input::placeholder {
             color: rgba(255, 255, 255, 0.3);
         }
@@ -264,6 +268,10 @@ input[type=number] {
             font-family: inherit;
         }
 
+        .meal-input:focus {
+            outline: none;
+        }
+
         .meal-input::placeholder {
             color: rgba(255, 255, 255, 0.3);
         }
@@ -277,6 +285,10 @@ input[type=number] {
             border-radius: 2px;
             font-size: 0.65rem;
             font-family: inherit;
+        }
+
+        .cal-input:focus {
+            outline: none;
         }
 
         .btn {
@@ -516,6 +528,10 @@ input[type=number] {
             font-family: inherit;
         }
 
+        .movement-input:focus {
+            outline: none;
+        }
+
         .workout-folder {
             position: relative;
             background: rgba(255, 255, 255, 0.02);
@@ -559,6 +575,10 @@ input[type=number] {
             font-size: 0.7rem;
             font-family: inherit;
             resize: none;
+        }
+
+        .movement-notes:focus {
+            outline: none;
         }
 
         /* SCROLLBAR */
@@ -717,7 +737,7 @@ input[type=number] {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 2.3rem;
+            margin-top: 3.2rem;
             margin-bottom: 0.7rem;
         }
 
@@ -1051,6 +1071,135 @@ input[type=number] {
             animation: streakFlash 0.6s ease-out;
         }
 
+        /* HABIT CONTROLS (Archive & Drag buttons) */
+        .habit-controls {
+            display: flex;
+            gap: 0.3rem;
+            align-items: center;
+            height: 0;
+            overflow: hidden;
+            transition: height 0.2s ease;
+        }
+
+        .habit-item.delete-mode .habit-controls {
+            height: auto;
+            margin-bottom: 0.2rem;
+        }
+
+        .habit-drag-handle {
+            cursor: grab;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.4rem;
+            flex-shrink: 0;
+            user-select: none;
+        }
+
+        .habit-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .habit-archive-btn,
+        .habit-restore-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.5rem;
+            cursor: pointer;
+            padding: 0;
+            transition: color 0.15s ease;
+        }
+
+        .habit-archive-btn:hover,
+        .habit-restore-btn:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .habit-item.dragging {
+            opacity: 0.4;
+        }
+
+        .habit-item.habit-archived {
+            opacity: 0.4;
+            padding-left: 0.5rem;
+        }
+
+        /* ARCHIVED HABITS SECTION */
+        .habits-archived-section {
+            margin-top: 0.8rem;
+            padding-top: 0.6rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .habits-archived-toggle {
+            cursor: pointer;
+            padding: 0.3rem 0;
+            font-size: 0.5rem;
+            color: rgba(255, 255, 255, 0.3);
+            transition: color 0.15s ease;
+        }
+
+        .habits-archived-toggle:hover {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .habits-archived-toggle-text {
+            user-select: none;
+        }
+
+        .habits-archived-list {
+            padding-top: 0.4rem;
+        }
+
+        /* WEEKLY CHART */
+        .habits-weekly-chart-container {
+            margin-top: 0.8rem;
+            height: 60px;
+            padding: 0.4rem 0;
+        }
+
+        /* DETAIL STATS TARGET SELECTOR */
+        .detail-stat-target {
+            margin-top: 0.3rem;
+            font-size: 0.45rem;
+            display: flex;
+            gap: 0.3rem;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .detail-target-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.2rem 0.4rem;
+            border-radius: 2px;
+            font-size: 0.45rem;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .detail-target-select:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .detail-target-select:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* NOTE INDICATOR */
+        .note-dot {
+            position: absolute;
+            bottom: 1px;
+            right: 1px;
+            font-size: 0.25rem;
+            color: rgba(255, 200, 100, 0.8);
+        }
+
+        .calendar-day {
+            position: relative;
+        }
+
         .habit-dot {
             width: 3px;
             height: 12px;
@@ -1198,25 +1347,6 @@ input[type=number] {
             height: 18px;
         }
 
-        .goose-mascot {
-            position: fixed;
-            bottom: 1rem;
-            right: 1.5rem;
-            font-family: 'Courier New', monospace;
-            font-size: 0.75rem;
-            line-height: 1;
-            color: var(--white);
-            opacity: 0.15;
-            pointer-events: none;
-            user-select: none;
-            white-space: pre;
-            transition: opacity 0.3s ease;
-            z-index: 1000;
-        }
-
-        .goose-mascot:hover {
-            opacity: 0.4;
-        }
 
         /* ── MAP ──────────────────────────────────────────────── */
         .fs-tabs {
@@ -1420,29 +1550,6 @@ input[type=number] {
             stroke-width: 12;
         }
 
-        .time-arc-container {
-            position: fixed;
-            bottom: 0px;
-            left: 0;
-            width: 100%;
-            height: 120px;
-            pointer-events: none;
-            z-index: 1000;
-        }
-
-        .time-arc-svg {
-            width: 100%;
-            height: 100%;
-        }
-
-        #moonGroup {
-            transition: transform 0.1s linear;
-        }
-
-        .moon {
-            fill: rgba(255, 255, 255, 0.8);
-            filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.4));
-        }
 
         .habit-detail-view {
             display: flex;
@@ -1742,4 +1849,246 @@ input[type=number] {
 
         .heatmap-square:hover::after {
             opacity: 1;
+        }
+
+        /* SETTINGS OVERLAY */
+        .settings-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(2px);
+        }
+
+        .settings-overlay.active {
+            display: flex;
+        }
+
+        .settings-panel {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: 10;
+        }
+
+        .settings-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--white);
+        }
+
+        .settings-close-btn {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.15s ease;
+        }
+
+        .settings-close-btn:hover {
+            opacity: 1;
+        }
+
+        .settings-body {
+            padding: 1.2rem;
+        }
+
+        .settings-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 0.8rem;
+        }
+
+        /* AUTH UI */
+        #authContainer {
+            color: var(--white);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .auth-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .auth-toggle-btn {
+            flex: 1;
+            padding: 0.6rem 0.8rem;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border-bottom: 2px solid transparent;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .auth-toggle-btn:hover {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .auth-toggle-btn.active {
+            color: var(--white);
+            border-bottom-color: var(--white);
+        }
+
+        .auth-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .auth-signed-in {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .auth-email {
+            padding: 0.8rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--white);
+            word-break: break-all;
+        }
+
+        .task-input-date {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-left: none;
+            color: var(--white);
+            font-family: inherit;
+            font-size: 0.75rem;
+            padding: 0 0.5rem;
+            border-radius: 0 4px 4px 0;
+            outline: none;
+            transition: all 0.2s ease;
+            width: 120px;
+        }
+
+        .task-input-date::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            opacity: 0.4;
+            cursor: pointer;
+        }
+
+        .task-input:has(+ .task-input-date) {
+            border-radius: 4px 0 0 4px;
+        }
+
+        .task-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .task-date {
+            font-size: 0.65rem;
+            color: var(--white);
+            opacity: 0.3;
+            letter-spacing: 0.02em;
+        }
+
+        .task-item.done .task-date {
+            text-decoration: none;
+        }
+
+        .auth-message {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+        }
+
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        #syncStatusIndicator {
+            font-size: 0.8rem;
+        }
+
+        .goal-input-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            margin-left: 1rem;
+        }
+
+        .goal-input-group input {
+            width: 60px;
+            padding: 0.3rem 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            color: var(--white);
+            font-size: 0.85rem;
+        }
+
+        .note-heatmap {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            padding: 1rem;
+        }
+
+        .note-heatmap-cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .note-heatmap-cell:hover {
+            border-color: rgba(255, 255, 255, 0.2);
         }

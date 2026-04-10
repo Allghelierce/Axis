@@ -54,6 +54,47 @@
                 <line x1="60" y1="40" x2="40" y2="80" class="const-line" />
             </svg>
         </div>
+        <div class="constellation c4">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+                <circle cx="20" cy="20" r="0.8" class="star" />
+                <circle cx="50" cy="50" r="0.7" class="star" />
+                <line x1="20" y1="20" x2="50" y2="50" class="const-line" />
+            </svg>
+        </div>
+        <div class="constellation c5">
+            <svg width="120" height="120" viewBox="0 0 100 100">
+                <circle cx="10" cy="80" r="0.7" class="star" />
+                <circle cx="40" cy="60" r="0.8" class="star" />
+                <circle cx="70" cy="70" r="0.7" class="star" />
+                <line x1="10" y1="80" x2="40" y2="60" class="const-line" />
+                <line x1="40" y1="60" x2="70" y2="70" class="const-line" />
+            </svg>
+        </div>
+        <div class="constellation c6">
+            <svg width="150" height="150" viewBox="0 0 100 100">
+                <circle cx="20" cy="20" r="0.8" class="star" />
+                <circle cx="50" cy="30" r="0.9" class="star" />
+                <circle cx="80" cy="50" r="0.8" class="star" />
+                <line x1="20" y1="20" x2="50" y2="30" class="const-line" />
+                <line x1="50" y1="30" x2="80" y2="50" class="const-line" />
+            </svg>
+        </div>
+        <div class="constellation c7">
+            <svg width="180" height="180" viewBox="0 0 100 100">
+                <circle cx="10" cy="10" r="1" class="star" />
+                <circle cx="40" cy="40" r="0.9" class="star" />
+                <circle cx="20" cy="70" r="0.8" class="star" />
+                <line x1="10" y1="10" x2="40" y2="40" class="const-line" />
+                <line x1="40" y1="40" x2="20" y2="70" class="const-line" />
+            </svg>
+        </div>
+        <div class="constellation c8">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="0.7" class="star" />
+                <circle cx="80" cy="80" r="0.8" class="star" />
+                <line x1="50" y1="50" x2="80" y2="80" class="const-line" />
+            </svg>
+        </div>
     </div>
     <!-- FULLSCREEN ANALYTICS OVERLAY -->
     <div class="fullscreen-overlay" id="fullscreenAnalytics">
@@ -281,11 +322,6 @@
                                     style="font-size: 0.9rem; letter-spacing: -0.02em; opacity: 0.6;">--:--:--</div>
                             </div>
                         </div>
-                        <button class="mobile-sync-btn" id="mobileSyncBtn" onclick="openSettings()" title="Sync / Sign In">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-                            </svg>
-                        </button>
                     </div>
 
                     <div class="dashboard-grid">
@@ -596,13 +632,17 @@
             <div class="mobile-stat-card"><div class="mobile-stat-label">Complete</div><div class="mobile-stat-value" id="mStatComplete">0%</div></div>
             <div class="mobile-stat-card"><div class="mobile-stat-label">Protein</div><div class="mobile-stat-value" id="mStatProt">0</div></div>
             <div class="mobile-stat-card"><div class="mobile-stat-label">Calories</div><div class="mobile-stat-value" id="mStatCals">0</div></div>
-            <div class="mobile-stat-card"><div class="mobile-stat-label">Streak</div><div class="mobile-stat-value" id="mStatStreak">0</div></div>
+            <div class="mobile-stat-card"><div class="mobile-stat-label">Streak</div><div class="mobile-stat-value" id="mStatStreak" style="transition: color 0.5s;">0</div></div>
             <div class="mobile-stat-card"><div class="mobile-stat-label">Week Avg</div><div class="mobile-stat-value" id="mStatWeekAvg">0</div></div>
             <div class="mobile-stat-card"><div class="mobile-stat-label">Today</div><div class="mobile-stat-value" id="mStatToday">0</div></div>
             <div class="mobile-stat-card"><div class="mobile-stat-label">This Week</div><div class="mobile-stat-value" id="mStatWeek">0</div></div>
         </div>
+        <div style="margin-top: 1.2rem; position: relative; height: 260px;">
+            <canvas id="mobileTodayVsYesterdayChart"></canvas>
+        </div>
     </div>
 
+    <div id="mobileTaskCounter" class="mobile-task-counter" title="Tasks completed today">0</div>
     <script src="js/state.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/settings.js"></script>
@@ -640,6 +680,64 @@
             }
         }
 
+        let _mobileCompareChart = null;
+
+        function hadActivityOn(dateStr) {
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (dateStr === todayStr) {
+                const tasksDone   = (state.tasks  || []).some(t => t.done);
+                const goalsDone   = (state.goals  || []).some(g => g.done);
+                const mealsAdded  = (state.meals  || []).length > 0;
+                const habitsDone  = (typeof habits !== 'undefined' ? habits : [])
+                    .some(h => h.tracking && h.tracking[dateStr] === 'completed');
+                const noteDone    = !!(typeof notes !== 'undefined' && notes[dateStr] && notes[dateStr].content && notes[dateStr].content.trim());
+                const moveDone    = !!(state.movementNotes && state.movementNotes.trim());
+                return tasksDone || goalsDone || mealsAdded || habitsDone || noteDone || moveDone;
+            } else {
+                const tHist = (state.history.tasksHistory  || []).find(h => h.date === dateStr);
+                const gHist = (state.history.goalsHistory  || []).find(h => h.date === dateStr);
+                const cHist = (state.history.caloriesHistory || []).find(h => h.date === dateStr);
+                const habitsDone = (typeof habits !== 'undefined' ? habits : [])
+                    .some(h => h.tracking && h.tracking[dateStr] === 'completed');
+                const noteDone   = !!(typeof notes !== 'undefined' && notes[dateStr] && notes[dateStr].content && notes[dateStr].content.trim());
+                return (tHist && tHist.done > 0) || (gHist && gHist.done > 0) || !!cHist || habitsDone || noteDone;
+            }
+        }
+
+        function calculateActivityStreak() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            let streak = 0;
+            const d = new Date();
+            // If today has no activity yet, start counting from yesterday (streak still alive)
+            if (!hadActivityOn(todayStr)) d.setDate(d.getDate() - 1);
+            for (let i = 0; i < 365; i++) {
+                const ds = d.toISOString().split('T')[0];
+                if (hadActivityOn(ds)) {
+                    streak++;
+                    d.setDate(d.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+            return streak;
+        }
+
+        function streakColor(n) {
+            if (n <= 0)   return 'rgba(255,255,255,0.25)';
+            if (n < 3)    return 'rgba(255,255,255,0.7)';       // white
+            if (n < 7)    return 'rgba(160,230,140,0.9)';       // soft green
+            if (n < 14)   return 'rgba(80,210,180,0.9)';        // teal
+            if (n < 21)   return 'rgba(80,170,255,0.95)';       // sky blue
+            if (n < 30)   return 'rgba(120,100,255,1)';         // indigo
+            if (n < 45)   return 'rgba(200,80,255,1)';          // violet
+            if (n < 60)   return 'rgba(255,80,180,1)';          // pink
+            if (n < 90)   return 'rgba(255,120,60,1)';          // orange
+            if (n < 120)  return 'rgba(255,210,40,1)';          // gold
+            if (n < 180)  return 'rgba(255,240,120,1)';         // bright yellow
+            if (n < 365)  return 'rgba(255,255,200,1)';         // near white-yellow
+            return 'rgb(220,255,255)'; // neon white — full year
+        }
+
         // Keep mobile stats in sync
         function updateMobileStats() {
             if (window.innerWidth > 768) return;
@@ -649,10 +747,120 @@
             set('mStatComplete', get('sidebarComplete'));
             set('mStatProt',     get('sidebarProt'));
             set('mStatCals',     get('sidebarCals'));
-            set('mStatStreak',   get('sidebarStreak'));
             set('mStatWeekAvg',  get('sidebarWeekAvg'));
             set('mStatToday',    get('taskCircleCount'));
             set('mStatWeek',     get('goalCircleCount'));
+
+            const streak = calculateActivityStreak();
+            const el = document.getElementById('mStatStreak');
+            if (el) {
+                el.textContent = streak;
+                el.style.color = streakColor(streak);
+                el.style.textShadow = streak >= 365
+                    ? '0 0 8px rgb(180,255,255), 0 0 16px rgb(100,220,255)'
+                    : 'none';
+            }
+
+            renderMobileCompareChart();
+        }
+
+        function renderMobileCompareChart() {
+            const canvas = document.getElementById('mobileTodayVsYesterdayChart');
+            if (!canvas) return;
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            const yd = new Date(); yd.setDate(yd.getDate() - 1);
+            const yesterdayStr = yd.toISOString().split('T')[0];
+
+            // Today values (live)
+            const todayTasks  = (state.tasks || []).filter(t => t.done).length;
+            const todayGoals  = (state.goals || []).filter(g => g.done).length;
+            const todayCals   = (state.meals || []).reduce((s, m) => s + (m.calories || 0), 0);
+            const todayProt   = (state.meals || []).reduce((s, m) => s + (m.protein  || 0), 0);
+            const todayHabits = (typeof habits !== 'undefined' ? habits : [])
+                .filter(h => h.tracking && h.tracking[todayStr] === 'completed').length;
+
+            // Yesterday values from history snapshots
+            const ytHist  = (state.history.tasksHistory  || []).find(h => h.date === yesterdayStr);
+            const ygHist  = (state.history.goalsHistory  || []).find(h => h.date === yesterdayStr);
+            const ycHist  = (state.history.caloriesHistory || []).find(h => h.date === yesterdayStr);
+            const ypHist  = (state.history.proteinHistory  || []).find(h => h.date === yesterdayStr);
+            const yesterdayTasks  = ytHist ? (ytHist.done  || 0) : 0;
+            const yesterdayGoals  = ygHist ? (ygHist.done  || 0) : 0;
+            const yesterdayCals   = ycHist ? (ycHist.calories || 0) : 0;
+            const yesterdayProt   = ypHist ? (ypHist.protein  || 0) : 0;
+            const yesterdayHabits = (typeof habits !== 'undefined' ? habits : [])
+                .filter(h => h.tracking && h.tracking[yesterdayStr] === 'completed').length;
+
+            const labels    = ['Tasks', 'Goals', 'Habits', 'Cals', 'Protein'];
+            const todayVals = [todayTasks, todayGoals, todayHabits, todayCals, todayProt];
+            const ydVals    = [yesterdayTasks, yesterdayGoals, yesterdayHabits, yesterdayCals, yesterdayProt];
+
+            if (_mobileCompareChart) { _mobileCompareChart.destroy(); _mobileCompareChart = null; }
+
+            const barValueLabels = {
+                id: 'barValueLabels',
+                afterDatasetsDraw(chart) {
+                    const { ctx } = chart;
+                    chart.data.datasets.forEach((dataset, di) => {
+                        const meta = chart.getDatasetMeta(di);
+                        meta.data.forEach((bar, i) => {
+                            const val = dataset.data[i];
+                            if (!val && val !== 0) return;
+                            ctx.save();
+                            ctx.font = '9px Share Tech Mono, monospace';
+                            ctx.fillStyle = di === 0 ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.3)';
+                            ctx.textAlign = 'center';
+                            ctx.fillText(val, bar.x, bar.y - 3);
+                            ctx.restore();
+                        });
+                    });
+                }
+            };
+
+            _mobileCompareChart = new Chart(canvas.getContext('2d'), {
+                type: 'bar',
+                plugins: [barValueLabels],
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: 'Today',
+                            data: todayVals,
+                            backgroundColor: 'rgba(255,255,255,0.25)',
+                            borderColor: 'rgba(255,255,255,0.4)',
+                            borderWidth: 1,
+                            borderRadius: 3
+                        },
+                        {
+                            label: 'Yesterday',
+                            data: ydVals,
+                            backgroundColor: 'rgba(255,255,255,0.07)',
+                            borderColor: 'rgba(255,255,255,0.15)',
+                            borderWidth: 1,
+                            borderRadius: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            align: 'end',
+                            labels: { color: 'rgba(255,255,255,0.35)', boxWidth: 8, font: { size: 9 } }
+                        },
+                        tooltip: { enabled: false },
+                        datalabels: false
+                    },
+                    scales: {
+                        x: { ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 9 } }, grid: { display: false } },
+                        y: { display: false, beginAtZero: true }
+                    }
+                }
+            });
         }
 
         // Patch updateSidebars to also update mobile stats

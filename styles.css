@@ -28,12 +28,13 @@ input[type=number] {
 
 body {
     font-family: 'Space Grotesk', sans-serif;
-    background: var(--bg);
+    background-color: var(--bg);
     color: var(--white);
     min-height: 100vh;
     display: flex;
     font-weight: 300;
     letter-spacing: 0.05em;
+    position: relative;
 }
 
 .layout {
@@ -195,30 +196,31 @@ body {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 1;
+    z-index: 0;
     overflow: hidden;
+    will-change: transform;
 }
 
 .constellation {
     position: absolute;
-    opacity: 0.11; /* Dimmed 2% from 0.13 */
+    opacity: 0.1;
     transition: opacity 0.5s ease;
+    animation: drift 20s infinite ease-in-out;
 }
 
-@media (min-width: 769px) {
-    .constellation {
-        opacity: 0.22; /* More visible on desktop */
-    }
-}
+.constellation.c1 { animation-delay: 0s; animation-duration: 22s; top: 15vh; left: 20vw; }
+.constellation.c2 { animation-delay: -5s; animation-duration: 25s; top: 60vh; left: 45vw; }
+.constellation.c3 { animation-delay: -2s; animation-duration: 20s; top: 30vh; left: 65vw; }
+.constellation.c4 { animation-delay: -8s; animation-duration: 18s; top: 5vh; left: 8vw; }
+.constellation.c5 { animation-delay: -12s; animation-duration: 24s; top: 28vh; left: 32vw; }
+.constellation.c6 { animation-delay: -3s; animation-duration: 21s; top: 48vh; left: 42vw; }
+.constellation.c7 { animation-delay: -15s; animation-duration: 23s; top: 72vh; left: 68vw; }
+.constellation.c8 { animation-delay: -6s; animation-duration: 19s; top: 86vh; left: 88vw; }
 
-.constellation.c1 {
-    top: 15vh;
-    left: 20vw;
-}
-
-.constellation.c2 {
-    top: 60vh;
-    left: 45vw;
+@keyframes drift {
+    0%, 100% { transform: translate(0, 0); }
+    33% { transform: translate(4px, 2px); }
+    66% { transform: translate(-2px, 5px); }
 }
 
 .constellation.c3 {
@@ -226,9 +228,34 @@ body {
     left: 65vw;
 }
 
+.constellation.c4 {
+    top: 5vh;
+    left: 8vw;
+}
+
+.constellation.c5 {
+    top: 28vh;
+    left: 32vw;
+}
+
+.constellation.c6 {
+    top: 48vh;
+    left: 42vw;
+}
+
+.constellation.c7 {
+    top: 72vh;
+    left: 68vw;
+}
+
+.constellation.c8 {
+    top: 86vh;
+    left: 88vw;
+}
+
 .star {
-    fill: #ffffff;
-    filter: blur(0.3px);
+    fill: #bae6fd; /* Light blue glow tint */
+    filter: blur(0.3px) drop-shadow(0 0 3px rgba(186, 230, 253, 0.4));
     animation: twinkle 4s infinite ease-in-out;
 }
 
@@ -244,13 +271,13 @@ body {
 
 @keyframes twinkle {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.2; }
+    50% { opacity: 0.3; }
 }
 
 .const-line {
     stroke: #ffffff;
     stroke-width: 0.4;
-    opacity: 0.6;
+    opacity: 0.4;
 }
 
 .sidebar-divider {
@@ -1622,7 +1649,7 @@ input:checked+.slider:before {
     width: 14px;
     height: 14px;
     background: rgba(255, 255, 255, 0.01);
-    border: 1px solid var(--border);
+    border: none;
     border-radius: 2px;
     color: rgba(248, 250, 252, 0.6);
     cursor: pointer;
@@ -2473,7 +2500,7 @@ input:checked+.slider:before {
 
 .task-input-date::-webkit-calendar-picker-indicator {
     filter: invert(1);
-    opacity: 0.15;
+    opacity: 0.4; /* Increased from 0.15 */
     cursor: pointer;
 }
 
@@ -2775,8 +2802,35 @@ input:checked+.slider:before {
 }
 
 .habit-day.selected {
-    
-outline: 1px solid rgba(255, 255, 255, 0.5) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* MOBILE TASK COUNTER */
+.mobile-task-counter {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-task-counter {
+        display: flex;
+        position: fixed;
+        bottom: 5.5rem;
+        right: 1.5rem;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: var(--white);
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        z-index: 400;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
 }
 /* ── MOBILE-ONLY BUTTONS ────────────────── */
 .mobile-analytics-back,
@@ -2881,14 +2935,35 @@ outline: 1px solid rgba(255, 255, 255, 0.5) !important;
     .meal-input,
     .cal-input,
     .daily-note-input,
-    .movement-notes {
+    .movement-notes,
+    .task-input-date {
         padding: 0.3rem 0.5rem;
         min-height: 36px;
+        color: rgba(255, 255, 255, 0.7); /* Increased mobile visibility */
+    }
+
+    .task-input-date {
+        font-size: 16px !important;
+        color: rgba(255, 255, 255, 0.6) !important;
+        width: auto;
+        flex-shrink: 0;
+    }
+
+    .task-input-date::-webkit-calendar-picker-indicator {
+        opacity: 1;
+        filter: invert(1);
+        width: 20px;
+        height: 20px;
     }
 
     /* Tighter list items */
-    .task-item {
-        padding: 0.15rem 0.3rem;
+    .task-add-btn {
+        min-width: 60px;
+        min-height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 0.8rem !important;
     }
 
     .meal-item {

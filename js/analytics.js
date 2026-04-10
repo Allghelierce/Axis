@@ -768,8 +768,10 @@ function updateSidebars() {
     const totalCals = state.meals.reduce((sum, m) => sum + (m.calories || 0), 0);
     const totalProt = state.meals.reduce((sum, m) => sum + (m.protein || 0), 0);
 
-    document.getElementById('sidebarProt').textContent = totalProt;
-    document.getElementById('sidebarCals').textContent = totalCals;
+    const elProt = document.getElementById('sidebarProt');
+    const elCals = document.getElementById('sidebarCals');
+    if (elProt) elProt.textContent = totalProt;
+    if (elCals) elCals.textContent = totalCals;
 
     const totalTasks = state.tasks.length;
     const doneTasks = state.tasks.filter(t => t.done).length;
@@ -790,27 +792,38 @@ function updateSidebars() {
         (state.history.tasksHistory || []).filter(h => h.date >= weekKey && h.date < todayStr).reduce((s, h) => s + (h.done || 0), 0) +
         (state.history.goalsHistory || []).filter(h => h.date >= weekKey && h.date < todayStr).reduce((s, h) => s + (h.done || 0), 0);
     const weeklyDone = pastDone + todayDone;
+    
     const taskCountEl = document.getElementById('taskCircleCount');
     const goalCountEl = document.getElementById('goalCircleCount');
     if (taskCountEl) taskCountEl.textContent = todayDone;
     if (goalCountEl) goalCountEl.textContent = weeklyDone;
 
-    const avgMealCal = state.history.caloriesHistory.length > 0
-        ? Math.round(state.history.caloriesHistory.reduce((sum, h) => sum + h.calories, 0) / state.history.caloriesHistory.length)
-        : 0;
+    const mobileCounter = document.getElementById('mobileTaskCounter');
+    if (mobileCounter) mobileCounter.textContent = doneTasks;
 
-    document.getElementById('sidebarAvgCal').textContent = avgMealCal;
-    document.getElementById('sidebarAllTime').textContent = state.history.mealsHistory.length;
+    const avgMealCalEl = document.getElementById('sidebarAvgCal');
+    if (avgMealCalEl) {
+        const avgMealCal = state.history.caloriesHistory.length > 0
+            ? Math.round(state.history.caloriesHistory.reduce((sum, h) => sum + h.calories, 0) / state.history.caloriesHistory.length)
+            : 0;
+        avgMealCalEl.textContent = avgMealCal;
+    }
 
-    const weekAvg = calculateWeekAverage();
-    document.getElementById('sidebarWeekAvg').textContent = weekAvg;
+    const allTimeEl = document.getElementById('sidebarAllTime');
+    if (allTimeEl) allTimeEl.textContent = state.history.mealsHistory.length;
 
-    const habitStreak = habits.length > 0 ? Math.max(...habits.map(h => calculateHabitStreak(h))) : 0;
-    document.getElementById('sidebarStreak').textContent = habitStreak;
+    const weekAvgEl = document.getElementById('sidebarWeekAvg');
+    if (weekAvgEl) weekAvgEl.textContent = calculateWeekAverage();
+
+    const streakEl = document.getElementById('sidebarStreak');
+    if (streakEl) {
+        const habitStreak = habits.length > 0 ? Math.max(...habits.map(h => calculateHabitStreak(h))) : 0;
+        streakEl.textContent = habitStreak;
+    }
 
     snapshotTasks();
     snapshotGoals();
-    updateFullscreenAnalytics();
+    try { updateFullscreenAnalytics(); } catch(e) {}
 }
 
 function renderWorkoutHeatmap() {

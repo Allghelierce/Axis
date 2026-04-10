@@ -123,8 +123,12 @@ function setupEventListeners() {
 
     const foodInput = document.getElementById('foodInput');
     if (foodInput) {
-        foodInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addMeal();
+        foodInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                e.preventDefault();
+                addMeal();
+                foodInput.blur();
+            }
         });
         console.log('✓ foodInput listener attached');
     } else {
@@ -232,8 +236,12 @@ function setupEventListeners() {
 
     const taskInput = document.getElementById('taskInput');
     if (taskInput) {
-        taskInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addTask();
+        taskInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                e.preventDefault();
+                addTask();
+                taskInput.blur();
+            }
         });
         console.log('✓ taskInput listener attached');
     } else {
@@ -245,8 +253,12 @@ function setupEventListeners() {
 
     const goalInput = document.getElementById('goalInput');
     if (goalInput) {
-        goalInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addGoal();
+        goalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                e.preventDefault();
+                addGoal();
+                goalInput.blur();
+            }
         });
     }
 

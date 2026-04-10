@@ -79,23 +79,33 @@ async function signUp(email, password, confirmPassword) {
     }
 
     try {
+        const redirectTo = window.location.origin + window.location.pathname;
+        console.log('Attempting sign-up for:', email, 'Redirecting to:', redirectTo);
+        
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
             options: {
-                emailRedirectTo: window.location.origin + window.location.pathname
+                emailRedirectTo: redirectTo
             }
         });
+
+        console.log('Sign-up response:', { data, error });
 
         if (error) {
             alert('Sign up failed: ' + error.message);
             return;
         }
 
+        // If data.user is returned but identities is empty, the user already exists
+        if (data.user && data.identities && data.identities.length === 0) {
+            console.warn('User already exists in Supabase. Emails will not be re-sent automatically.');
+        }
+
         return data;
     } catch (error) {
-        console.error('Sign up error:', error);
-        alert('Sign up failed: ' + error.message);
+        console.error('Sign up error caught:', error);
+        alert('An unexpected error occurred: ' + error.message);
     }
 }
 
@@ -178,6 +188,18 @@ function renderAuthUI(session) {
                 ${note}
             </div>
         `;
+
+        // Add Enter key listeners
+        const inputs = container.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    const group = input.closest('.auth-input-group');
+                    if (group.id === 'signInForm') handleSignIn();
+                    else handleSignUp();
+                }
+            });
+        });
     }
 }
 

@@ -70,81 +70,94 @@
                         <div>
                             <div class="date-display" id="dateDisplay"></div>
                             <div style="display: flex; align-items: center; gap: 0.8rem;">
-                                <h1>Dashboard</h1>
+                                <h1>Mission Control</h1>
                                 <div id="dayCountdown">--:--:--</div>
-                                <button class="plan-mode-btn" id="planModeBtn" onclick="togglePlanMode()" title="Plan Mode">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                                <button class="plan-lock-btn" id="planLockBtn" title="Hold to lock plan">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="dashboard-grid">
-                        <!-- ROW 1 -->
-                        <div class="tasks-section">
+                    <div class="dashboard-sections">
+                        <div class="dash-section">
                             <div class="section-title">Tasks</div>
-                            <div class="task-input-group">
-                                <input type="text" class="task-input" id="taskInput" placeholder="Add a task...">
-                            </div>
-                            <div class="tasks-list" id="tasksList"></div>
-                        </div>
-                        <div class="workouts-section">
-                            <div class="section-title">Movement</div>
-                            <div id="movementNotesDisplay" class="submitted-note-display" style="display:none;">
-                                <div class="submitted-note-text" id="movementNotesText"></div>
-                                <button class="note-edit-btn" id="editMovementNotes">edit</button>
-                            </div>
-                            <div class="movement-input-row">
-                                <select class="movement-input" id="splitSelect"></select>
-                                <div class="note-textarea-container" style="flex:1;">
-                                    <textarea class="movement-notes" id="movementNotes" placeholder="Workout notes..."
-                                        rows="1"></textarea>
-                                    <button class="note-submit-icon" id="submitMovementNotes" title="Submit">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="20 6 9 17 4 12"></polyline>
-                                        </svg>
-                                    </button>
+                            <div class="section-split">
+                                <div class="section-actual">
+                                    <input type="text" class="task-input" id="taskInput" placeholder="Add a task...">
+                                    <div class="tasks-list" id="tasksList"></div>
+                                </div>
+                                <div class="section-plan" data-plan="tasks">
+                                    <input type="text" class="plan-field" placeholder="Plan tasks...">
+                                    <div class="plan-list"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- ROW 2 -->
-                        <div class="nutrition-section" style="grid-column: span 1;">
+                        <div class="dash-section">
                             <div class="section-header-row">
                                 <div class="section-title">Macros</div>
                                 <div class="macro-inline-stats">
-                                    <span id="inlineTotalCals">0</span> kcal&nbsp;&nbsp;<span
-                                        id="inlineTotalProt">0</span> p
+                                    <span id="inlineTotalCals">0</span> kcal&nbsp;&nbsp;<span id="inlineTotalProt">0</span> p
+                                    <span class="plan-macro-stats">&nbsp;/&nbsp;<span id="planTotalCals">0</span> kcal&nbsp;&nbsp;<span id="planTotalProt">0</span> p planned</span>
                                 </div>
                             </div>
-                            <div class="meal-input-group">
-                                <input type="number" class="cal-input" id="calInput" placeholder="kcal" min="0"
-                                    style="width: 45px;">
-                                <input type="number" class="cal-input" id="protInput" placeholder="p" min="0"
-                                    style="width: 45px;">
-                                <input type="text" class="meal-input" id="foodInput" placeholder="What did you eat?">
+                            <div class="section-split">
+                                <div class="section-actual">
+                                    <input type="text" class="meal-input" id="foodInput" placeholder="What did you eat?">
+                                    <div class="meals-list" id="mealsList"></div>
+                                </div>
+                                <div class="section-plan" data-plan="macros">
+                                    <input type="text" class="plan-field" placeholder="Plan meals... (e.g. chicken 500cal 40p)">
+                                    <div class="plan-list"></div>
+                                </div>
                             </div>
-                            <div class="gallery-view">
-                                <div class="gallery-grid" id="gallery"></div>
-                            </div>
-                            <div class="meals-list" id="mealsList"></div>
                         </div>
-                        <div class="daily-note-section">
-                            <div class="section-title">Daily Note</div>
-                            <div id="dailyNoteDisplay" class="submitted-note-display" style="display:none;">
-                                <div class="submitted-note-text" id="dailyNoteText"></div>
-                                <button class="note-edit-btn" id="editDailyNote">edit</button>
+
+                        <div class="dash-section">
+                            <div class="section-title">Movement</div>
+                            <div class="section-split">
+                                <div class="section-actual">
+                                    <div class="field-row">
+                                        <select class="movement-input" id="splitSelect"></select>
+                                        <textarea class="movement-notes" id="movementNotes" placeholder="Workout notes..." rows="1"></textarea>
+                                        <button class="field-submit-icon" id="submitMovementNotes" title="Submit">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                        </button>
+                                    </div>
+                                    <div id="movementNotesDisplay" class="submitted-note-display" style="display:none;">
+                                        <div class="submitted-note-text" id="movementNotesText"></div>
+                                        <button class="note-edit-btn" id="editMovementNotes">edit</button>
+                                    </div>
+                                    <div class="movement-na" id="movementNa"><div class="empty-na">n/a</div></div>
+                                </div>
+                                <div class="section-plan" data-plan="movement">
+                                    <input type="text" class="plan-field" placeholder="Plan workout...">
+                                    <div class="plan-list"></div>
+                                </div>
                             </div>
-                            <div class="note-textarea-container">
-                                <textarea id="dailyNoteInput" class="daily-note-input"
-                                    placeholder="Write your daily note..." rows="1"></textarea>
-                                <button class="note-submit-icon" id="submitDailyNote" title="Submit">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                </button>
+                        </div>
+
+                        <div class="dash-section">
+                            <div class="section-title">Daily Note</div>
+                            <div class="section-split">
+                                <div class="section-actual">
+                                    <div class="field-row">
+                                        <textarea id="dailyNoteInput" class="daily-note-input" placeholder="Daily note..." rows="1"></textarea>
+                                        <button class="field-submit-icon" id="submitDailyNote" title="Submit">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                        </button>
+                                    </div>
+                                    <div id="dailyNoteDisplay" class="submitted-note-display" style="display:none;">
+                                        <div class="submitted-note-text" id="dailyNoteText"></div>
+                                        <button class="note-edit-btn" id="editDailyNote">edit</button>
+                                    </div>
+                                    <div class="dailynote-na" id="dailyNoteNa"><div class="empty-na">n/a</div></div>
+                                </div>
+                                <div class="section-plan" data-plan="dailynote">
+                                    <input type="text" class="plan-field" placeholder="Plan the day...">
+                                    <div class="plan-list"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -161,31 +174,30 @@
                     <button class="dock-item" onclick="openDockPanel('subscriptions')">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                     </button>
-                    <button class="dock-item" onclick="openDockPanel('vault')">
+                    <button class="dock-item" onclick="openStorageBin()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
                     </button>
                 </div>
 
-            </div>
-
-            <!-- DOCK PANEL OVERLAY -->
-            <div class="dock-panel-overlay" id="dockPanelOverlay" onclick="closeDockPanel()"></div>
-            <div class="dock-panel" id="dockPanel">
-                <div class="dock-panel-header">
-                    <h2 id="dockPanelTitle"></h2>
-                    <button class="dock-panel-close" onclick="closeDockPanel()">&times;</button>
+                <!-- DOCK PANEL -->
+                <div class="dock-panel-overlay" id="dockPanelOverlay" onclick="closeDockPanel()"></div>
+                <div class="dock-panel" id="dockPanel">
+                    <div class="dock-panel-header">
+                        <h2 id="dockPanelTitle"></h2>
+                        <button class="dock-panel-close" onclick="closeDockPanel()">&times;</button>
+                    </div>
+                    <div class="dock-panel-input-group">
+                        <input type="text" class="dock-panel-input" id="dockPanelInput" placeholder="Add item...">
+                    </div>
+                    <div class="dock-panel-list" id="dockPanelList"></div>
                 </div>
-                <div class="dock-panel-input-group">
-                    <input type="text" class="dock-panel-input" id="dockPanelInput" placeholder="Add item...">
-                </div>
-                <div class="dock-panel-list" id="dockPanelList"></div>
             </div>
 
             <!-- HABITS SIDEBAR -->
             <div class="habits-sidebar">
                 <div class="habits-view">
                     <div class="habits-header">
-                        <div class="section-title" style="margin-bottom: 0; opacity: 1;">Habits</div>
+                        <div class="section-title" style="margin-bottom: 0;">Habits</div>
                         <div style="display: flex; gap: 0.6rem; align-items: center;">
                             <button class="habits-delete-toggle-btn" id="habitDeleteToggle"
                                 onclick="toggleHabitDeleteMode()" title="Toggle Delete Mode">
@@ -269,14 +281,6 @@
 
         <div class="sidebar sidebar-analytics">
             <div class="dashboard-actions">
-                <button class="settings-button" id="openStorageBinBtn" title="Storage Bin">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 8V21H3V8"></path>
-                        <rect x="1" y="3" width="22" height="5"></rect>
-                        <line x1="10" y1="12" x2="14" y2="12"></line>
-                    </svg>
-                </button>
                 <button class="settings-button" id="openSettingsBtn" title="Settings">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">

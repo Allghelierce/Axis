@@ -164,20 +164,15 @@ function _playChime(freq) {
 // updateSidebars has already run, so the counter DOM shows the new value.
 // We revert to old, then let each particle update on arrival.
 function onItemChecked(itemEl, type) {
-    const taskCircle = document.getElementById('taskSidebarCircle');
-    const goalCircle = document.getElementById('goalSidebarCircle');
-    const taskCountEl = document.getElementById('taskCircleCount');
-    const goalCountEl = document.getElementById('goalCircleCount');
+    const circle = document.getElementById(type === 'task' ? 'taskSidebarCircle' : 'goalSidebarCircle');
+    const countEl = document.getElementById(type === 'task' ? 'taskCircleCount' : 'goalCircleCount');
+    const colors = type === 'task' ? SUN_COLOR : MOON_COLOR;
 
-    const newSun  = taskCountEl  ? (parseInt(taskCountEl.textContent)  || 0) : 0;
-    const newMoon = goalCountEl  ? (parseInt(goalCountEl.textContent)  || 0) : 0;
+    if (!circle || !countEl) return;
 
-    // Revert display to pre-check value while particle is in flight
-    if (taskCountEl)  taskCountEl.textContent  = Math.max(0, newSun  - 1);
-    if (goalCountEl)  goalCountEl.textContent  = Math.max(0, newMoon - 1);
-
-    flyToCircle(taskCircle, SUN_COLOR,  () => { if (taskCountEl) taskCountEl.textContent = newSun;  });
-    flyToCircle(goalCircle, MOON_COLOR, () => { if (goalCountEl) goalCountEl.textContent = newMoon; });
+    const newVal = parseInt(countEl.textContent) || 0;
+    countEl.textContent = Math.max(0, newVal - 1);
+    flyToCircle(circle, colors, () => { countEl.textContent = newVal; });
 
     _playChime(type === 'task' ? 620 : 780);
 }

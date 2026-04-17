@@ -82,7 +82,7 @@ function renderTasks() {
     container.innerHTML = '';
     const visible = state.tasks.filter(t => !t.done);
     if (visible.length === 0) {
-        container.innerHTML = '<div class="empty-state">No tasks added</div>';
+        container.innerHTML = '<div class="empty-na">n/a</div>';
         return;
     }
     visible.forEach((task, index) => {
@@ -101,13 +101,16 @@ function renderTasks() {
 }
 
 function addGoal() {
-    const text = document.getElementById('goalInput').value.trim();
-    const dueDate = document.getElementById('goalDateInput').value;
+    const input = document.getElementById('goalInput');
+    const dateInput = document.getElementById('goalDateInput');
+    if (!input) return;
+    const text = input.value.trim();
+    const dueDate = dateInput ? dateInput.value : '';
     if (!text) return;
     state.goals.push({ id: Date.now(), text, done: false, dueDate });
     saveState();
-    document.getElementById('goalInput').value = '';
-    document.getElementById('goalDateInput').value = '';
+    input.value = '';
+    if (dateInput) dateInput.value = '';
     renderGoals();
     updateSidebars();
 }
@@ -154,10 +157,11 @@ function deleteGoal(id) {
 
 function renderGoals() {
     const container = document.getElementById('goalsList');
+    if (!container) return;
     container.innerHTML = '';
     const visible = state.goals.filter(g => !g.done);
     if (visible.length === 0) {
-        container.innerHTML = '<div class="empty-state">No goals added</div>';
+        container.innerHTML = '<div class="empty-na">n/a</div>';
         return;
     }
     visible.forEach((goal, index) => {

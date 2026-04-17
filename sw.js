@@ -16,6 +16,8 @@ const SHELL = [
     '/js/map.js',
     '/js/summary.js',
     '/js/storage.js',
+    '/js/selection.js',
+    '/js/dock.js',
     '/js/main.js'
 ];
 

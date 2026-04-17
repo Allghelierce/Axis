@@ -74,7 +74,7 @@ function renderHabits() {
     const archivedHabits = habits.filter(h => h.archived);
 
     if (activeHabits.length === 0) {
-        container.innerHTML = '<div class="empty-state">No habits yet. Click + to add one!</div>';
+        container.innerHTML = '<div class="empty-na">n/a</div>';
         return;
     }
 
@@ -138,8 +138,10 @@ function renderHabits() {
             const oldStreak = parseInt(oldElement.textContent);
             if (streak > oldStreak) {
                 const streakEl = habitEl.querySelector('.habit-streak');
-                streakEl.classList.add('streak-up');
-                setTimeout(() => streakEl.classList.remove('streak-up'), 600);
+                if (streakEl) {
+                    streakEl.classList.add('streak-up');
+                    setTimeout(() => streakEl.classList.remove('streak-up'), 600);
+                }
             }
         }
     });
@@ -163,6 +165,10 @@ function renderHabits() {
             el.addEventListener('dragend', habitDragEnd);
         });
     }
+
+    // Remove previous archived section
+    const oldArchived = container.parentElement.querySelector('.habits-archived-section');
+    if (oldArchived) oldArchived.remove();
 
     // Append archived habits section if any
     if (archivedHabits.length > 0) {
@@ -424,13 +430,10 @@ function calculateHabitStats(habit) {
             currentStreak++;
             if (d >= weekStart) thisWeekCount++;
         } else if (status === 'prevented') {
+            // Keep streak alive, matching calculateHabitStreak behavior
+        } else {
             longestStreak = Math.max(longestStreak, currentStreak);
             currentStreak = 0;
-        } else {
-            if (new Date(dayKey) >= sixMonthsAgo) {
-                longestStreak = Math.max(longestStreak, currentStreak);
-                currentStreak = 0;
-            }
         }
 
         if (status) trackedDays++;

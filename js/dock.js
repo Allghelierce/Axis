@@ -6,8 +6,7 @@ let _activeDockPanel = null;
 const DOCK_PANELS = {
     wishlist: { title: 'Wishlist', placeholder: 'Add to wishlist...' },
     longterm: { title: 'Long Term', placeholder: 'Add long-term item...' },
-    subscriptions: { title: 'Subscriptions', placeholder: 'Add subscription...' },
-    vault: { title: 'Vault', placeholder: 'Archive something...' }
+    subscriptions: { title: 'Subscriptions', placeholder: 'Add subscription...' }
 };
 
 function _saveDockData() {

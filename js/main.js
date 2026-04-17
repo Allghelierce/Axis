@@ -1,28 +1,121 @@
-function togglePlanMode() {
-    const btn = document.getElementById('planModeBtn');
-    btn.classList.toggle('active');
-    document.body.classList.toggle('plan-mode');
+function updateMovementNa() {
+    const na = document.getElementById('movementNa');
+    if (!na) return;
+    na.style.display = state.movementNotesSubmitted ? 'none' : '';
 }
 
-// Independent Timer
-(function() {
-    function updateTimer() {
-        const el = document.getElementById('dayCountdown');
-        if (!el) return;
-        const now = new Date();
-        const midnight = new Date();
-        midnight.setHours(24, 0, 0, 0);
-        const diff = midnight - now;
-        if (diff <= 0) { el.textContent = "00:00:00"; return; }
-        const h = Math.floor(diff / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-        const pad = n => n.toString().padStart(2, '0');
-        el.textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
+function updateDailyNoteNa() {
+    const na = document.getElementById('dailyNoteNa');
+    if (!na) return;
+    const key = getTodayKey();
+    const hasNote = typeof notes !== 'undefined' && notes[key]?.submitted;
+    na.style.display = hasNote ? 'none' : '';
+}
+
+const PLAN_STORAGE_KEY = 'planData';
+let _planData = JSON.parse(localStorage.getItem(PLAN_STORAGE_KEY) || '{}');
+
+function _savePlanData() {
+    localStorage.setItem(PLAN_STORAGE_KEY, JSON.stringify(_planData));
+}
+
+function _formatPlanText(raw) {
+    const bulletMatch = raw.match(/^\*\s+(.+)/);
+    if (bulletMatch) return `<span class="plan-bullet">•</span>${bulletMatch[1]}`;
+    const numMatch = raw.match(/^(\d+)\)\s+(.+)/);
+    if (numMatch) return `<span class="plan-num">${numMatch[1]}.</span>${numMatch[2]}`;
+    return raw;
+}
+
+function _renderAllPlans() {
+    document.querySelectorAll('.section-plan').forEach(area => {
+        const key = area.dataset.plan;
+        const items = _planData[key] || [];
+        const list = area.querySelector('.plan-list');
+        if (!list) return;
+        list.innerHTML = items.map((text, i) =>
+            `<div class="plan-item"><span class="plan-item-text">${_formatPlanText(text)}</span><button class="plan-item-delete" onclick="_deletePlanItem('${key}', ${i})">&times;</button></div>`
+        ).join('');
+    });
+    _updatePlanMacros();
+}
+
+function _updatePlanMacros() {
+    const items = _planData.macros || [];
+    let totalCals = 0, totalProt = 0;
+    items.forEach(text => {
+        const calMatch = text.match(/(\d+)\s*(?:kcal|cal|c)\b/i);
+        if (calMatch) totalCals += parseInt(calMatch[1]);
+        const protMatch = text.match(/(\d+)\s*p\b/i);
+        if (protMatch) totalProt += parseInt(protMatch[1]);
+    });
+    const calsEl = document.getElementById('planTotalCals');
+    const protEl = document.getElementById('planTotalProt');
+    if (calsEl) calsEl.textContent = totalCals;
+    if (protEl) protEl.textContent = totalProt;
+}
+
+function _deletePlanItem(key, index) {
+    if (!_planData[key]) return;
+    _planData[key].splice(index, 1);
+    _savePlanData();
+    _renderAllPlans();
+}
+
+function _initPlanFields() {
+    document.querySelectorAll('.section-plan .plan-field').forEach(input => {
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && input.value.trim()) {
+                const key = input.closest('.section-plan').dataset.plan;
+                if (!_planData[key]) _planData[key] = [];
+                _planData[key].push(input.value.trim());
+                _savePlanData();
+                input.value = '';
+                _renderAllPlans();
+            }
+        });
+    });
+    _renderAllPlans();
+}
+
+const PLAN_LOCK_KEY = 'planLockedDate';
+
+function _checkPlanLock() {
+    const lockedDate = localStorage.getItem(PLAN_LOCK_KEY);
+    if (lockedDate === getTodayKey()) {
+        document.body.classList.add('plan-locked');
+    } else {
+        document.body.classList.remove('plan-locked');
+        localStorage.removeItem(PLAN_LOCK_KEY);
     }
-    setInterval(updateTimer, 1000);
-    updateTimer();
-})();
+}
+
+function _initPlanLock() {
+    const btn = document.getElementById('planLockBtn');
+    if (!btn) return;
+    let holdTimer = null;
+
+    btn.addEventListener('mousedown', () => {
+        btn.classList.add('holding');
+        holdTimer = setTimeout(() => {
+            localStorage.setItem(PLAN_LOCK_KEY, getTodayKey());
+            document.body.classList.add('plan-locked');
+            btn.classList.remove('holding');
+        }, 1000);
+    });
+
+    btn.addEventListener('mouseup', () => {
+        clearTimeout(holdTimer);
+        btn.classList.remove('holding');
+    });
+
+    btn.addEventListener('mouseleave', () => {
+        clearTimeout(holdTimer);
+        btn.classList.remove('holding');
+    });
+
+    _checkPlanLock();
+}
 
 function updateDate() {
     document.getElementById('dateDisplay').textContent = today.toLocaleDateString('en-US', {
@@ -63,7 +156,26 @@ function startCountdown() {
 
 
 
+function resetUIState() {
+    const detail = document.querySelector('.habit-detail-view');
+    if (detail) detail.style.display = 'none';
+    const habitsView = document.querySelector('.habits-view');
+    if (habitsView) habitsView.style.display = '';
+    const overlay = document.getElementById('dockPanelOverlay');
+    if (overlay) overlay.classList.remove('open');
+    const panel = document.getElementById('dockPanel');
+    if (panel) panel.classList.remove('open');
+    const summary = document.getElementById('summaryOverlay');
+    if (summary) summary.style.display = 'none';
+    const settings = document.getElementById('settingsOverlay');
+    if (settings) settings.style.display = 'none';
+    const storage = document.getElementById('storageBinOverlay');
+    if (storage) storage.style.display = 'none';
+}
+
 function init() {
+    resetUIState();
+
     try {
         updateDate();
         console.log('✓ updateDate');
@@ -109,18 +221,14 @@ function init() {
         console.log('✓ startCountdown');
     } catch (e) { console.error('✗ startCountdown:', e); }
 
+    updateMovementNa();
+    updateDailyNoteNa();
+    _initPlanFields();
+    _initPlanLock();
 }
 
 function setupEventListeners() {
     console.log('setupEventListeners starting...');
-    const addFoodBtn = document.getElementById('addFoodBtn');
-    if (addFoodBtn) {
-        addFoodBtn.addEventListener('click', addMeal);
-        console.log('✓ addFoodBtn listener attached');
-    } else {
-        console.warn('✗ addFoodBtn not found');
-    }
-
     const foodInput = document.getElementById('foodInput');
     if (foodInput) {
         foodInput.addEventListener('keydown', (e) => {
@@ -135,42 +243,12 @@ function setupEventListeners() {
         console.warn('✗ foodInput not found');
     }
 
-    const photoUpload = document.getElementById('photoUpload');
-    if (photoUpload) {
-        photoUpload.addEventListener('click', () => {
-            document.getElementById('photoInput').click();
-        });
-    }
-
-    const photoInput = document.getElementById('photoInput');
-    if (photoInput) {
-        photoInput.addEventListener('change', (e) => {
-            handlePhotoUpload(e.files);
-        });
-    }
-
     const splitSelect = document.getElementById('splitSelect');
     if (splitSelect) {
         splitSelect.addEventListener('change', (e) => {
             state.splitInput = e.target.value;
             updateWorkoutFolders();
             saveState();
-        });
-    }
-
-    const addFolderBtn = document.getElementById('addFolderBtn');
-    if (addFolderBtn) {
-        addFolderBtn.addEventListener('click', () => {
-            const name = prompt('Folder name:');
-            if (name && name.trim()) {
-                const trimmed = name.trim();
-                if (!workoutFolders[trimmed]) {
-                    workoutFolders[trimmed] = [];
-                    saveWorkoutFolders();
-                    renderWorkoutFolders();
-                    renderSplitSelect();
-                }
-            }
         });
     }
 
@@ -189,6 +267,11 @@ function setupEventListeners() {
     const submitMovementBtn = document.getElementById('submitMovementNotes');
     if (submitMovementBtn) {
         submitMovementBtn.addEventListener('click', () => {
+            const select = document.getElementById('splitSelect');
+            if (select && (!select.value || select.value === 'N/A')) {
+                select.focus();
+                return;
+            }
             const textarea = document.getElementById('movementNotes');
             const content = textarea.value.trim();
             if (!content) return;
@@ -198,30 +281,12 @@ function setupEventListeners() {
             saveWorkoutNotesHistory();
             saveState();
             renderMovementNotes();
-        });
-    }
-
-    const editMovementBtn = document.getElementById('editMovementNotes');
-    if (editMovementBtn) {
-        editMovementBtn.addEventListener('click', () => {
-            const content = state.movementNotes || '';
-            state.movementNotesSubmitted = false;
-            saveState();
-            const textarea = document.getElementById('movementNotes');
-            if (textarea) {
-                textarea.value = content;
-                autoGrow(textarea);
-            }
-            document.getElementById('movementNotesDisplay').style.display = 'none';
+            updateMovementNa();
         });
     }
 
     const settingsBtn = document.getElementById('openSettingsBtn');
     if (settingsBtn) settingsBtn.addEventListener('click', openSettings);
-
-    const storageBinBtn = document.getElementById('openStorageBinBtn');
-    if (storageBinBtn) storageBinBtn.addEventListener('click', openStorageBin);
-
 
     const habitsAddBtn = document.getElementById('habitsAddBtn');
     if (habitsAddBtn) habitsAddBtn.addEventListener('click', addHabit);
@@ -238,22 +303,21 @@ function setupEventListeners() {
                 taskInput.blur();
             }
         });
-        console.log('✓ taskInput listener attached');
-    } else {
-        console.warn('✗ taskInput not found');
     }
 
-    const addGoalBtn = document.getElementById('addGoalBtn');
-    if (addGoalBtn) addGoalBtn.addEventListener('click', addGoal);
-
-    const goalInput = document.getElementById('goalInput');
-    if (goalInput) {
-        goalInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.keyCode === 13) {
-                e.preventDefault();
-                addGoal();
-                goalInput.blur();
+    const submitDailyBtn = document.getElementById('submitDailyNote');
+    if (submitDailyBtn) {
+        submitDailyBtn.addEventListener('click', () => {
+            const textarea = document.getElementById('dailyNoteInput');
+            const content = textarea.value.trim();
+            if (!content) return;
+            const key = getTodayKey();
+            if (typeof notes !== 'undefined') {
+                notes[key] = { content, submitted: true };
+                saveNotes();
+                renderNotes();
             }
+            updateDailyNoteNa();
         });
     }
 
@@ -377,10 +441,8 @@ function renderMovementNotes() {
         noteText.textContent = state.movementNotes;
         display.style.display = '';
         textarea.value = '';
-        textarea.placeholder = 'Add another workout note...';
     } else {
         textarea.value = state.movementNotes || '';
-        textarea.placeholder = 'Workout notes...';
         display.style.display = 'none';
     }
     autoGrow(textarea);
@@ -391,9 +453,7 @@ function render() {
     renderTasks();
     renderGoals();
     renderMeals();
-    renderGallery();
     renderMovementNotes();
-    renderWorkoutFolders();
 }
 
 

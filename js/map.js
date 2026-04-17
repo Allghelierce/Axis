@@ -391,6 +391,7 @@ function initTabs() {
 
 // ── Boot ──────────────────────────────────────────────
 function initMap() {
+    if (!document.getElementById('mapCanvas')) return;
     initTabs();
     initMapEvents();
     renderMap();

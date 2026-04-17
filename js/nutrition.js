@@ -1,38 +1,56 @@
-function addMeal() {
-    const food = document.getElementById('foodInput').value;
-    const cals = document.getElementById('calInput').value;
-    const prot = document.getElementById('protInput').value;
+function parseMacros(text) {
+    let calories = null;
+    let protein = null;
+    let name = text;
 
-    if (!food.trim()) return;
+    const calMatch = name.match(/(\d+)\s*(?:kcal|cal|c)\b/i);
+    if (calMatch) {
+        calories = parseInt(calMatch[1]);
+        name = name.replace(calMatch[0], '');
+    }
+
+    const protMatch = name.match(/(\d+)\s*p\b/i);
+    if (protMatch) {
+        protein = parseInt(protMatch[1]);
+        name = name.replace(protMatch[0], '');
+    }
+
+    name = name.replace(/\s+/g, ' ').trim();
+    return { name, calories, protein };
+}
+
+function addMeal() {
+    const raw = document.getElementById('foodInput').value;
+    if (!raw.trim()) return;
+
+    const { name, calories, protein } = parseMacros(raw);
 
     state.meals.push({
         id: Date.now(),
-        name: food,
-        calories: cals ? parseInt(cals) : null,
-        protein: prot ? parseInt(prot) : null,
+        name: name || raw.trim(),
+        calories,
+        protein,
         date: getTodayKey()
     });
 
-    if (cals) {
+    if (calories) {
         state.history.caloriesHistory.push({
             date: getTodayKey(),
-            calories: parseInt(cals)
+            calories
         });
     }
 
-    if (prot) {
+    if (protein) {
         if (!state.history.proteinHistory) state.history.proteinHistory = [];
         state.history.proteinHistory.push({
             date: getTodayKey(),
-            protein: parseInt(prot)
+            protein
         });
     }
 
-    state.history.mealsHistory.push(food);
+    state.history.mealsHistory.push(name || raw.trim());
     saveState();
     document.getElementById('foodInput').value = '';
-    document.getElementById('calInput').value = '';
-    document.getElementById('protInput').value = '';
     render();
     updateSidebars();
 }
@@ -68,7 +86,7 @@ function renderMeals() {
     container.innerHTML = '';
 
     if (state.meals.length === 0) {
-        container.innerHTML = '<div class="empty-state">No meals logged</div>';
+        container.innerHTML = '<div class="empty-na">n/a</div>';
         return;
     }
 

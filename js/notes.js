@@ -38,10 +38,8 @@ function renderNotes() {
         noteText.textContent = note.content;
         display.style.display = '';
         dailyInput.value = '';
-        dailyInput.placeholder = 'Add another daily note...';
     } else {
         dailyInput.value = note?.content || '';
-        dailyInput.placeholder = 'Write your daily note...';
         display.style.display = 'none';
     }
     autoGrow(dailyInput);

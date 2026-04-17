@@ -5,10 +5,8 @@ let selectedElements = new Set();
 
 document.addEventListener('mousedown', (e) => {
     // Only start selection if clicking on the background or near lists, not on inputs/buttons
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'TEXTAREA' || e.target.closest('.pop-out-btn')) return;
-    
-    // To prevent conflict with drag and drop if re-enabled
-    if (e.target.closest('.habit-drag-handle')) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+    if (e.target.closest('button, .pop-out-btn, .habit-drag-handle, .dock, .dock-panel')) return;
 
     isSelecting = true;
     startX = e.clientX;
@@ -80,7 +78,7 @@ function clearSelection() {
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Delete' || e.key === 'Backspace') {
         // Only if not focused on an input
-        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
 
         if (selectedElements.size > 0) {
             performBulkAction();

@@ -40,7 +40,7 @@ function renderWorkoutFolders() {
         const folders = Object.entries(workoutFolders);
 
         if (folders.length === 0) {
-            container.innerHTML = '<div class="empty-state">No folders added</div>';
+            container.innerHTML = '<div class="empty-na">n/a</div>';
             return;
         }
 
@@ -128,7 +128,8 @@ function renderSplitSelect() {
     });
 
     if (!current && select.options.length > 0) {
-        state.splitInput = select.options[0].value;
+        const naOpt = Array.from(select.options).find(o => o.value === 'N/A');
+        state.splitInput = naOpt ? naOpt.value : select.options[0].value;
         saveState();
     }
 }

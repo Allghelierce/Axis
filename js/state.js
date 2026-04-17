@@ -20,9 +20,9 @@ function loadState() {
     const saved = localStorage.getItem(storageKey);
     if (saved) {
         const data = JSON.parse(saved);
+        if (!data.history) data.history = { mealsHistory: [], caloriesHistory: [], proteinHistory: [], goalsHistory: [], tasksHistory: [], photosHistory: [] };
         if (data.lastDate !== getTodayKey()) {
-            // Archive the previous day's data
-            archiveDailyLog(data);
+            try { archiveDailyLog(data); } catch (e) { console.error('archiveDailyLog failed:', e); }
 
             data.meals = [];
             data.photos = [];
@@ -36,6 +36,11 @@ function loadState() {
         if (!data.tasks) data.tasks = [];
         if (!data.goals) data.goals = [];
         if (!data.history.tasksHistory) data.history.tasksHistory = [];
+        if (!data.history.caloriesHistory) data.history.caloriesHistory = [];
+        if (!data.history.proteinHistory) data.history.proteinHistory = [];
+        if (!data.history.goalsHistory) data.history.goalsHistory = [];
+        if (!data.history.mealsHistory) data.history.mealsHistory = [];
+        if (!data.history.photosHistory) data.history.photosHistory = [];
         if (!data.nutritionGoals) data.nutritionGoals = { calories: null, protein: null };
         if (!data.viewState) data.viewState = {};
         if (data.movementNotesSubmitted === undefined) data.movementNotesSubmitted = false;
@@ -68,7 +73,7 @@ function loadState() {
 
 function loadWorkoutFolders() {
     const saved = localStorage.getItem(workoutKey);
-    const defaults = { 'Push': [], 'Pull': [], 'Legs': [], 'Upper': [], 'Lower': [], 'Misc': [], 'Cardio': [], 'Other': [] };
+    const defaults = { 'N/A': [], 'Push': [], 'Pull': [], 'Legs': [], 'Upper': [], 'Lower': [], 'Misc': [], 'Cardio': [], 'Other': [] };
     if (!saved) return defaults;
     return JSON.parse(saved);
 }

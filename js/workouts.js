@@ -30,8 +30,7 @@ function deleteFolder(name) {
 
 function renderWorkoutFolders() {
     const containers = [
-        document.getElementById('workoutFolders'),
-        document.getElementById('analyticsWorkoutFolders')
+        document.getElementById('workoutFolders')
     ];
     
     containers.forEach(container => {
@@ -62,14 +61,10 @@ function renderWorkoutFolders() {
                 <div class="folder-name">${name}</div>
             `;
             folder.onclick = () => {
-                if (container.id === 'analyticsWorkoutFolders') {
-                    openWorkoutNotesSidebar(name);
-                } else {
-                    const select = document.getElementById('splitSelect');
-                    if (select) select.value = name;
-                    state.splitInput = name;
-                    saveState();
-                }
+                const select = document.getElementById('splitSelect');
+                if (select) select.value = name;
+                state.splitInput = name;
+                saveState();
             };
             container.appendChild(folder);
         });

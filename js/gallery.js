@@ -15,9 +15,6 @@ function handlePhotoUpload(files) {
             state.history.photosHistory.push(newPhoto);
             saveState();
             render();
-            if (document.getElementById('fullscreenAnalytics').classList.contains('active')) {
-                renderVault();
-            }
         };
         reader.readAsDataURL(file);
     });

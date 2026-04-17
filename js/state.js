@@ -3,10 +3,12 @@ const storageKey = 'dashboardData';
 const workoutKey = 'workoutFolders';
 const habitsKey = 'habits';
 const workoutNotesHistoryKey = 'workoutNotesHistory';
+const dailyLogsKey = 'axisDailyLogs';
 
 let state = loadState();
 let workoutFolders = loadWorkoutFolders();
 let habits = loadHabits();
+let dailyLogs = loadDailyLogs();
 let undoStack = [];
 let isHabitDeleteMode = false;
 
@@ -19,16 +21,8 @@ function loadState() {
     if (saved) {
         const data = JSON.parse(saved);
         if (data.lastDate !== getTodayKey()) {
-            // Snapshot task completion before wiping
-            if (!data.history.tasksHistory) data.history.tasksHistory = [];
-            const exists = data.history.tasksHistory.find(e => e.date === data.lastDate);
-            if (!exists && data.tasks?.length > 0) {
-                data.history.tasksHistory.push({
-                    date: data.lastDate,
-                    total: data.tasks.length,
-                    done: data.tasks.filter(t => t.done).length
-                });
-            }
+            // Archive the previous day's data
+            archiveDailyLog(data);
 
             data.meals = [];
             data.photos = [];
@@ -43,7 +37,7 @@ function loadState() {
         if (!data.goals) data.goals = [];
         if (!data.history.tasksHistory) data.history.tasksHistory = [];
         if (!data.nutritionGoals) data.nutritionGoals = { calories: null, protein: null };
-        if (!data.viewState) data.viewState = { analyticsActive: false };
+        if (!data.viewState) data.viewState = {};
         if (data.movementNotesSubmitted === undefined) data.movementNotesSubmitted = false;
         return data;
     }
@@ -68,9 +62,7 @@ function loadState() {
             calories: null,
             protein: null
         },
-        viewState: {
-            analyticsActive: false
-        }
+        viewState: {}
     };
 }
 
@@ -108,4 +100,39 @@ function loadWorkoutNotesHistory() {
 
 function saveWorkoutNotesHistory() {
     localStorage.setItem(workoutNotesHistoryKey, JSON.stringify(workoutNotesHistory));
+}
+
+function loadDailyLogs() {
+    const saved = localStorage.getItem(dailyLogsKey);
+    return saved ? JSON.parse(saved) : [];
+}
+
+function saveDailyLogs() {
+    localStorage.setItem(dailyLogsKey, JSON.stringify(dailyLogs));
+}
+
+function archiveDailyLog(data) {
+    const logs = loadDailyLogs();
+    const date = data.lastDate;
+    if (!date || logs.some(l => l.date === date)) return;
+
+    const savedNotes = localStorage.getItem('axisDailyNotes');
+    const allNotes = savedNotes ? JSON.parse(savedNotes) : {};
+    const savedHabits = localStorage.getItem(habitsKey);
+    const habitSnap = savedHabits ? JSON.parse(savedHabits) : [];
+
+    logs.push({
+        date,
+        tasks: (data.tasks || []).map(t => ({ text: t.text, done: t.done })),
+        goals: (data.goals || []).map(g => ({ text: g.text, done: g.done, dueDate: g.dueDate })),
+        meals: (data.meals || []).map(m => ({ name: m.name, calories: m.calories, protein: m.protein })),
+        movementNotes: data.movementNotes || '',
+        dailyNote: allNotes[date]?.content || '',
+        habits: habitSnap.map(h => ({ name: h.name, status: h.tracking[date] || null })),
+        workoutNotes: (loadWorkoutNotesHistory())[date] || ''
+    });
+
+    logs.sort((a, b) => b.date.localeCompare(a.date));
+    localStorage.setItem(dailyLogsKey, JSON.stringify(logs));
+    dailyLogs = logs;
 }

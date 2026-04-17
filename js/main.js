@@ -1,3 +1,9 @@
+function togglePlanMode() {
+    const btn = document.getElementById('planModeBtn');
+    btn.classList.toggle('active');
+    document.body.classList.toggle('plan-mode');
+}
+
 // Independent Timer
 (function() {
     function updateTimer() {
@@ -103,12 +109,6 @@ function init() {
         console.log('✓ startCountdown');
     } catch (e) { console.error('✗ startCountdown:', e); }
 
-    try {
-        if (state.viewState && state.viewState.analyticsActive) {
-            openFullscreenAnalytics();
-        }
-        console.log('✓ restoreViewState');
-    } catch (e) { console.error('✗ restoreViewState:', e); }
 }
 
 function setupEventListeners() {
@@ -216,17 +216,12 @@ function setupEventListeners() {
         });
     }
 
-    const fsBtn = document.getElementById('fullscreenAnalyticsBtn');
-    if (fsBtn) fsBtn.addEventListener('click', openFullscreenAnalytics);
-
-    const closeFsBtn = document.getElementById('closeFullscreenBtn');
-    if (closeFsBtn) closeFsBtn.addEventListener('click', closeFullscreenAnalytics);
-
     const settingsBtn = document.getElementById('openSettingsBtn');
     if (settingsBtn) settingsBtn.addEventListener('click', openSettings);
 
-    const storageBtn = document.getElementById('storageBtn');
-    if (storageBtn) storageBtn.addEventListener('click', openSettings);
+    const storageBinBtn = document.getElementById('openStorageBinBtn');
+    if (storageBinBtn) storageBinBtn.addEventListener('click', openStorageBin);
+
 
     const habitsAddBtn = document.getElementById('habitsAddBtn');
     if (habitsAddBtn) habitsAddBtn.addEventListener('click', addHabit);
@@ -404,12 +399,13 @@ function render() {
 
 // Cross-tab / mobile-desktop sync via localStorage storage event
 window.addEventListener('storage', (e) => {
-    const keys = [storageKey, workoutKey, habitsKey, workoutNotesHistoryKey];
+    const keys = [storageKey, workoutKey, habitsKey, workoutNotesHistoryKey, dailyLogsKey];
     if (!keys.includes(e.key)) return;
     if (e.key === storageKey) state = loadState();
     if (e.key === workoutKey) workoutFolders = loadWorkoutFolders();
     if (e.key === habitsKey) habits = loadHabits();
     if (e.key === workoutNotesHistoryKey) workoutNotesHistory = loadWorkoutNotesHistory();
+    if (e.key === dailyLogsKey) dailyLogs = loadDailyLogs();
     render();
     renderHabits();
     renderNotes();

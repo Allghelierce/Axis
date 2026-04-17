@@ -14,6 +14,8 @@ const SHELL = [
     '/js/tasks.js',
     '/js/particles.js',
     '/js/map.js',
+    '/js/summary.js',
+    '/js/storage.js',
     '/js/main.js'
 ];
 

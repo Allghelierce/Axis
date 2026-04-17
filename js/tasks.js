@@ -100,6 +100,40 @@ function renderTasks() {
     });
 }
 
+let _goalFormType = 'simple';
+
+function toggleGoalMenu() {
+    const menu = document.getElementById('goalAddMenu');
+    menu.classList.toggle('open');
+}
+
+function showGoalForm(type) {
+    _goalFormType = type;
+    const menu = document.getElementById('goalAddMenu');
+    const form = document.getElementById('goalForm');
+    menu.classList.remove('open');
+    form.style.display = '';
+    const input = document.getElementById('goalInput');
+    input.placeholder = type === 'tracked' ? 'Tracked goal name...' : 'Goal name...';
+    input.focus();
+}
+
+function _hideGoalForm() {
+    const form = document.getElementById('goalForm');
+    if (form) form.style.display = 'none';
+    const input = document.getElementById('goalInput');
+    if (input) input.value = '';
+    const dateInput = document.getElementById('goalDateInput');
+    if (dateInput) dateInput.value = '';
+}
+
+document.addEventListener('click', e => {
+    const menu = document.getElementById('goalAddMenu');
+    if (menu && menu.classList.contains('open') && !e.target.closest('.goal-title-dotted') && !e.target.closest('.goal-add-menu')) {
+        menu.classList.remove('open');
+    }
+});
+
 function addGoal() {
     const input = document.getElementById('goalInput');
     const dateInput = document.getElementById('goalDateInput');
@@ -107,18 +141,21 @@ function addGoal() {
     const text = input.value.trim();
     const dueDate = dateInput ? dateInput.value : '';
     if (!text) return;
-    state.goals.push({ id: Date.now(), text, done: false, dueDate });
+    const goal = { id: Date.now(), text, done: false, dueDate, type: _goalFormType };
+    if (_goalFormType === 'tracked') goal.tracking = {};
+    state.goals.push(goal);
     saveState();
-    input.value = '';
-    if (dateInput) dateInput.value = '';
+    _hideGoalForm();
     renderGoals();
     updateSidebars();
 }
 
 function toggleGoal(id, skipRender = false) {
     const goal = state.goals.find(g => g.id === id);
-    const justDone = goal && !goal.done;
-    if (goal) goal.done = !goal.done;
+    if (!goal) return;
+    if (goal.type === 'tracked') return;
+    const justDone = !goal.done;
+    goal.done = !goal.done;
     saveState();
 
     if (justDone && !skipRender) {
@@ -146,6 +183,28 @@ function toggleGoal(id, skipRender = false) {
     if (justDone && typeof onItemChecked === 'function') onItemChecked(null, 'goal');
 }
 
+function toggleGoalDay(id, dayKey) {
+    const goal = state.goals.find(g => g.id === id);
+    if (!goal || !goal.tracking) return;
+    if (goal.tracking[dayKey]) {
+        delete goal.tracking[dayKey];
+    } else {
+        goal.tracking[dayKey] = true;
+    }
+    saveState();
+    renderGoals();
+    updateSidebars();
+}
+
+function completeTrackedGoal(id) {
+    const goal = state.goals.find(g => g.id === id);
+    if (!goal) return;
+    goal.done = true;
+    saveState();
+    renderGoals();
+    updateSidebars();
+}
+
 function deleteGoal(id) {
     const goal = state.goals.find(g => g.id === id);
     if (goal) undoStack.push({ type: 'goal', data: goal });
@@ -153,6 +212,31 @@ function deleteGoal(id) {
     saveState();
     renderGoals();
     updateSidebars();
+}
+
+function _goalDueBadge(dueDate) {
+    if (!dueDate) return '';
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(dueDate + 'T00:00:00');
+    const days = Math.ceil((due - today) / 86400000);
+    let cls = 'goal-due-badge';
+    if (days < 0) cls += ' goal-due-past';
+    else if (days <= 3) cls += ' goal-due-urgent';
+    else if (days <= 7) cls += ' goal-due-soon';
+    const label = days < 0 ? `${Math.abs(days)}d overdue` : days === 0 ? 'due today' : `${days}d left`;
+    return `<span class="${cls}">${label}</span>`;
+}
+
+function _goalProgressInfo(goal) {
+    if (!goal.tracking) return { percent: 0, checked: 0, total: 0 };
+    const checked = Object.keys(goal.tracking).length;
+    if (!goal.dueDate) return { percent: 0, checked, total: 0 };
+    const start = new Date(goal.id);
+    start.setHours(0, 0, 0, 0);
+    const due = new Date(goal.dueDate + 'T00:00:00');
+    const total = Math.max(1, Math.ceil((due - start) / 86400000) + 1);
+    return { percent: Math.min(100, Math.round((checked / total) * 100)), checked, total };
 }
 
 function renderGoals() {
@@ -165,18 +249,57 @@ function renderGoals() {
         return;
     }
     visible.forEach((goal, index) => {
-        const item = document.createElement('div');
-        item.className = 'task-item';
-        item.dataset.index = index;
-        item.dataset.id = goal.id;
-        item.dataset.type = 'goal';
-        item.innerHTML = `
-            <div class="task-checkbox" onclick="toggleGoal(${goal.id})"></div>
-            <span class="task-text" onclick="toggleGoal(${goal.id})">${escapeHtml(goal.text)}</span>
-            ${goal.dueDate ? `<span class="task-date">${goal.dueDate}</span>` : ''}
-            <button class="task-delete" onclick="deleteGoal(${goal.id})">×</button>
-        `;
-        container.appendChild(item);
+        if (goal.type === 'tracked') {
+            const item = document.createElement('div');
+            item.className = 'goal-tracked-item';
+            item.dataset.index = index;
+            item.dataset.id = goal.id;
+            item.dataset.type = 'goal';
+
+            const info = _goalProgressInfo(goal);
+
+            let daysHTML = '<div class="goal-tracking-days">';
+            for (let i = 13; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dk = d.toISOString().split('T')[0];
+                const checked = goal.tracking && goal.tracking[dk];
+                const isToday = i === 0;
+                const dateLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                daysHTML += `<div class="goal-day ${checked ? 'goal-day-done' : ''} ${isToday ? 'goal-day-today' : ''}" onclick="toggleGoalDay(${goal.id}, '${dk}')" title="${dateLabel}">${checked ? '✓' : ''}</div>`;
+            }
+            daysHTML += '</div>';
+
+            let progressHTML = '';
+            if (goal.dueDate) {
+                progressHTML = `<div class="goal-progress-bar"><div class="goal-progress-fill" style="width:${info.percent}%"></div></div>`;
+            }
+
+            item.innerHTML = `
+                <div class="goal-tracked-top">
+                    <span class="goal-tracked-name">${escapeHtml(goal.text)}</span>
+                    ${_goalDueBadge(goal.dueDate)}
+                    <button class="goal-tracked-done-btn" onclick="completeTrackedGoal(${goal.id})" title="Mark complete">✓</button>
+                    <button class="task-delete" onclick="deleteGoal(${goal.id})">×</button>
+                </div>
+                ${daysHTML}
+                ${progressHTML}
+            `;
+            container.appendChild(item);
+        } else {
+            const item = document.createElement('div');
+            item.className = 'task-item';
+            item.dataset.index = index;
+            item.dataset.id = goal.id;
+            item.dataset.type = 'goal';
+            item.innerHTML = `
+                <div class="task-checkbox" onclick="toggleGoal(${goal.id})"></div>
+                <span class="task-text" onclick="toggleGoal(${goal.id})">${escapeHtml(goal.text)}</span>
+                ${_goalDueBadge(goal.dueDate)}
+                <button class="task-delete" onclick="deleteGoal(${goal.id})">×</button>
+            `;
+            container.appendChild(item);
+        }
     });
 }
 

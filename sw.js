@@ -1,6 +1,6 @@
 const CACHE = 'axis-v1';
 const SHELL = [
-    '/dashboard.html',
+    '/index.html',
     '/styles.css',
     '/js/state.js',
     '/js/auth.js',

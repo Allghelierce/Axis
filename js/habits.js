@@ -46,11 +46,35 @@ function calculateHabitStreak(habit) {
 }
 
 function getStreakColor(streak) {
-    if (streak === 0) return 'rgba(248, 250, 252, 0.4)';
-    if (streak <= 2) return 'rgba(234, 179, 8, 0.6)';
-    if (streak <= 5) return 'rgba(34, 197, 94, 0.7)';
-    if (streak <= 10) return 'rgba(34, 197, 94, 0.85)';
-    return 'rgba(34, 197, 94, 1)';
+    if (streak === 0) return 'rgba(248, 250, 252, 0.25)';
+    if (streak <= 2) return 'rgba(255, 200, 60, 0.7)';
+    if (streak <= 5) return 'rgba(255, 160, 40, 0.85)';
+    if (streak <= 10) return 'rgba(255, 120, 30, 0.9)';
+    if (streak <= 21) return 'rgba(255, 80, 50, 1)';
+    if (streak <= 45) return 'rgba(200, 60, 255, 1)';
+    if (streak <= 90) return 'rgba(80, 180, 255, 1)';
+    return 'rgba(255, 240, 100, 1)';
+}
+
+function getStreakIcon(streak) {
+    if (streak === 0) return '';
+    if (streak <= 2) return '·';
+    if (streak <= 5) return '⚡';
+    if (streak <= 10) return '🔥';
+    if (streak <= 21) return '🔥';
+    if (streak <= 45) return '💎';
+    if (streak <= 90) return '⭐';
+    return '👑';
+}
+
+function getStreakTier(streak) {
+    if (streak === 0) return '';
+    if (streak <= 2) return 'streak-warm';
+    if (streak <= 10) return 'streak-fire';
+    if (streak <= 21) return 'streak-blaze';
+    if (streak <= 45) return 'streak-diamond';
+    if (streak <= 90) return 'streak-star';
+    return 'streak-legend';
 }
 
 function renderHabits() {
@@ -124,7 +148,10 @@ function renderHabits() {
 
         habitEl.innerHTML = `
             <div class="habit-controls">${deleteModeBtns}</div>
-            <div class="habit-name${blinkClass}" onclick="if(isHabitDeleteMode) deleteHabit(${habit.id}); else openHabitDetail(${habit.id})">${habit.name}</div>
+            <div class="habit-name-row">
+                <div class="habit-name${blinkClass}" onclick="if(isHabitDeleteMode) deleteHabit(${habit.id}); else openHabitDetail(${habit.id})">${habit.name}</div>
+                <span class="habit-streak ${getStreakTier(streak)}" style="color:${streakColor}">${getStreakIcon(streak)}${streak > 0 ? streak : ''}</span>
+            </div>
             <div class="habit-bottom-row">
                 ${trackingHTML}
             </div>
@@ -155,15 +182,8 @@ function renderHabits() {
         });
     });
 
-    // Setup drag-to-reorder in delete mode
     if (isHabitDeleteMode) {
-        container.querySelectorAll('.habit-item').forEach(el => {
-            el.draggable = true;
-            el.addEventListener('dragstart', habitDragStart);
-            el.addEventListener('dragover', habitDragOver);
-            el.addEventListener('drop', habitDrop);
-            el.addEventListener('dragend', habitDragEnd);
-        });
+        setupHabitReorder(container);
     }
 
     // Remove previous archived section
@@ -242,38 +262,77 @@ function toggleHabitDay(habitId, dayKey, element, event, skipRender = false) {
 }
 
 // Drag-to-reorder functionality
-let habitDraggedIndex = null;
+let habitDraggedEl = null;
+let habitDraggedGlobalIndex = null;
 
-function habitDragStart(e) {
-    habitDraggedIndex = parseInt(this.querySelector('.habit-drag-handle')?.dataset.habitIndex) ?? null;
-    this.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
+function setupHabitReorder(container) {
+    container.querySelectorAll('.habit-drag-handle').forEach(handle => {
+        handle.addEventListener('mousedown', habitReorderStart);
+        handle.addEventListener('touchstart', habitReorderStart, { passive: false });
+    });
 }
 
-function habitDragOver(e) {
+function habitReorderStart(e) {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    return false;
-}
-
-function habitDrop(e) {
     e.stopPropagation();
-    if (habitDraggedIndex === null) return;
 
-    const dropIndex = parseInt(this.querySelector('.habit-drag-handle')?.dataset.habitIndex) ?? null;
-    if (dropIndex === null || dropIndex === habitDraggedIndex) return;
+    const item = this.closest('.habit-item');
+    if (!item) return;
 
-    // Splice-move the habit to the new position
-    const moved = habits.splice(habitDraggedIndex, 1)[0];
-    habits.splice(dropIndex, 0, moved);
+    habitDraggedEl = item;
+    habitDraggedGlobalIndex = parseInt(this.dataset.habitIndex);
+    item.classList.add('dragging');
 
-    saveHabits();
-    renderHabits();
-}
+    const moveHandler = (ev) => {
+        ev.preventDefault();
+        const y = ev.type.startsWith('touch') ? ev.touches[0].clientY : ev.clientY;
+        const container = document.getElementById('habitsList');
+        const items = [...container.querySelectorAll('.habit-item:not(.dragging)')];
 
-function habitDragEnd(e) {
-    this.classList.remove('dragging');
-    habitDraggedIndex = null;
+        let insertBefore = null;
+        for (const el of items) {
+            const rect = el.getBoundingClientRect();
+            if (y < rect.top + rect.height / 2) {
+                insertBefore = el;
+                break;
+            }
+        }
+
+        if (insertBefore) {
+            container.insertBefore(habitDraggedEl, insertBefore);
+        } else if (items.length > 0) {
+            container.appendChild(habitDraggedEl);
+        }
+    };
+
+    const upHandler = () => {
+        document.removeEventListener('mousemove', moveHandler);
+        document.removeEventListener('mouseup', upHandler);
+        document.removeEventListener('touchmove', moveHandler);
+        document.removeEventListener('touchend', upHandler);
+
+        if (!habitDraggedEl) return;
+        habitDraggedEl.classList.remove('dragging');
+
+        const container = document.getElementById('habitsList');
+        const newOrder = [...container.querySelectorAll('.habit-item')].map(el => parseInt(el.dataset.habitId));
+
+        const activeHabits = habits.filter(h => !h.archived);
+        const archivedHabits = habits.filter(h => h.archived);
+        const reordered = newOrder.map(id => activeHabits.find(h => h.id === id)).filter(Boolean);
+        habits = [...reordered, ...archivedHabits];
+
+        saveHabits();
+        renderHabits();
+
+        habitDraggedEl = null;
+        habitDraggedGlobalIndex = null;
+    };
+
+    document.addEventListener('mousemove', moveHandler);
+    document.addEventListener('mouseup', upHandler);
+    document.addEventListener('touchmove', moveHandler, { passive: false });
+    document.addEventListener('touchend', upHandler);
 }
 
 // Archive and restore functionality
@@ -365,9 +424,8 @@ function openHabitDetail(habitId) {
     currentHabit = habit;
     calendarCurrentMonth = new Date(today);
 
-    // Show detail view
     document.querySelector('.habits-view').style.display = 'none';
-    document.querySelector('.habit-detail-view').style.display = 'flex';
+    document.querySelector('.habit-detail-view').classList.add('active');
 
     // Update header
     document.getElementById('habitDetailName').textContent = habit.name;
@@ -399,8 +457,8 @@ function openHabitDetail(habitId) {
 }
 
 function closeHabitDetail() {
-    document.querySelector('.habits-view').style.display = 'block';
-    document.querySelector('.habit-detail-view').style.display = 'none';
+    document.querySelector('.habits-view').style.display = '';
+    document.querySelector('.habit-detail-view').classList.remove('active');
     if (habitDetailChart) {
         habitDetailChart.destroy();
         habitDetailChart = null;
@@ -522,6 +580,29 @@ function setupCalendarNavigation() {
 // Module-level variables for habits charts
 let habitsUnifiedChart = null;
 
+function calculateLongestStreak(habit) {
+    const sixMonthsAgo = new Date(today);
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    let longest = 0;
+    let current = 0;
+
+    for (let d = new Date(today); d >= sixMonthsAgo; d.setDate(d.getDate() - 1)) {
+        const dayKey = d.toISOString().split('T')[0];
+        const status = habit.tracking[dayKey];
+
+        if (status === 'completed') {
+            current++;
+        } else if (status === 'prevented') {
+            // rest day — don't break streak
+        } else {
+            longest = Math.max(longest, current);
+            current = 0;
+        }
+    }
+    return Math.max(longest, current);
+}
+
 function renderHabitsUnifiedChart() {
     const canvas = document.getElementById('habitsUnifiedChart');
     if (!canvas) return;
@@ -529,104 +610,90 @@ function renderHabitsUnifiedChart() {
     const activeHabits = habits.filter(h => !h.archived);
     if (activeHabits.length === 0) return;
 
-    const ctx = canvas.getContext('2d');
-    const daysCount = 28; // 4 weeks
-    const labels = [];
-    const completedCounts = [];
-    const preventedCounts = [];
+    const container = canvas.parentElement;
+    container.style.height = '300px';
 
-    const now = new Date(today);
-    for (let i = daysCount - 1; i >= 0; i--) {
-        const d = new Date(now);
-        d.setDate(d.getDate() - i);
-        const dayKey = d.toISOString().split('T')[0];
-        
-        // Only label MONDAYS for a cleaner look
-        if (d.getDay() === 1) {
-            labels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-        } else {
-            labels.push('');
-        }
-
-        let completed = 0;
-        let prevented = 0;
-        activeHabits.forEach(habit => {
-            if (habit.tracking[dayKey] === 'completed') completed++;
-            else if (habit.tracking[dayKey] === 'prevented') prevented++;
-        });
-        completedCounts.push(completed);
-        preventedCounts.push(prevented);
-    }
+    const labels = activeHabits.map(h => h.name);
+    const currentStreaks = activeHabits.map(h => calculateHabitStreak(h));
+    const longestStreaks = activeHabits.map(h => calculateLongestStreak(h));
 
     if (habitsUnifiedChart) {
         habitsUnifiedChart.destroy();
     }
 
+    const ctx = canvas.getContext('2d');
+
     habitsUnifiedChart = new Chart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
             labels: labels,
-            datasets: [{
-                data: completedCounts,
-                borderColor: 'rgba(255, 255, 255, 0.4)',
-                backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                borderWidth: 1.5,
-                pointRadius: (context) => (context.dataIndex % 7 === 0 || context.dataIndex === daysCount - 1) ? 2 : 0,
-                pointBackgroundColor: 'rgba(255, 255, 255, 0.6)',
-                tension: 0.4,
-                fill: true,
-                preventedData: preventedCounts
-            }]
+            datasets: [
+                {
+                    label: 'Longest',
+                    data: longestStreaks,
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    borderColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 1,
+                    borderRadius: 2,
+                    barPercentage: 0.95,
+                    categoryPercentage: 0.5
+                },
+                {
+                    label: 'Current',
+                    data: currentStreaks,
+                    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                    borderColor: 'rgba(255, 255, 255, 0.5)',
+                    borderWidth: 1,
+                    borderRadius: 2,
+                    barPercentage: 0.95,
+                    categoryPercentage: 0.5
+                }
+            ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { 
-                legend: { display: false },
-                tooltip: { enabled: false }
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    align: 'end',
+                    labels: {
+                        color: 'rgba(255, 255, 255, 0.4)',
+                        font: { size: 8, family: 'inherit' },
+                        boxWidth: 8,
+                        boxHeight: 8,
+                        padding: 8
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => `${ctx.dataset.label}: ${ctx.raw} days`
+                    }
+                }
             },
             scales: {
                 y: {
-                    beginAtZero: true,
-                    suggestedMax: activeHabits.length,
+                    min: 0,
+                    max: 100,
                     ticks: {
-                        font: { size: 8 },
                         color: 'rgba(255, 255, 255, 0.2)',
-                        stepSize: 1,
-                        precision: 0
+                        font: { size: 8 },
+                        stepSize: 10
                     },
                     grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false }
                 },
                 x: {
-                    ticks: { font: { size: 8 }, color: 'rgba(255, 255, 255, 0.3)', autoSkip: false, maxRotation: 0 },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.5)',
+                        font: { size: 7, family: 'inherit' },
+                        maxRotation: 45,
+                        minRotation: 0
+                    },
                     grid: { display: false }
                 }
             }
-        },
-        plugins: [{
-            id: 'preventedDots',
-            afterDatasetsDraw(chart) {
-                const { ctx, data } = chart;
-                ctx.save();
-                ctx.font = '8px Arial';
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-                ctx.textAlign = 'center';
-
-                const dataset = data.datasets[0];
-                const preventedData = dataset.preventedData;
-                const meta = chart.getDatasetMeta(0);
-
-                meta.data.forEach((point, index) => {
-                    const count = preventedData[index];
-                    if (count > 0) {
-                        for (let j = 0; j < count; j++) {
-                            ctx.fillText('◎', point.x, point.y - 12 - (j * 8));
-                        }
-                    }
-                });
-                ctx.restore();
-            }
-        }]
+        }
     });
 }
 

@@ -30,7 +30,6 @@ function loadState() {
             data.movementNotesSubmitted = false;
             data.splitInput = '';
             data.tasks = [];
-            data.goals = [];
             data.lastDate = getTodayKey();
         }
         if (!data.tasks) data.tasks = [];

@@ -4,10 +4,6 @@ function openSettings() {
     const overlay = document.getElementById('settingsOverlay');
     if (overlay) {
         overlay.classList.add('active');
-        // Re-initialize auth UI when opening settings
-        if (typeof initAuth === 'function') {
-            initAuth();
-        }
     }
 }
 

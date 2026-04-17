@@ -12,7 +12,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
 </head>
 
 <body>
@@ -81,6 +80,29 @@
 
                     <div class="dashboard-sections">
                         <div class="dash-section">
+                            <div class="section-title"><span class="goal-title-dotted" onclick="toggleGoalMenu()">Goals</span></div>
+                            <div class="goal-add-menu" id="goalAddMenu">
+                                <div class="goal-add-option" onclick="showGoalForm('simple')">Simple</div>
+                                <div class="goal-add-option" onclick="showGoalForm('tracked')">Tracked</div>
+                            </div>
+                            <div class="section-split">
+                                <div class="section-actual">
+                                    <div class="goal-form" id="goalForm" style="display:none;">
+                                        <div class="goal-form-row">
+                                            <input type="text" class="task-input" id="goalInput" placeholder="Goal name...">
+                                            <input type="date" class="goal-date-input" id="goalDateInput" title="Due date">
+                                        </div>
+                                    </div>
+                                    <div class="tasks-list" id="goalsList"></div>
+                                </div>
+                                <div class="section-plan" data-plan="goals">
+                                    <input type="text" class="plan-field" placeholder="Plan goals...">
+                                    <div class="plan-list"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dash-section">
                             <div class="section-title">Tasks</div>
                             <div class="section-split">
                                 <div class="section-actual">
@@ -130,6 +152,14 @@
                                         <button class="note-edit-btn" id="editMovementNotes">edit</button>
                                     </div>
                                     <div class="movement-na" id="movementNa"><div class="empty-na">n/a</div></div>
+                                    <div class="last-workout-panel" id="lastWorkoutPanel" style="display:none;">
+                                        <div class="last-workout-header">
+                                            <span class="last-workout-label" id="lastWorkoutLabel">Last session</span>
+                                            <span class="last-workout-date" id="lastWorkoutDate"></span>
+                                        </div>
+                                        <div class="last-workout-notes" id="lastWorkoutNotes"></div>
+                                        <div class="last-workout-history" id="lastWorkoutHistory"></div>
+                                    </div>
                                 </div>
                                 <div class="section-plan" data-plan="movement">
                                     <input type="text" class="plan-field" placeholder="Plan workout...">
@@ -167,9 +197,6 @@
                 <div class="dock">
                     <button class="dock-item" onclick="openDockPanel('wishlist')">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                    </button>
-                    <button class="dock-item" onclick="openDockPanel('longterm')">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                     </button>
                     <button class="dock-item" onclick="openDockPanel('subscriptions')">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
@@ -215,13 +242,13 @@
                         </div>
                     </div>
                     <div class="habits-list" id="habitsList"></div>
-                    <div class="habits-weekly-chart-container" style="height: 180px; margin-top: 1.5rem;">
+                    <div class="habits-weekly-chart-container" style="margin-top: 1.5rem;">
                         <canvas id="habitsUnifiedChart"></canvas>
                     </div>
                 </div>
 
                 <!-- Habit Detail View -->
-                <div class="habit-detail-view" style="display: none;">
+                <div class="habit-detail-view">
                     <div class="habit-detail-header">
                         <button class="back-button" onclick="closeHabitDetail()">← Back</button>
                         <h2 id="habitDetailName"></h2>
@@ -363,21 +390,28 @@
                 <button class="settings-close-btn" onclick="closeSettings()">✕</button>
             </div>
             <div class="settings-body">
-                <div class="settings-section-title">Account</div>
-                <div id="authContainer"></div>
             </div>
         </div>
     </div>
 
-    <!-- STORAGE BIN OVERLAY -->
-    <div class="storage-overlay" id="storageBinOverlay" onclick="if(event.target === this) closeStorageBin()">
-        <div class="storage-panel">
-            <div class="storage-header">
-                <div class="storage-title">Storage Bin</div>
+    <!-- STORAGE BIN FULLSCREEN -->
+    <div class="storage-fullscreen" id="storageBinOverlay">
+        <div class="storage-sidebar">
+            <div class="storage-sidebar-header">
+                <div class="storage-title">Storage</div>
                 <button class="storage-close-btn" onclick="closeStorageBin()">✕</button>
             </div>
-            <div class="storage-list" id="storageBinList"></div>
-            <div class="storage-detail" id="storageBinDetail" style="display:none;"></div>
+            <div class="storage-sidebar-nav" id="storageSidebarNav">
+                <button class="storage-nav-item active" data-section="daybyday" onclick="switchStorageSection('daybyday')">Day by Day</button>
+                <button class="storage-nav-item" data-section="workout" onclick="switchStorageSection('workout')">Workout</button>
+            </div>
+            <div class="storage-sidebar-footer">
+                <button class="storage-import-btn" onclick="document.getElementById('obsidianFileInput').click()">Import from Obsidian</button>
+                <input type="file" id="obsidianFileInput" multiple accept=".md" style="display:none;" onchange="handleObsidianImport(this.files)">
+            </div>
+        </div>
+        <div class="storage-main">
+            <div class="storage-content" id="storageContent"></div>
         </div>
     </div>
 
@@ -423,7 +457,6 @@
 
     <div id="mobileTaskCounter" class="mobile-task-counter" title="Tasks completed today">0</div>
     <script src="js/state.js"></script>
-    <script src="js/auth.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/habits.js"></script>
     <script src="js/notes.js"></script>

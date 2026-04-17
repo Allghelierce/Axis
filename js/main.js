@@ -158,7 +158,7 @@ function startCountdown() {
 
 function resetUIState() {
     const detail = document.querySelector('.habit-detail-view');
-    if (detail) detail.style.display = 'none';
+    if (detail) detail.classList.remove('active');
     const habitsView = document.querySelector('.habits-view');
     if (habitsView) habitsView.style.display = '';
     const overlay = document.getElementById('dockPanelOverlay');
@@ -170,7 +170,7 @@ function resetUIState() {
     const settings = document.getElementById('settingsOverlay');
     if (settings) settings.style.display = 'none';
     const storage = document.getElementById('storageBinOverlay');
-    if (storage) storage.style.display = 'none';
+    if (storage) storage.classList.remove('open');
 }
 
 function init() {
@@ -192,6 +192,7 @@ function init() {
     } catch (e) { console.error('✗ initShiftDrag:', e); }
 
     try {
+        seedWorkoutTestData();
         render();
         console.log('✓ render');
     } catch (e) { console.error('✗ render:', e); }
@@ -249,6 +250,7 @@ function setupEventListeners() {
             state.splitInput = e.target.value;
             updateWorkoutFolders();
             saveState();
+            showLastWorkout(e.target.value);
         });
     }
 
@@ -301,6 +303,20 @@ function setupEventListeners() {
                 e.preventDefault();
                 addTask();
                 taskInput.blur();
+            }
+        });
+    }
+
+    const goalInput = document.getElementById('goalInput');
+    if (goalInput) {
+        goalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                e.preventDefault();
+                addGoal();
+                goalInput.blur();
+            }
+            if (e.key === 'Escape') {
+                _hideGoalForm();
             }
         });
     }
@@ -450,6 +466,7 @@ function renderMovementNotes() {
 
 function render() {
     renderSplitSelect();
+    showLastWorkout(state.splitInput);
     renderTasks();
     renderGoals();
     renderMeals();

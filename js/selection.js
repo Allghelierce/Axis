@@ -4,7 +4,6 @@ const selectionBox = document.getElementById('selectionBox');
 let selectedElements = new Set();
 
 document.addEventListener('mousedown', (e) => {
-    // Only start selection if clicking on the background or near lists, not on inputs/buttons
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
     if (e.target.closest('button, .pop-out-btn, .habit-drag-handle, .dock, .dock-panel')) return;
 
@@ -18,12 +17,13 @@ document.addEventListener('mousedown', (e) => {
     selectionBox.style.width = '0px';
     selectionBox.style.height = '0px';
 
-    // Clear previous selection
     clearSelection();
 });
 
 document.addEventListener('mousemove', (e) => {
     if (!isSelecting) return;
+
+    e.preventDefault();
 
     const currentX = e.clientX;
     const currentY = e.clientY;
@@ -47,19 +47,22 @@ document.addEventListener('mouseup', () => {
     selectionBox.style.display = 'none';
 });
 
+document.addEventListener('selectstart', (e) => {
+    if (isSelecting) e.preventDefault();
+});
+
 function updateSelection(left, top, width, height) {
     const boxRect = { left, top, right: left + width, bottom: top + height };
-    
-    // Target elements: tasks, goals, habit-days
-    const targets = document.querySelectorAll('.task-item, .habit-day');
-    
+
+    const targets = document.querySelectorAll('.task-item, .habit-day, .meal-item, .submitted-note-display');
+
     targets.forEach(el => {
         const elRect = el.getBoundingClientRect();
-        const isIntersecting = !(elRect.left > boxRect.right || 
-                                 elRect.right < boxRect.left || 
-                                 elRect.top > boxRect.bottom || 
+        const isIntersecting = !(elRect.left > boxRect.right ||
+                                 elRect.right < boxRect.left ||
+                                 elRect.top > boxRect.bottom ||
                                  elRect.bottom < boxRect.top);
-        
+
         if (isIntersecting) {
             el.classList.add('selected');
             selectedElements.add(el);
@@ -77,7 +80,6 @@ function clearSelection() {
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Delete' || e.key === 'Backspace') {
-        // Only if not focused on an input
         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
 
         if (selectedElements.size > 0) {
@@ -87,11 +89,10 @@ document.addEventListener('keydown', (e) => {
 });
 
 function performBulkAction() {
-    const tasksToDelete = [];
-    const internalHabitUpdates = [];
+    let mealsDeleted = false;
+    let notesDeleted = false;
 
     selectedElements.forEach(el => {
-        // Check if it's a task or goal
         if (el.classList.contains('task-item')) {
             const id = parseInt(el.dataset.id);
             const type = el.dataset.type;
@@ -102,27 +103,38 @@ function performBulkAction() {
                     state.goals = state.goals.filter(g => g.id !== id);
                 }
             }
-        } 
-        // Check if it's a habit day
-        else if (el.classList.contains('habit-day')) {
+        } else if (el.classList.contains('habit-day')) {
             const habitId = parseInt(el.dataset.habitId);
             const dayKey = el.dataset.dayKey;
-            
-            // Find habit and reset tracking for that day
             const habit = habits.find(h => h.id === habitId);
             if (habit) {
                 delete habit.tracking[dayKey];
             }
+        } else if (el.classList.contains('meal-item')) {
+            const index = parseInt(el.dataset.index);
+            const id = state.meals[index]?.id;
+            if (id !== undefined) {
+                state.meals = state.meals.filter(m => m.id !== id);
+            }
+            mealsDeleted = true;
+        } else if (el.classList.contains('submitted-note-display')) {
+            const key = getTodayNoteKey();
+            if (notes[key]) {
+                delete notes[key];
+                saveNotes();
+            }
+            notesDeleted = true;
         }
     });
 
-    // Save and refresh
     saveState();
     saveHabits();
     renderTasks();
     renderGoals();
     renderHabits();
+    if (mealsDeleted) renderMeals();
+    if (notesDeleted) renderNotes();
     updateSidebars();
-    
+
     clearSelection();
 }

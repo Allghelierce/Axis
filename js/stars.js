@@ -8,9 +8,16 @@
 
     function generateStars(count, color) {
         const shadows = [];
+        const radius = 2000;
         for (let i = 0; i < count; i++) {
-            const x = Math.floor(Math.random() * 4000) - 2000;
-            const y = Math.floor(Math.random() * 4000) - 2000;
+            // Use polar coordinates to distribute on a disk
+            const angle = Math.random() * Math.PI * 2;
+            // Bias R towards center (0) for "higher concentration at the bottom"
+            // Since the pivot is at the bottom of the screen
+            const r = Math.pow(Math.random(), 2) * radius;
+            
+            const x = Math.floor(Math.cos(angle) * r);
+            const y = Math.floor(Math.sin(angle) * r);
             shadows.push(`${x}px ${y}px ${color}`);
         }
         return shadows.join(', ');
@@ -27,19 +34,16 @@
         starDiv.style.width = `${size}px`;
         starDiv.style.height = `${size}px`;
         starDiv.style.boxShadow = shadows;
-        
-        const starDivDuplicate = document.createElement('div');
-        starDivDuplicate.style.width = `${size}px`;
-        starDivDuplicate.style.height = `${size}px`;
-        starDivDuplicate.style.boxShadow = shadows;
-        starDivDuplicate.style.top = '2000px';
+        starDiv.style.position = 'absolute';
+        starDiv.style.top = '50%';
+        starDiv.style.left = '50%';
+        starDiv.style.transform = 'translate(-50%, -50%)';
 
         layer.appendChild(starDiv);
-        layer.appendChild(starDivDuplicate);
         return layer;
     }
 
-    const speed = 240; // Extremely slow movement for maximum tranquility
+    const speed = 3600; // Extremely slow orbital drift (1 hour per rotation)
     const starColor = '#fff';
 
     const layer1 = createStarLayer(1000, 1, speed, starColor);

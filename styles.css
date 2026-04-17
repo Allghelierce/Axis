@@ -64,7 +64,7 @@ body {
     width: 140px;
     padding: 0.6rem;
     position: relative;
-    background: transparent !important;
+    background: rgba(0, 0, 0, 0.93) !important;
 }
 
 .sidebar-analytics {
@@ -207,7 +207,10 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at 35% 25%, rgba(45, 90, 247, 0.12) 0%, transparent 60%);
+    background: 
+        radial-gradient(circle at 10% 25%, rgba(45, 90, 247, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 90% 75%, rgba(45, 90, 247, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 50% 100%, rgba(239, 68, 68, 0.12) 0%, transparent 50%);
     pointer-events: none;
     z-index: -1;
 }
@@ -240,18 +243,30 @@ body {
     border-radius: 50%;
 }
 
-@keyframes stars-scroll {
-    from { transform: translateY(0); }
-    to { transform: translateY(-2000px); }
+@keyframes stars-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.stars-moving {
+    animation: stars-rotate linear infinite;
+}
+
+.star-layer {
+    position: absolute;
+    top: 100%; /* Pivot point at the bottom of the screen */
+    left: 50%;
+    width: 4000px;
+    height: 4000px;
+    margin-left: -2000px;
+    margin-top: -2000px;
+    will-change: transform;
+    transform-origin: center center;
 }
 
 @keyframes subtle-twinkle {
     0%, 100% { opacity: 0.5; transform: scale(0.9); }
     50% { opacity: 1; transform: scale(1); }
-}
-
-.stars-moving {
-    animation: stars-scroll linear infinite;
 }
 
 .stars-twinkle {
@@ -1339,17 +1354,16 @@ body.plan-locked .plan-lock-btn {
 .habits-sidebar {
     width: auto;
     flex-shrink: 0;
-    background: var(--bg);
+    background: rgba(0, 0, 0, 0.93) !important;
     padding: 1rem;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
     border-left: 1px solid rgba(255, 255, 255, 0.01);
     position: relative;
+    z-index: 20;
     scrollbar-width: none;
-    /* Firefox */
     -ms-overflow-style: none;
-    /* IE and Edge */
 }
 
 .habits-sidebar::-webkit-scrollbar {
@@ -2301,13 +2315,14 @@ input:checked+.slider:before {
 .habits-sidebar {
     width: auto;
     flex-shrink: 0;
-    background: var(--bg);
+    background: rgba(0, 0, 0, 0.93) !important;
     padding: 1rem;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
     border-left: 1px solid rgba(255, 255, 255, 0.01);
     position: relative;
+    z-index: 20;
     scrollbar-width: none;
     -ms-overflow-style: none;
 }

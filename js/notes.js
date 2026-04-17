@@ -9,6 +9,7 @@ function loadNotes() {
 
 function saveNotes() {
     localStorage.setItem(notesKey, JSON.stringify(notes));
+    refreshStorageIfOpen();
 }
 
 function getTodayNoteKey() {

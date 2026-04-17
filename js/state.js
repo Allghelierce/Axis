@@ -1,4 +1,11 @@
 const today = new Date();
+
+function refreshStorageIfOpen() {
+    const overlay = document.getElementById('storageBinOverlay');
+    if (overlay && overlay.classList.contains('open') && typeof renderStorageContent === 'function') {
+        renderStorageContent();
+    }
+}
 const storageKey = 'dashboardData';
 const workoutKey = 'workoutFolders';
 const habitsKey = 'habits';
@@ -79,6 +86,7 @@ function loadWorkoutFolders() {
 
 function saveState() {
     localStorage.setItem(storageKey, JSON.stringify(state));
+    refreshStorageIfOpen();
 }
 
 function saveWorkoutFolders() {
@@ -93,6 +101,7 @@ function loadHabits() {
 
 function saveHabits() {
     localStorage.setItem(habitsKey, JSON.stringify(habits));
+    refreshStorageIfOpen();
 }
 
 let workoutNotesHistory = loadWorkoutNotesHistory();

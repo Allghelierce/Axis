@@ -119,10 +119,12 @@ function showGoalForm(type) {
 }
 
 function _hideGoalForm() {
-    const form = document.getElementById('goalForm');
-    if (form) form.style.display = 'none';
+    _goalFormType = 'simple';
     const input = document.getElementById('goalInput');
-    if (input) input.value = '';
+    if (input) {
+        input.value = '';
+        input.placeholder = 'Goal name...';
+    }
     const dateInput = document.getElementById('goalDateInput');
     if (dateInput) dateInput.value = '';
 }

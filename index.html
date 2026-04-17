@@ -9,12 +9,15 @@
     <meta name="theme-color" content="#040404">
     <title>Axis</title>
     <link rel="manifest" href="manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
+    <div id="starsBackground"></div>
     <div class="layout">
         <!-- TODAY SIDEBAR -->
         <div class="sidebar sidebar-today">
@@ -72,7 +75,28 @@
                                 <h1>Mission Control</h1>
                                 <div id="dayCountdown">--:--:--</div>
                                 <button class="plan-lock-btn" id="planLockBtn" title="Hold to lock plan">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                    </svg>
+                                </button>
+                                <button class="plan-lock-btn" onclick="openStorageBin()" title="Storage">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="21 8 21 21 3 21 3 8"></polyline>
+                                        <rect x="1" y="3" width="22" height="5"></rect>
+                                        <line x1="10" y1="12" x2="14" y2="12"></line>
+                                    </svg>
+                                </button>
+                                <button class="plan-lock-btn" id="openSettingsBtn" title="Settings">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                        <path
+                                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                                        </path>
+                                    </svg>
                                 </button>
                             </div>
                         </div>
@@ -80,17 +104,20 @@
 
                     <div class="dashboard-sections">
                         <div class="dash-section">
-                            <div class="section-title"><span class="goal-title-dotted" onclick="toggleGoalMenu()">Goals</span></div>
+                            <div class="section-title"><span class="goal-title-dotted"
+                                    onclick="toggleGoalMenu()">Goals</span></div>
                             <div class="goal-add-menu" id="goalAddMenu">
                                 <div class="goal-add-option" onclick="showGoalForm('simple')">Simple</div>
                                 <div class="goal-add-option" onclick="showGoalForm('tracked')">Tracked</div>
                             </div>
                             <div class="section-split">
                                 <div class="section-actual">
-                                    <div class="goal-form" id="goalForm" style="display:none;">
+                                    <div class="goal-form" id="goalForm">
                                         <div class="goal-form-row">
-                                            <input type="text" class="task-input" id="goalInput" placeholder="Goal name...">
-                                            <input type="date" class="goal-date-input" id="goalDateInput" title="Due date">
+                                            <input type="text" class="task-input" id="goalInput"
+                                                placeholder="Goal name...">
+                                            <input type="date" class="goal-date-input" id="goalDateInput"
+                                                title="Due date">
                                         </div>
                                     </div>
                                     <div class="tasks-list" id="goalsList"></div>
@@ -120,17 +147,21 @@
                             <div class="section-header-row">
                                 <div class="section-title">Macros</div>
                                 <div class="macro-inline-stats">
-                                    <span id="inlineTotalCals">0</span> kcal&nbsp;&nbsp;<span id="inlineTotalProt">0</span> p
-                                    <span class="plan-macro-stats">&nbsp;/&nbsp;<span id="planTotalCals">0</span> kcal&nbsp;&nbsp;<span id="planTotalProt">0</span> p planned</span>
+                                    <span id="inlineTotalCals">0</span> kcal&nbsp;&nbsp;<span
+                                        id="inlineTotalProt">0</span> p
+                                    <span class="plan-macro-stats">&nbsp;/&nbsp;<span id="planTotalCals">0</span>
+                                        kcal&nbsp;&nbsp;<span id="planTotalProt">0</span> p planned</span>
                                 </div>
                             </div>
                             <div class="section-split">
                                 <div class="section-actual">
-                                    <input type="text" class="meal-input" id="foodInput" placeholder="What did you eat?">
+                                    <input type="text" class="meal-input" id="foodInput"
+                                        placeholder="What did you eat?">
                                     <div class="meals-list" id="mealsList"></div>
                                 </div>
                                 <div class="section-plan" data-plan="macros">
-                                    <input type="text" class="plan-field" placeholder="Plan meals... (e.g. chicken 500cal 40p)">
+                                    <input type="text" class="plan-field"
+                                        placeholder="Plan meals... (e.g. chicken 500cal 40p)">
                                     <div class="plan-list"></div>
                                 </div>
                             </div>
@@ -142,16 +173,22 @@
                                 <div class="section-actual">
                                     <div class="field-row">
                                         <select class="movement-input" id="splitSelect"></select>
-                                        <textarea class="movement-notes" id="movementNotes" placeholder="Workout notes..." rows="1"></textarea>
+                                        <textarea class="movement-notes" id="movementNotes"
+                                            placeholder="Workout notes..." rows="1"></textarea>
                                         <button class="field-submit-icon" id="submitMovementNotes" title="Submit">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                            </svg>
                                         </button>
                                     </div>
                                     <div id="movementNotesDisplay" class="submitted-note-display" style="display:none;">
                                         <div class="submitted-note-text" id="movementNotesText"></div>
                                         <button class="note-edit-btn" id="editMovementNotes">edit</button>
                                     </div>
-                                    <div class="movement-na" id="movementNa"><div class="empty-na">n/a</div></div>
+                                    <div class="movement-na" id="movementNa">
+                                        <div class="empty-na">n/a</div>
+                                    </div>
                                     <div class="last-workout-panel" id="lastWorkoutPanel" style="display:none;">
                                         <div class="last-workout-header">
                                             <span class="last-workout-label" id="lastWorkoutLabel">Last session</span>
@@ -173,16 +210,22 @@
                             <div class="section-split">
                                 <div class="section-actual">
                                     <div class="field-row">
-                                        <textarea id="dailyNoteInput" class="daily-note-input" placeholder="Daily note..." rows="1"></textarea>
+                                        <textarea id="dailyNoteInput" class="daily-note-input"
+                                            placeholder="Daily note..." rows="1"></textarea>
                                         <button class="field-submit-icon" id="submitDailyNote" title="Submit">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                            </svg>
                                         </button>
                                     </div>
                                     <div id="dailyNoteDisplay" class="submitted-note-display" style="display:none;">
                                         <div class="submitted-note-text" id="dailyNoteText"></div>
                                         <button class="note-edit-btn" id="editDailyNote">edit</button>
                                     </div>
-                                    <div class="dailynote-na" id="dailyNoteNa"><div class="empty-na">n/a</div></div>
+                                    <div class="dailynote-na" id="dailyNoteNa">
+                                        <div class="empty-na">n/a</div>
+                                    </div>
                                 </div>
                                 <div class="section-plan" data-plan="dailynote">
                                     <input type="text" class="plan-field" placeholder="Plan the day...">
@@ -193,18 +236,7 @@
                     </div>
                 </div>
 
-                <!-- DOCK -->
-                <div class="dock">
-                    <button class="dock-item" onclick="openDockPanel('wishlist')">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                    </button>
-                    <button class="dock-item" onclick="openDockPanel('subscriptions')">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                    </button>
-                    <button class="dock-item" onclick="openStorageBin()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
-                    </button>
-                </div>
+                <!-- DOCK PANELS (wishlist/subscriptions now in storage sidebar) -->
 
                 <!-- DOCK PANEL -->
                 <div class="dock-panel-overlay" id="dockPanelOverlay" onclick="closeDockPanel()"></div>
@@ -307,17 +339,6 @@
         </div>
 
         <div class="sidebar sidebar-analytics">
-            <div class="dashboard-actions">
-                <button class="settings-button" id="openSettingsBtn" title="Settings">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="3"></circle>
-                        <path
-                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                        </path>
-                    </svg>
-                </button>
-            </div>
             <div class="sidebar-title">
                 This Week
                 <button class="pop-out-btn" onclick="openDataSummary('week')" title="View Weekly Summary">
@@ -402,12 +423,20 @@
                 <button class="storage-close-btn" onclick="closeStorageBin()">✕</button>
             </div>
             <div class="storage-sidebar-nav" id="storageSidebarNav">
-                <button class="storage-nav-item active" data-section="daybyday" onclick="switchStorageSection('daybyday')">Day by Day</button>
-                <button class="storage-nav-item" data-section="workout" onclick="switchStorageSection('workout')">Workout</button>
+                <button class="storage-nav-item active" data-section="daybyday"
+                    onclick="switchStorageSection('daybyday')">Day by Day</button>
+                <button class="storage-nav-item" data-section="workout"
+                    onclick="switchStorageSection('workout')">Workout</button>
+                <button class="storage-nav-item" data-section="wishlist"
+                    onclick="switchStorageSection('wishlist')">Wishlist</button>
+                <button class="storage-nav-item" data-section="subscriptions"
+                    onclick="switchStorageSection('subscriptions')">Subscriptions</button>
             </div>
             <div class="storage-sidebar-footer">
-                <button class="storage-import-btn" onclick="document.getElementById('obsidianFileInput').click()">Import from Obsidian</button>
-                <input type="file" id="obsidianFileInput" multiple accept=".md" style="display:none;" onchange="handleObsidianImport(this.files)">
+                <button class="storage-import-btn" onclick="document.getElementById('obsidianFileInput').click()">Import
+                    from Obsidian</button>
+                <input type="file" id="obsidianFileInput" multiple accept=".md" style="display:none;"
+                    onchange="handleObsidianImport(this.files)">
             </div>
         </div>
         <div class="storage-main">
@@ -424,15 +453,27 @@
     <!-- MOBILE BOTTOM NAV -->
     <nav class="mobile-nav" id="mobileNav">
         <button class="mobile-nav-btn active" data-tab="home" onclick="switchMobileTab('home')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z" />
+                <path d="M9 21V12h6v9" />
+            </svg>
             <span>Home</span>
         </button>
         <button class="mobile-nav-btn" data-tab="habits" onclick="switchMobileTab('habits')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M12 2a10 10 0 1 0 10 10" />
+                <path d="M12 6v6l4 2" />
+            </svg>
             <span>Habits</span>
         </button>
         <button class="mobile-nav-btn" data-tab="stats" onclick="switchMobileTab('stats')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M3 3v18h18" />
+                <path d="m19 9-5 5-4-4-3 3" />
+            </svg>
             <span>Stats</span>
         </button>
     </nav>
@@ -441,14 +482,38 @@
     <div class="mobile-stats-panel" id="mobileStatsPanel">
         <div class="section-title" style="margin-bottom: 1rem;">Today</div>
         <div class="mobile-stats-grid">
-            <div class="mobile-stat-card"><div class="mobile-stat-label">Tasks</div><div class="mobile-stat-value" id="mStatTasks">0</div></div>
-            <div class="mobile-stat-card"><div class="mobile-stat-label">Complete</div><div class="mobile-stat-value" id="mStatComplete">0%</div></div>
-            <div class="mobile-stat-card"><div class="mobile-stat-label">Protein</div><div class="mobile-stat-value" id="mStatProt">0</div></div>
-            <div class="mobile-stat-card"><div class="mobile-stat-label">Calories</div><div class="mobile-stat-value" id="mStatCals">0</div></div>
-            <div class="mobile-stat-card"><div class="mobile-stat-label">Streak</div><div class="mobile-stat-value" id="mStatStreak" style="transition: color 0.5s;">0</div></div>
-            <div class="mobile-stat-card"><div class="mobile-stat-label">Week Avg</div><div class="mobile-stat-value" id="mStatWeekAvg">0</div></div>
-            <div class="mobile-stat-card"><div class="mobile-stat-label">Today</div><div class="mobile-stat-value" id="mStatToday">0</div></div>
-            <div class="mobile-stat-card"><div class="mobile-stat-label">This Week</div><div class="mobile-stat-value" id="mStatWeek">0</div></div>
+            <div class="mobile-stat-card">
+                <div class="mobile-stat-label">Tasks</div>
+                <div class="mobile-stat-value" id="mStatTasks">0</div>
+            </div>
+            <div class="mobile-stat-card">
+                <div class="mobile-stat-label">Complete</div>
+                <div class="mobile-stat-value" id="mStatComplete">0%</div>
+            </div>
+            <div class="mobile-stat-card">
+                <div class="mobile-stat-label">Protein</div>
+                <div class="mobile-stat-value" id="mStatProt">0</div>
+            </div>
+            <div class="mobile-stat-card">
+                <div class="mobile-stat-label">Calories</div>
+                <div class="mobile-stat-value" id="mStatCals">0</div>
+            </div>
+            <div class="mobile-stat-card">
+                <div class="mobile-stat-label">Streak</div>
+                <div class="mobile-stat-value" id="mStatStreak" style="transition: color 0.5s;">0</div>
+            </div>
+            <div class="mobile-stat-card">
+                <div class="mobile-stat-label">Week Avg</div>
+                <div class="mobile-stat-value" id="mStatWeekAvg">0</div>
+            </div>
+            <div class="mobile-stat-card">
+                <div class="mobile-stat-label">Today</div>
+                <div class="mobile-stat-value" id="mStatToday">0</div>
+            </div>
+            <div class="mobile-stat-card">
+                <div class="mobile-stat-label">This Week</div>
+                <div class="mobile-stat-value" id="mStatWeek">0</div>
+            </div>
         </div>
         <div style="margin-top: 1.2rem; position: relative; height: 260px;">
             <canvas id="mobileTodayVsYesterdayChart"></canvas>
@@ -471,11 +536,12 @@
     <script src="js/storage.js"></script>
     <script src="js/selection.js"></script>
     <script src="js/dock.js"></script>
+    <script src="js/stars.js"></script>
     <script src="js/main.js"></script>
     <script>
         // Service Worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').catch(() => {});
+            navigator.serviceWorker.register('/sw.js').catch(() => { });
         }
 
         // Mobile tab switching
@@ -495,21 +561,21 @@
         function hadActivityOn(dateStr) {
             const todayStr = new Date().toISOString().split('T')[0];
             if (dateStr === todayStr) {
-                const tasksDone   = (state.tasks  || []).some(t => t.done);
-                const goalsDone   = (state.goals  || []).some(g => g.done);
-                const mealsAdded  = (state.meals  || []).length > 0;
-                const habitsDone  = (typeof habits !== 'undefined' ? habits : [])
+                const tasksDone = (state.tasks || []).some(t => t.done);
+                const goalsDone = (state.goals || []).some(g => g.done);
+                const mealsAdded = (state.meals || []).length > 0;
+                const habitsDone = (typeof habits !== 'undefined' ? habits : [])
                     .some(h => h.tracking && h.tracking[dateStr] === 'completed');
-                const noteDone    = !!(typeof notes !== 'undefined' && notes[dateStr] && notes[dateStr].content && notes[dateStr].content.trim());
-                const moveDone    = !!(state.movementNotes && state.movementNotes.trim());
+                const noteDone = !!(typeof notes !== 'undefined' && notes[dateStr] && notes[dateStr].content && notes[dateStr].content.trim());
+                const moveDone = !!(state.movementNotes && state.movementNotes.trim());
                 return tasksDone || goalsDone || mealsAdded || habitsDone || noteDone || moveDone;
             } else {
-                const tHist = (state.history.tasksHistory  || []).find(h => h.date === dateStr);
-                const gHist = (state.history.goalsHistory  || []).find(h => h.date === dateStr);
+                const tHist = (state.history.tasksHistory || []).find(h => h.date === dateStr);
+                const gHist = (state.history.goalsHistory || []).find(h => h.date === dateStr);
                 const cHist = (state.history.caloriesHistory || []).find(h => h.date === dateStr);
                 const habitsDone = (typeof habits !== 'undefined' ? habits : [])
                     .some(h => h.tracking && h.tracking[dateStr] === 'completed');
-                const noteDone   = !!(typeof notes !== 'undefined' && notes[dateStr] && notes[dateStr].content && notes[dateStr].content.trim());
+                const noteDone = !!(typeof notes !== 'undefined' && notes[dateStr] && notes[dateStr].content && notes[dateStr].content.trim());
                 return (tHist && tHist.done > 0) || (gHist && gHist.done > 0) || !!cHist || habitsDone || noteDone;
             }
         }
@@ -533,18 +599,18 @@
         }
 
         function streakColor(n) {
-            if (n <= 0)   return 'rgba(255,255,255,0.25)';
-            if (n < 3)    return 'rgba(255,255,255,0.7)';       // white
-            if (n < 7)    return 'rgba(160,230,140,0.9)';       // soft green
-            if (n < 14)   return 'rgba(80,210,180,0.9)';        // teal
-            if (n < 21)   return 'rgba(80,170,255,0.95)';       // sky blue
-            if (n < 30)   return 'rgba(120,100,255,1)';         // indigo
-            if (n < 45)   return 'rgba(200,80,255,1)';          // violet
-            if (n < 60)   return 'rgba(255,80,180,1)';          // pink
-            if (n < 90)   return 'rgba(255,120,60,1)';          // orange
-            if (n < 120)  return 'rgba(255,210,40,1)';          // gold
-            if (n < 180)  return 'rgba(255,240,120,1)';         // bright yellow
-            if (n < 365)  return 'rgba(255,255,200,1)';         // near white-yellow
+            if (n <= 0) return 'rgba(255,255,255,0.25)';
+            if (n < 3) return 'rgba(255,255,255,0.7)';       // white
+            if (n < 7) return 'rgba(160,230,140,0.9)';       // soft green
+            if (n < 14) return 'rgba(80,210,180,0.9)';        // teal
+            if (n < 21) return 'rgba(80,170,255,0.95)';       // sky blue
+            if (n < 30) return 'rgba(120,100,255,1)';         // indigo
+            if (n < 45) return 'rgba(200,80,255,1)';          // violet
+            if (n < 60) return 'rgba(255,80,180,1)';          // pink
+            if (n < 90) return 'rgba(255,120,60,1)';          // orange
+            if (n < 120) return 'rgba(255,210,40,1)';          // gold
+            if (n < 180) return 'rgba(255,240,120,1)';         // bright yellow
+            if (n < 365) return 'rgba(255,255,200,1)';         // near white-yellow
             return 'rgb(220,255,255)'; // neon white — full year
         }
 
@@ -553,13 +619,13 @@
             if (window.innerWidth > 768) return;
             const get = id => { const e = document.getElementById(id); return e ? e.textContent : '0'; };
             const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
-            set('mStatTasks',    get('sidebarTasks'));
+            set('mStatTasks', get('sidebarTasks'));
             set('mStatComplete', get('sidebarComplete'));
-            set('mStatProt',     get('sidebarProt'));
-            set('mStatCals',     get('sidebarCals'));
-            set('mStatWeekAvg',  get('sidebarWeekAvg'));
-            set('mStatToday',    get('taskCircleCount'));
-            set('mStatWeek',     get('goalCircleCount'));
+            set('mStatProt', get('sidebarProt'));
+            set('mStatCals', get('sidebarCals'));
+            set('mStatWeekAvg', get('sidebarWeekAvg'));
+            set('mStatToday', get('taskCircleCount'));
+            set('mStatWeek', get('goalCircleCount'));
 
             const streak = calculateActivityStreak();
             const el = document.getElementById('mStatStreak');
@@ -583,28 +649,28 @@
             const yesterdayStr = yd.toISOString().split('T')[0];
 
             // Today values (live)
-            const todayTasks  = (state.tasks || []).filter(t => t.done).length;
-            const todayGoals  = (state.goals || []).filter(g => g.done).length;
-            const todayCals   = (state.meals || []).reduce((s, m) => s + (m.calories || 0), 0);
-            const todayProt   = (state.meals || []).reduce((s, m) => s + (m.protein  || 0), 0);
+            const todayTasks = (state.tasks || []).filter(t => t.done).length;
+            const todayGoals = (state.goals || []).filter(g => g.done).length;
+            const todayCals = (state.meals || []).reduce((s, m) => s + (m.calories || 0), 0);
+            const todayProt = (state.meals || []).reduce((s, m) => s + (m.protein || 0), 0);
             const todayHabits = (typeof habits !== 'undefined' ? habits : [])
                 .filter(h => h.tracking && h.tracking[todayStr] === 'completed').length;
 
             // Yesterday values from history snapshots
-            const ytHist  = (state.history.tasksHistory  || []).find(h => h.date === yesterdayStr);
-            const ygHist  = (state.history.goalsHistory  || []).find(h => h.date === yesterdayStr);
-            const ycHist  = (state.history.caloriesHistory || []).find(h => h.date === yesterdayStr);
-            const ypHist  = (state.history.proteinHistory  || []).find(h => h.date === yesterdayStr);
-            const yesterdayTasks  = ytHist ? (ytHist.done  || 0) : 0;
-            const yesterdayGoals  = ygHist ? (ygHist.done  || 0) : 0;
-            const yesterdayCals   = ycHist ? (ycHist.calories || 0) : 0;
-            const yesterdayProt   = ypHist ? (ypHist.protein  || 0) : 0;
+            const ytHist = (state.history.tasksHistory || []).find(h => h.date === yesterdayStr);
+            const ygHist = (state.history.goalsHistory || []).find(h => h.date === yesterdayStr);
+            const ycHist = (state.history.caloriesHistory || []).find(h => h.date === yesterdayStr);
+            const ypHist = (state.history.proteinHistory || []).find(h => h.date === yesterdayStr);
+            const yesterdayTasks = ytHist ? (ytHist.done || 0) : 0;
+            const yesterdayGoals = ygHist ? (ygHist.done || 0) : 0;
+            const yesterdayCals = ycHist ? (ycHist.calories || 0) : 0;
+            const yesterdayProt = ypHist ? (ypHist.protein || 0) : 0;
             const yesterdayHabits = (typeof habits !== 'undefined' ? habits : [])
                 .filter(h => h.tracking && h.tracking[yesterdayStr] === 'completed').length;
 
-            const labels    = ['Tasks', 'Goals', 'Habits', 'Cals', 'Protein'];
+            const labels = ['Tasks', 'Goals', 'Habits', 'Cals', 'Protein'];
             const todayVals = [todayTasks, todayGoals, todayHabits, todayCals, todayProt];
-            const ydVals    = [yesterdayTasks, yesterdayGoals, yesterdayHabits, yesterdayCals, yesterdayProt];
+            const ydVals = [yesterdayTasks, yesterdayGoals, yesterdayHabits, yesterdayCals, yesterdayProt];
 
             if (_mobileCompareChart) { _mobileCompareChart.destroy(); _mobileCompareChart = null; }
 
@@ -676,7 +742,7 @@
         // Patch updateSidebars to also update mobile stats
         // (all scripts already loaded synchronously above, so window.updateSidebars is defined)
         const _origUpdateSidebars = window.updateSidebars;
-        window.updateSidebars = function() {
+        window.updateSidebars = function () {
             _origUpdateSidebars && _origUpdateSidebars.apply(this, arguments);
             updateMobileStats();
         };
@@ -684,4 +750,5 @@
         updateMobileStats();
     </script>
 </body>
+
 </html>

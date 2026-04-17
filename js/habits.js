@@ -675,7 +675,7 @@ function renderHabitsUnifiedChart() {
             scales: {
                 y: {
                     min: 0,
-                    max: 100,
+                    max: 50,
                     ticks: {
                         color: 'rgba(255, 255, 255, 0.2)',
                         font: { size: 8 },

@@ -1,4 +1,74 @@
 let currentStorageSection = 'daybyday';
+let _linkedFileHandle = null;
+let _autoSaveTimer = null;
+
+function _gatherAllData() {
+    return {
+        exportedAt: new Date().toISOString(),
+        state: JSON.parse(localStorage.getItem('dashboardData') || '{}'),
+        habits: JSON.parse(localStorage.getItem('habits') || '[]'),
+        workoutFolders: JSON.parse(localStorage.getItem('workoutFolders') || '{}'),
+        workoutNotesHistory: JSON.parse(localStorage.getItem('workoutNotesHistory') || '{}'),
+        dailyLogs: JSON.parse(localStorage.getItem('axisDailyLogs') || '[]'),
+        dailyNotes: JSON.parse(localStorage.getItem('axisDailyNotes') || '{}'),
+        dockPanels: JSON.parse(localStorage.getItem('dockPanels') || '{}'),
+        planData: JSON.parse(localStorage.getItem('planData') || '{}')
+    };
+}
+
+async function _writeToLinkedFile() {
+    if (!_linkedFileHandle) return;
+    try {
+        const writable = await _linkedFileHandle.createWritable();
+        await writable.write(JSON.stringify(_gatherAllData(), null, 2));
+        await writable.close();
+    } catch (e) {
+        console.error('Auto-save failed:', e);
+        _linkedFileHandle = null;
+        _updateLinkLabel();
+    }
+}
+
+function _scheduleAutoSave() {
+    if (_autoSaveTimer) clearTimeout(_autoSaveTimer);
+    _autoSaveTimer = setTimeout(() => _writeToLinkedFile(), 1000);
+}
+
+function _updateLinkLabel() {
+    const label = document.getElementById('linkFileLabel');
+    if (!label) return;
+    if (_linkedFileHandle) {
+        label.textContent = 'Linked: ' + _linkedFileHandle.name;
+        label.closest('button').classList.add('linked');
+    } else {
+        label.textContent = 'Link Local File';
+        label.closest('button').classList.remove('linked');
+    }
+}
+
+async function linkLocalFile() {
+    if (_linkedFileHandle) {
+        _linkedFileHandle = null;
+        _updateLinkLabel();
+        return;
+    }
+    try {
+        _linkedFileHandle = await window.showSaveFilePicker({
+            suggestedName: 'axis-data.json',
+            types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }]
+        });
+        _updateLinkLabel();
+        await _writeToLinkedFile();
+    } catch (e) {
+        if (e.name !== 'AbortError') console.error('File link failed:', e);
+    }
+}
+
+const _origSetItem = localStorage.setItem.bind(localStorage);
+localStorage.setItem = function(key, value) {
+    _origSetItem(key, value);
+    if (_linkedFileHandle) _scheduleAutoSave();
+};
 
 function openStorageBin() {
     const overlay = document.getElementById('storageBinOverlay');
@@ -30,6 +100,12 @@ function updateSidebarActive(section) {
 
 function renderStorageContent() {
     const container = document.getElementById('storageContent');
+
+    if (currentStorageSection === 'wishlist' || currentStorageSection === 'subscriptions') {
+        renderDockSection(container, currentStorageSection);
+        return;
+    }
+
     const logs = loadDailyLogs();
 
     if (logs.length === 0) {
@@ -44,10 +120,110 @@ function renderStorageContent() {
     }
 }
 
+function renderDockSection(container, panelId) {
+    const dockData = JSON.parse(localStorage.getItem('dockPanels') || '{}');
+    const items = dockData[panelId] || [];
+    const isSubs = panelId === 'subscriptions';
+
+    let html = `<div class="storage-dock-section">
+        <div class="storage-dock-input-row">
+            <input type="text" class="storage-dock-input" id="storageDockInput" placeholder="Add ${panelId === 'wishlist' ? 'to wishlist' : 'subscription'}...">
+        </div>
+        <div class="storage-dock-list">`;
+
+    if (items.length === 0) {
+        html += '<div class="storage-empty">No items yet.</div>';
+    } else {
+        items.forEach((item, i) => {
+            const text = typeof item === 'object' ? item.text : item;
+            const date = typeof item === 'object' ? item.renewalDate : '';
+            let badge = '';
+            if (isSubs && date) {
+                const today = new Date(); today.setHours(0,0,0,0);
+                const due = new Date(date + 'T00:00:00');
+                const days = Math.ceil((due - today) / 86400000);
+                let cls = 'renewal-badge';
+                if (days < 0) cls += ' renewal-past';
+                else if (days <= 3) cls += ' renewal-urgent';
+                else if (days <= 7) cls += ' renewal-soon';
+                const label = days < 0 ? Math.abs(days) + 'd ago' : days === 0 ? 'today' : days + 'd';
+                badge = `<span class="${cls}">${label}</span>`;
+            }
+            html += `<div class="storage-dock-item">
+                <span class="storage-dock-item-text">${escapeHtml(text)}</span>
+                ${isSubs ? `${badge}<input type="date" class="renewal-date-input" value="${date || ''}" onchange="_storageDockSetDate('${panelId}', ${i}, this.value)" title="Renewal date">` : ''}
+                <button class="task-delete" onclick="_storageDockDelete('${panelId}', ${i})">×</button>
+            </div>`;
+        });
+    }
+
+    html += '</div></div>';
+    container.innerHTML = html;
+
+    const input = document.getElementById('storageDockInput');
+    if (input) {
+        input.focus();
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && input.value.trim()) {
+                if (!dockData[panelId]) dockData[panelId] = [];
+                const val = input.value.trim();
+                dockData[panelId].push(isSubs ? { text: val, renewalDate: '' } : val);
+                localStorage.setItem('dockPanels', JSON.stringify(dockData));
+                input.value = '';
+                renderStorageContent();
+            }
+        });
+    }
+}
+
+function _storageDockDelete(panelId, index) {
+    const dockData = JSON.parse(localStorage.getItem('dockPanels') || '{}');
+    if (!dockData[panelId]) return;
+    dockData[panelId].splice(index, 1);
+    localStorage.setItem('dockPanels', JSON.stringify(dockData));
+    renderStorageContent();
+}
+
+function _storageDockSetDate(panelId, index, dateStr) {
+    const dockData = JSON.parse(localStorage.getItem('dockPanels') || '{}');
+    if (!dockData[panelId] || !dockData[panelId][index]) return;
+    const item = dockData[panelId][index];
+    if (typeof item === 'string') {
+        dockData[panelId][index] = { text: item, renewalDate: dateStr };
+    } else {
+        item.renewalDate = dateStr;
+    }
+    localStorage.setItem('dockPanels', JSON.stringify(dockData));
+    renderStorageContent();
+}
+
+function getTodayLiveLog() {
+    const todayKey = getTodayKey();
+    const todayNotes = (typeof notes !== 'undefined' && notes[todayKey]) ? notes[todayKey].content || '' : '';
+    const todayHabits = (typeof habits !== 'undefined') ? habits.map(h => ({
+        name: h.name,
+        status: h.tracking ? h.tracking[todayKey] || null : null
+    })) : [];
+
+    return {
+        date: todayKey,
+        tasks: (state.tasks || []).map(t => ({ text: t.text, done: t.done })),
+        goals: (state.goals || []).map(g => ({ text: g.text, done: g.done, dueDate: g.dueDate })),
+        meals: (state.meals || []).map(m => ({ name: m.name, calories: m.calories, protein: m.protein })),
+        movementNotes: state.movementNotes || '',
+        dailyNote: todayNotes,
+        habits: todayHabits,
+        workoutNotes: workoutNotesHistory[todayKey] || '',
+        isLive: true
+    };
+}
+
 function renderDayByDayView(container, logs) {
     let html = '';
+    const todayLog = getTodayLiveLog();
+    const allLogs = [todayLog, ...logs.filter(l => l.date !== getTodayKey())];
 
-    logs.forEach(log => {
+    allLogs.forEach(log => {
         const d = new Date(log.date + 'T12:00:00');
         const dateLabel = d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
         let sections = '';
@@ -113,8 +289,10 @@ function renderDayByDayView(container, logs) {
         }
 
         if (sections) {
-            html += `<div class="storage-log-card">
-                <div class="storage-log-date">${dateLabel}</div>
+            const liveClass = log.isLive ? ' storage-log-live' : '';
+            const liveTag = log.isLive ? '<span class="storage-live-tag">live</span>' : '';
+            html += `<div class="storage-log-card${liveClass}">
+                <div class="storage-log-date">${dateLabel} ${liveTag}</div>
                 ${sections}
             </div>`;
         }
@@ -129,8 +307,19 @@ function renderDayByDayView(container, logs) {
 
 function renderWorkoutView(container, logs) {
     let html = '';
+    const todayKey = getTodayKey();
+    const todayWorkout = state.movementNotes || workoutNotesHistory[todayKey] || '';
+    if (todayWorkout) {
+        const d = new Date(todayKey + 'T12:00:00');
+        const dateLabel = d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+        html += `<div class="storage-log-card storage-log-live">
+            <div class="storage-log-date">${dateLabel} <span class="storage-live-tag">live</span></div>
+            <div class="storage-note">${escapeHtml(todayWorkout)}</div>
+        </div>`;
+    }
 
     logs.forEach(log => {
+        if (log.date === todayKey) return;
         if (!log.movementNotes && !log.workoutNotes) return;
 
         const d = new Date(log.date + 'T12:00:00');

@@ -63,6 +63,8 @@ body {
 .sidebar-today {
     width: 140px;
     padding: 0.6rem;
+    position: relative;
+    background: transparent !important;
 }
 
 .sidebar-analytics {
@@ -199,6 +201,67 @@ body {
     animation: blink-red 2.5s infinite ease-in-out;
 }
 
+.nebula {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 35% 25%, rgba(45, 90, 247, 0.12) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* STARS COMPONENT STYLES (MATCHING REACT PROMPT) */
+#starsBackground {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: radial-gradient(ellipse at bottom, #262626 0%, #000 100%);
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.star-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    will-change: transform;
+}
+
+.star-layer div {
+    position: absolute;
+    background: transparent;
+    border-radius: 50%;
+}
+
+@keyframes stars-scroll {
+    from { transform: translateY(0); }
+    to { transform: translateY(-2000px); }
+}
+
+@keyframes subtle-twinkle {
+    0%, 100% { opacity: 0.5; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1); }
+}
+
+.stars-moving {
+    animation: stars-scroll linear infinite;
+}
+
+.stars-twinkle {
+    animation: subtle-twinkle var(--twinkle-duration, 1.5s) infinite alternate ease-in-out;
+}
+
+.dashboard-main {
+    position: relative;
+    background: transparent;
+}
 
 .sidebar-divider {
     height: 1px;
@@ -494,7 +557,7 @@ body.plan-locked .plan-lock-btn {
 
 /* GOALS */
 .goal-title-dotted {
-    border-bottom: 1px dotted rgba(255,255,255,0.3);
+    border-bottom: 1px dotted rgba(255, 255, 255, 0.3);
     cursor: pointer;
     padding-bottom: 1px;
 }
@@ -508,7 +571,7 @@ body.plan-locked .plan-lock-btn {
     position: absolute;
     z-index: 20;
     background: #111;
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 4px;
     padding: 0.15rem 0;
     margin-top: 0.2rem;
@@ -523,12 +586,12 @@ body.plan-locked .plan-lock-btn {
     font-size: 0.55rem;
     cursor: pointer;
     white-space: nowrap;
-    color: rgba(255,255,255,0.5);
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .goal-add-option:hover {
-    background: rgba(255,255,255,0.06);
-    color: rgba(255,255,255,0.9);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .goal-form-row {
@@ -542,10 +605,10 @@ body.plan-locked .plan-lock-btn {
 }
 
 .goal-date-input {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 4px;
-    color: rgba(255,255,255,0.5);
+    color: rgba(255, 255, 255, 0.5);
     font-family: 'Share Tech Mono', monospace;
     font-size: 0.55rem;
     padding: 0.3rem 0.4rem;
@@ -561,7 +624,7 @@ body.plan-locked .plan-lock-btn {
     padding: 0.4rem 0.5rem;
     margin-bottom: 0.3rem;
     border-radius: 4px;
-    background: rgba(255,255,255,0.015);
+    background: rgba(255, 255, 255, 0.015);
 }
 
 .goal-tracked-top {
@@ -579,9 +642,9 @@ body.plan-locked .plan-lock-btn {
 
 .goal-tracked-done-btn {
     background: none;
-    border: 1px solid rgba(255,255,255,0.12);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 3px;
-    color: rgba(255,255,255,0.3);
+    color: rgba(255, 255, 255, 0.3);
     cursor: pointer;
     font-size: 0.5rem;
     width: 18px;
@@ -607,7 +670,7 @@ body.plan-locked .plan-lock-btn {
 .goal-day {
     width: 16px;
     height: 16px;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 2px;
     font-size: 0.4rem;
     display: flex;
@@ -619,29 +682,29 @@ body.plan-locked .plan-lock-btn {
 }
 
 .goal-day:hover {
-    border-color: rgba(255,255,255,0.25);
+    border-color: rgba(255, 255, 255, 0.25);
 }
 
 .goal-day-done {
-    background: rgba(74,222,128,0.15);
-    border-color: rgba(74,222,128,0.3);
-    color: rgba(74,222,128,0.8);
+    background: rgba(74, 222, 128, 0.15);
+    border-color: rgba(74, 222, 128, 0.3);
+    color: rgba(74, 222, 128, 0.8);
 }
 
 .goal-day-today {
-    border-color: rgba(255,255,255,0.25);
+    border-color: rgba(255, 255, 255, 0.25);
 }
 
 .goal-progress-bar {
     height: 3px;
-    background: rgba(255,255,255,0.06);
+    background: rgba(255, 255, 255, 0.06);
     border-radius: 2px;
     overflow: hidden;
 }
 
 .goal-progress-fill {
     height: 100%;
-    background: rgba(74,222,128,0.5);
+    background: rgba(74, 222, 128, 0.5);
     border-radius: 2px;
     transition: width 0.3s ease;
 }
@@ -651,25 +714,25 @@ body.plan-locked .plan-lock-btn {
     font-size: 0.5rem;
     padding: 0.1rem 0.3rem;
     border-radius: 3px;
-    background: rgba(255,255,255,0.06);
-    color: rgba(255,255,255,0.35);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.35);
     flex-shrink: 0;
     white-space: nowrap;
 }
 
 .goal-due-badge.goal-due-soon {
-    background: rgba(255,200,50,0.12);
-    color: rgba(255,200,50,0.85);
+    background: rgba(255, 200, 50, 0.12);
+    color: rgba(255, 200, 50, 0.85);
 }
 
 .goal-due-badge.goal-due-urgent {
-    background: rgba(255,80,80,0.12);
-    color: rgba(255,80,80,0.85);
+    background: rgba(255, 80, 80, 0.12);
+    color: rgba(255, 80, 80, 0.85);
 }
 
 .goal-due-badge.goal-due-past {
-    background: rgba(255,50,50,0.18);
-    color: rgba(255,80,80,1);
+    background: rgba(255, 50, 50, 0.18);
+    color: rgba(255, 80, 80, 1);
 }
 
 /* NUTRITION SECTION */
@@ -1652,13 +1715,29 @@ input:checked+.slider:before {
 }
 
 @keyframes streak-pulse {
-    0%, 100% { opacity: 0.85; }
-    50% { opacity: 1; }
+
+    0%,
+    100% {
+        opacity: 0.85;
+    }
+
+    50% {
+        opacity: 1;
+    }
 }
 
 @keyframes streak-glow {
-    0%, 100% { opacity: 0.9; filter: brightness(1); }
-    50% { opacity: 1; filter: brightness(1.2); }
+
+    0%,
+    100% {
+        opacity: 0.9;
+        filter: brightness(1);
+    }
+
+    50% {
+        opacity: 1;
+        filter: brightness(1.2);
+    }
 }
 
 .habit-streak.streak-up {
@@ -1666,9 +1745,17 @@ input:checked+.slider:before {
 }
 
 @keyframes streak-bump {
-    0% { transform: scale(1); }
-    40% { transform: scale(1.5); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(1);
+    }
+
+    40% {
+        transform: scale(1.5);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 .habit-bottom-row {
@@ -2080,10 +2167,10 @@ input:checked+.slider:before {
 }
 
 .renewal-date-input {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 4px;
-    color: rgba(255,255,255,0.5);
+    color: rgba(255, 255, 255, 0.5);
     font-family: 'Share Tech Mono', monospace;
     font-size: 0.55rem;
     padding: 0.15rem 0.3rem;
@@ -2101,25 +2188,25 @@ input:checked+.slider:before {
     font-size: 0.55rem;
     padding: 0.1rem 0.35rem;
     border-radius: 3px;
-    background: rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.45);
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.45);
     flex-shrink: 0;
     white-space: nowrap;
 }
 
 .renewal-badge.renewal-soon {
-    background: rgba(255,200,50,0.15);
-    color: rgba(255,200,50,0.9);
+    background: rgba(255, 200, 50, 0.15);
+    color: rgba(255, 200, 50, 0.9);
 }
 
 .renewal-badge.renewal-urgent {
-    background: rgba(255,80,80,0.15);
-    color: rgba(255,80,80,0.9);
+    background: rgba(255, 80, 80, 0.15);
+    color: rgba(255, 80, 80, 0.9);
 }
 
 .renewal-badge.renewal-past {
-    background: rgba(255,50,50,0.2);
-    color: rgba(255,80,80,1);
+    background: rgba(255, 50, 50, 0.2);
+    color: rgba(255, 80, 80, 1);
 }
 
 /* SPLIT LAYOUT */
@@ -3234,6 +3321,43 @@ input:checked+.slider:before {
     padding: 4rem 1rem;
 }
 
+.storage-dock-section {
+    padding: 1rem;
+}
+
+.storage-dock-input-row {
+    margin-bottom: 1rem;
+}
+
+.storage-dock-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--white);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.65rem;
+    padding: 0.4rem 0;
+    outline: none;
+}
+
+.storage-dock-input::placeholder {
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.storage-dock-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    font-size: 0.65rem;
+}
+
+.storage-dock-item-text {
+    flex: 1;
+}
+
 .storage-log-card {
     padding: 1.2rem 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
@@ -3248,6 +3372,25 @@ input:checked+.slider:before {
     font-weight: 600;
     margin-bottom: 0.6rem;
     letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.storage-log-live {
+    border-left: 2px solid rgba(255, 255, 255, 0.15);
+    padding-left: 1rem;
+}
+
+.storage-live-tag {
+    font-size: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.35;
+    font-weight: 600;
+    padding: 0.1rem 0.35rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
 }
 
 .storage-log-chips {
@@ -3323,6 +3466,7 @@ input:checked+.slider:before {
     .storage-fullscreen {
         flex-direction: column;
     }
+
     .storage-sidebar {
         width: 100%;
         min-width: unset;
@@ -3330,20 +3474,24 @@ input:checked+.slider:before {
         border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         padding: 1rem 0 0.5rem;
     }
+
     .storage-sidebar-header {
         padding: 0 1rem 0.8rem;
     }
+
     .storage-sidebar-nav {
         flex-direction: row;
         overflow-x: auto;
         padding: 0.3rem 0.75rem;
         gap: 4px;
     }
+
     .storage-nav-item {
         white-space: nowrap;
         font-size: 0.65rem;
         padding: 0.4rem 0.6rem;
     }
+
     .storage-main {
         padding: 1.2rem 1rem;
     }
